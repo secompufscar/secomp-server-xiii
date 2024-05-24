@@ -25,12 +25,3 @@ facilitado e dinâmico dos seus recursos.
  O check-in no evento será realizado através de um QRCode;
 
 
-
-#Anotações 
-
-
-200 => Sucesso
-300 => Redirecionamento 
-400 => Erro do cliente
-500 => Erro do servidor
- 
