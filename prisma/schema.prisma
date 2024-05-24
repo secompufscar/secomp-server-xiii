@@ -3,29 +3,35 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
 model Event {
-  id  String @id @default(uuid())
-  titulo  String
-  detalhes String?
-  vagas Int 
-  slug String @unique
+  id        String  @id @default(uuid())
+  titulo    String
+  detalhes  String?
+  vagas     Int
+  slug      String  @unique
   inscritos User[]
 
   @@map("events")
 }
 
 model User {
-  id  Int @id @default(autoincrement())
-  nome  String
-  email String
-  senha String 
+  id      Int    @id @default(autoincrement())
+  nome    String
+  email   String
+  senha   String
+  tipo    Tipo  @default(USER)
   eventId String @map("event_id")
 
   event Event @relation(fields: [eventId], references: [id])
 
   @@map("users")
+}
+
+enum Tipo {
+  USER
+  ADMIN
 }
