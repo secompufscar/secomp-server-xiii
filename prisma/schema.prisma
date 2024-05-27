@@ -1,3 +1,9 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -21,12 +27,12 @@ model Event {
 model User {
   id      Int    @id @default(autoincrement())
   nome    String
-  email   String
-  senha   String
+  email   String @unique
+  senha   String 
   tipo    Tipo  @default(USER)
-  eventId String @map("event_id")
+  eventId String? @map("event_id")
 
-  event Event @relation(fields: [eventId], references: [id])
+  event Event? @relation(fields: [eventId], references: [id])
 
   @@map("users")
 }

@@ -1,9 +1,0 @@
-POST http://localhost:3306/events
-Content-Type: application/json
-
-
-{
-    "titulo": "Minicurso",
-    "detalhes": "Evento",
-    "vagas":30
-}
