@@ -9,8 +9,9 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider            = "mysql"
+  url                 = env("DATABASE_URL")
+  shadowDatabaseUrl   = env("SHADOW_DATABASE_URL")
 }
 
 model Event {
@@ -25,11 +26,11 @@ model Event {
 }
 
 model User {
-  id      Int    @id @default(autoincrement())
+  id      Int     @id @default(autoincrement())
   nome    String
-  email   String @unique
+  email   String  @unique
   senha   String 
-  tipo    Tipo  @default(USER)
+  tipo    Tipo    @default(USER)
   eventId String? @map("event_id")
 
   event Event? @relation(fields: [eventId], references: [id])

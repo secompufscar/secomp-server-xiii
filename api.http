@@ -1,0 +1,45 @@
+## Testando criação de usuário
+POST http://localhost:3000/api/auth/signup
+Content-Type: application/json
+
+{
+    "email": "teste@teste.com",
+    "nome": "teste jr",
+    "senha": "senha"
+}
+
+### Testando login de usuário já cadastrado
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "teste@teste.com",
+    "senha": "senha"
+}
+
+### Testando login de usuário não cadastrado
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "erro@teste.com",
+    "senha": "senha_erro"
+}
+
+### Testando login de usuário com senha errada
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "teste@teste.com",
+    "senha": "senha_errada"
+}
+
+### Testando login com sucesso
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "teste@teste.com",
+    "senha": "senha"
+}
