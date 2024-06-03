@@ -38,6 +38,15 @@ model User {
   @@map("users")
 }
 
+model Category {
+  id        String   @id @default(uuid())
+  nome      String   @db.VarChar(255)
+  createdAt DateTime @default(now()) @db.DateTime(6)
+  updatedAt DateTime @updatedAt @db.Timestamp
+
+  @@map("category")
+}
+
 enum Tipo {
   USER
   ADMIN
