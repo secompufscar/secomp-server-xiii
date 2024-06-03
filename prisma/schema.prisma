@@ -39,13 +39,30 @@ model User {
 }
 
 model Category {
-  id        String   @id @default(uuid())
-  nome      String   @db.VarChar(255)
-  createdAt DateTime @default(now()) @db.DateTime(6)
-  updatedAt DateTime @updatedAt @db.Timestamp
+  id           String     @id @default(uuid())
+  nome         String     @db.VarChar(255)
+  createdAt    DateTime   @default(now()) @db.DateTime(6)
+  updatedAt    DateTime   @updatedAt @db.Timestamp
+  atividades   Activity[]
 
   @@map("category")
 }
+
+model Activity {
+  id                String     @id @default(uuid())
+  nome              String     @db.VarChar(255)
+  data              DateTime?   @db.Timestamp(6)
+  palestranteNome   String     @db.VarChar(255)
+  categoriaId       String
+  createdAt         DateTime   @default(now()) @db.DateTime(6)
+  updatedAt         DateTime   @updatedAt @db.Timestamp
+
+  @@map("atividades")
+  
+  // Relacionamentos
+  categoria     Category   @relation(fields: [categoriaId], references: [id])
+}
+
 
 enum Tipo {
   USER
