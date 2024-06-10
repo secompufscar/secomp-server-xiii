@@ -3,17 +3,16 @@ import { prismaClient } from '..';
 import {hashSync, compareSync} from 'bcrypt';
 import * as jwt from "jsonwebtoken";
 import { JWT_SECRET } from '../secrets';
-import { BadRequestsException } from '../exceptions/bad-requests';
-import { ErrorCode } from '../exceptions/root';
+import { BadRequestsException, IncorrectPasswordError,  UserNotFoundError } from '../exceptions/exceptions';
 
 export const signup = async (req: Request, res: Response) => {
     const {email, senha, nome} = req.body
 
-    try{
+    try { 
         let user = await prismaClient.user.findFirst({where: {email}})
 
         if (user) 
-            throw new BadRequestsException('Usuário já existe', ErrorCode.USER_ALREADY_EXISTS)
+            throw new BadRequestsException('Usuário já existe')
         
         user = await prismaClient.user.create({
             data:{
@@ -23,11 +22,11 @@ export const signup = async (req: Request, res: Response) => {
                 tipo: 'USER'
             }
         })
-        res.json(user)
+        res.status(201).json(user)
     }
-    catch(error) {
+    catch(error: any) {
         console.error("Erro registrando novo usuário: ", error)
-        res.status(400).json( { error: error })
+        res.status(error.statusCode).json( { message: error.message, statusCode: error.statusCode })
     }
 }
 
@@ -39,24 +38,33 @@ export const login = async (req: Request, res: Response) => {
     try {
         let erro = ""
         if (!user) {
-            erro = "Usuário não existe"
-            throw new BadRequestsException(erro, ErrorCode.USER_NOT_FOUND)
+            erro = "Usuário ou senha inválidos"
+            throw new UserNotFoundError(erro)
         }
     
-        if (!compareSync(senha, user.senha)) {
-            erro = "Senha incorreta"
-            throw new BadRequestsException(erro, ErrorCode.INCORRET_PASSWORD)
+        const verifyPsw = await compareSync(senha, user.senha)
+        if (!verifyPsw) {
+            erro = "Usuário ou senha inválidos"
+            throw new IncorrectPasswordError(erro)
         }
 
-        const token = jwt.sign({
-            userId: user.id
-        }, JWT_SECRET)
+        const token = jwt.sign( { userId: user.id }, JWT_SECRET, {
+            expiresIn: "2h"
+        })
     
-        res.json({ user })
+        const { senha:_, ...userLogin } = user
+        res.status(200).json({ 
+            user: userLogin,
+            token: token
+        })
     }
-    catch(error) {
-        console.error("Erro em login: ", error)
-        res.status(400).json( { error: error })
+    catch(error: any) {
+        console.error("Erro em login: ", error.message)
+        res.status(error.statusCode).json( { message: error.message, statusCode: error.statusCode })
     }
 
+}
+
+export const getProfile = async(req: Request, res: Response) => {
+    return res.json(req.user)
 }
