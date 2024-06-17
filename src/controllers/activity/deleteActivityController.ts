@@ -10,6 +10,16 @@ export const deleteAtividade = async (req: Request, res: Response) => {
 
   try {
     activityIdSchema.parse({ id });
+
+    const userAtActivities = await prisma.userAtActivity.findMany({
+      where: {
+        activityId: id,
+      },
+    });
+
+    if (userAtActivities.length > 0) {
+      return res.status(400).json({ message: 'Não é possível excluir esta atividade pois já possui associações de usuários.' });
+    }
     
     const deletedAtividade = await prisma.activity.delete({
       where: { id },

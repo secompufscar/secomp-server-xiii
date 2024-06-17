@@ -6,7 +6,7 @@ import { createActivitySchema } from '../../schemas/activitySchema';
 const prisma = new PrismaClient();
 
 export const createAtividade = async (req: Request, res: Response) => {
-  const { nome, data, palestranteNome, categoriaId } = req.body;
+  const { nome, data, palestranteNome, categoriaId, vagas, detalhes } = req.body;
 
   try {
 
@@ -20,6 +20,8 @@ export const createAtividade = async (req: Request, res: Response) => {
         data: newData, 
         palestranteNome,
         categoriaId,
+        vagas,
+        detalhes,
       },
     });
     res.status(201).json(newAtividade);

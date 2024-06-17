@@ -14,29 +14,22 @@ datasource db {
   shadowDatabaseUrl   = env("SHADOW_DATABASE_URL")
 }
 
-model Event {
-  id        String  @id @default(uuid())
-  titulo    String
-  detalhes  String?
-  vagas     Int
-  slug      String  @unique
-  inscritos User[]
 
-  @@map("events")
-}
 
 model User {
-  id      Int     @id @default(autoincrement())
-  nome    String
-  email   String  @unique
-  senha   String 
-  tipo    Tipo    @default(USER)
-  eventId String? @map("event_id")
+  id              String     @id @default(uuid())
+  nome            String
+  email           String      @unique
+  senha           String 
+  tipo            Tipo        @default(USER)
+  createdAt       DateTime   @default(now()) @db.DateTime(6)
+  updatedAt       DateTime?   @updatedAt @db.Timestamp
+  userAtActivity  UserAtActivity[]
 
-  event Event? @relation(fields: [eventId], references: [id])
 
   @@map("users")
 }
+
 
 model Category {
   id           String     @id @default(uuid())
@@ -48,19 +41,41 @@ model Category {
   @@map("category")
 }
 
+
 model Activity {
   id                String     @id @default(uuid())
   nome              String     @db.VarChar(255)
   data              DateTime?   @db.Timestamp(6)
+  vagas             Int?
+  detalhes          String?
   palestranteNome   String     @db.VarChar(255)
   categoriaId       String
   createdAt         DateTime   @default(now()) @db.DateTime(6)
   updatedAt         DateTime   @updatedAt @db.Timestamp
+  participantes     UserAtActivity[]
 
   @@map("atividades")
   
   // Relacionamentos
   categoria     Category   @relation(fields: [categoriaId], references: [id])
+  
+}
+
+model UserAtActivity {
+  id              String     @id @default(uuid())
+  presente        Boolean
+  inscricaoPrevia Boolean
+  listaEspera     Boolean
+  createdAt       DateTime  @default(now()) @db.DateTime(6)
+  updatedAt       DateTime  @updatedAt @db.Timestamp
+
+  // Relacionamentos com User e Activity
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  activityId  String
+  activity    Activity  @relation(fields: [activityId], references: [id])
+
+  @@map("userAtActivity")
 }
 
 
