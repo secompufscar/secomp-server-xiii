@@ -23,3 +23,9 @@ export class UnauthorizedUserError extends ApiError {
         super(message, ErrorsCode.UNAUTHORIZED)
     }
 }
+
+export class NoJWTSecretSpecifiedError extends ApiError {
+    constructor(message: string) {
+        super(message, ErrorsCode.UNAUTHORIZED)
+    }
+}

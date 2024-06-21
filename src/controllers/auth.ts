@@ -3,12 +3,15 @@ import { prismaClient } from '..';
 import {hashSync, compareSync} from 'bcrypt';
 import * as jwt from "jsonwebtoken";
 import { JWT_SECRET } from '../secrets';
-import { BadRequestsException, IncorrectPasswordError,  UserNotFoundError } from '../exceptions/exceptions';
+import { BadRequestsException, IncorrectPasswordError,  UserNotFoundError, NoJWTSecretSpecifiedError } from '../exceptions/exceptions';
 
 export const signup = async (req: Request, res: Response) => {
     const {email, senha, nome} = req.body
 
     try { 
+        if(!JWT_SECRET) 
+            throw new NoJWTSecretSpecifiedError('Chave JWT não identificada')
+
         let user = await prismaClient.user.findFirst({where: {email}})
 
         if (user) 
@@ -32,10 +35,13 @@ export const signup = async (req: Request, res: Response) => {
 
 export const login = async (req: Request, res: Response) => {
     const {email, senha}= req.body;
-
+    console.log(JWT_SECRET)
     let user = await prismaClient.user.findFirst({where: {email}})
 
     try {
+        if(!JWT_SECRET) 
+            throw new NoJWTSecretSpecifiedError('Chave JWT não identificada')
+
         let erro = ""
         if (!user) {
             erro = "Usuário ou senha inválidos"

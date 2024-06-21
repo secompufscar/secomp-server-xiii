@@ -8,6 +8,7 @@ import userAtActivitiesRoutes from './routes/userAtActivities'
 import authRoutes from './routes/auth';
 import bodyParser from 'body-parser';
 import errorHandler from './middlewares/errorHandler'; 
+import adminRoutes from './routes/admin';
 
 
 const app:Express = express()
@@ -19,6 +20,7 @@ app.use('/api', rootRouter);
 app.use('/auth', authRoutes);
 app.use('/categories', categoryRoutes);
 app.use('/activities', activityRoutes);
+app.use('/admin', adminRoutes)
 app.use('/userAtActivities', userAtActivitiesRoutes)
 
 app.use(errorHandler);
