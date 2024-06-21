@@ -7,7 +7,7 @@ import * as jwt from "jsonwebtoken"
 import { ApiError } from "../exceptions/api-errors";
 
 type jwtPayload = {
-    id: number
+    id: string
 }
 
 export async function authMiddleware(req: Request, res: Response, next: NextFunction) {
