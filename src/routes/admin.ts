@@ -1,15 +1,15 @@
-import {Router} from 'express'
-import { createUser } from '../controllers/admin/createUser'
-import { updateUser } from '../controllers/admin/updateUser'
-import { deleteUserByEmail } from '../controllers/admin/deleteUser'
+import { Router } from 'express'
+
+import adminController from '../controllers/adminController'
+
 import { adminMiddleware } from '../middlewares/adminMiddleware'
 
-const adminRoutes: Router = Router()
+const routes = Router()
 
-adminRoutes.use(adminMiddleware)
-adminRoutes.post('/create', createUser)
-adminRoutes.put('/edit', updateUser)
-adminRoutes.delete('/delete', deleteUserByEmail)
+routes.use(adminMiddleware)
+routes.post('/create', adminController.create)
+routes.put('/edit', adminController.update)
+routes.delete('/delete', adminController.delete)
 
 
-export default adminRoutes
+export default routes

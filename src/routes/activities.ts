@@ -1,16 +1,18 @@
-import express from 'express';
-import activityController from '../controllers/activity/activityController';
-import { createCategorySchema } from '../schemas/categorySchema';
-import validate from '../middlewares/validate';
-import { createActivitySchema, activityIdSchema, updateActivitySchema} from '../schemas/activitySchema';
+import { Router } from 'express'
+
+import activitiesController from '../controllers/activitiesController'
+
+import { createActivitySchema, activityIdSchema, updateActivitySchema} from '../schemas/activitySchema'
+
 import { authMiddleware } from '../middlewares/authMiddleware'
+import validate from '../middlewares/validate'
 
-const router = express.Router();
+const routes = Router()
 
-router.post('/', authMiddleware, validate(createActivitySchema), activityController.createAtividade);
-router.get('/', authMiddleware, activityController.getAllAtividades);
-router.get('/:id', authMiddleware, validate(undefined, activityIdSchema),activityController.getActivityById);
-router.delete('/:id', authMiddleware, validate(undefined, activityIdSchema) ,activityController.deleteAtividade);
-router.put('/:id', authMiddleware, validate(updateActivitySchema, activityIdSchema),activityController.updateAtividade);
+routes.get('/', authMiddleware, activitiesController.list)
+routes.get('/:id', authMiddleware, validate(undefined, activityIdSchema), activitiesController.findById)
+routes.post('/', authMiddleware, validate(createActivitySchema), activitiesController.create)
+routes.put('/:id', authMiddleware, validate(updateActivitySchema, activityIdSchema), activitiesController.update)
+routes.delete('/:id', authMiddleware, validate(undefined, activityIdSchema), activitiesController.delete)
 
-export default router;
+export default routes

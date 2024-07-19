@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from "express";
-import { UnauthorizedUserError } from "../exceptions/exceptions";
+import { UnauthorizedUserError } from "../utils/exceptions";
 import { User } from "@prisma/client";
 import { prismaClient } from "..";
 import { JWT_SECRET } from "../secrets";
 import * as jwt from "jsonwebtoken"
-import { ApiError } from "../exceptions/api-errors";
+import { ApiError } from "../utils/api-errors";
 
 type jwtPayload = {
     id: number

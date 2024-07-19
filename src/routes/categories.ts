@@ -1,15 +1,18 @@
-import express from 'express';
-import categoryController from '../controllers/category/categoriesController';
-import validate from '../middlewares/validate'
-import { createCategorySchema, updateCategorySchema, categoryIdSchema } from '../schemas/categorySchema';
+import { Router } from 'express'
+
+import categoriesController from '../controllers/categoriesController'
+
+import { createCategorySchema, updateCategorySchema, categoryIdSchema } from '../schemas/categorySchema'
+
 import { authMiddleware } from '../middlewares/authMiddleware'
+import validate from '../middlewares/validate'
 
-const router = express.Router();
+const routes = Router()
 
-router.post('/',authMiddleware ,validate(createCategorySchema), categoryController.createCategory);
-router.get('/', authMiddleware, categoryController.getAllCategories);
-router.get('/:id',authMiddleware, validate(undefined, categoryIdSchema), categoryController.getCategoryById)
-router.delete('/:id',authMiddleware, validate(undefined, categoryIdSchema), categoryController.deleteCategory);
-router.put('/:id',authMiddleware, validate(updateCategorySchema, categoryIdSchema),categoryController.updateCategory);
+routes.get('/', authMiddleware, categoriesController.list)
+routes.get('/:id',authMiddleware, validate(undefined, categoryIdSchema), categoriesController.findById)
+routes.post('/',authMiddleware ,validate(createCategorySchema), categoriesController.create)
+routes.put('/:id',authMiddleware, validate(updateCategorySchema, categoryIdSchema),categoriesController.update)
+routes.delete('/:id',authMiddleware, validate(undefined, categoryIdSchema), categoriesController.delete)
 
-export default router;
+export default routes

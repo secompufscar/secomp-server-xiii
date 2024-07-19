@@ -1,8 +1,21 @@
-import {Router} from "express";
-import authRoutes from "./auth";
+import { Router } from "express"
 
-const rootRouter: Router = Router()
+import usersRoutes from "./users"
+import activitiesRoutes from "./activities"
+import adminRoutes from "./admin"
+import usersAtActivitiesRoutes from "./usersAtActivities"
+import categoriesRoutes from "./categories"
+import diretoriasRoutes from "./diretorias"
 
-rootRouter.use('/auth', authRoutes)
+const routes = Router()
 
-export default rootRouter;
+routes.use('/activities', activitiesRoutes)
+routes.use('/users', usersRoutes)
+routes.use('/categories', categoriesRoutes)
+routes.use('/userAtActivities', usersAtActivitiesRoutes)
+// routes.use('/admin', adminRoutes)
+routes.use('/diretorias', diretoriasRoutes)
+
+routes.get('/', (_, response) => response.status(200).json({ message: "API SECOMP XII" }))
+
+export default routes

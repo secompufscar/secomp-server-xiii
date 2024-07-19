@@ -1,34 +1,18 @@
-import express, {Express, Request, Response} from 'express'
-import { PORT } from './secrets'
-import rootRouter from './routes'
-import { PrismaClient } from '@prisma/client';
-import categoryRoutes from './routes/categories';
-import activityRoutes from './routes/activities';
-import userAtActivitiesRoutes from './routes/userAtActivities'
-import authRoutes from './routes/auth';
-import bodyParser from 'body-parser';
-import errorHandler from './middlewares/errorHandler'; 
-import adminRoutes from './routes/admin';
+import express from 'express'
 
+import errorHandler from './middlewares/errorHandler'
+import routes from './routes'
 
-const app:Express = express()
+const app = express()
 
 app.use(express.json())
-app.use(bodyParser.json());
 
-app.use('/api', rootRouter);
-app.use('/auth', authRoutes);
-app.use('/categories', categoryRoutes);
-app.use('/activities', activityRoutes);
-app.use('/admin', adminRoutes)
-app.use('/userAtActivities', userAtActivitiesRoutes)
+app.use('/api/v1', routes);
 
 app.use(errorHandler);
 
+const PORT  = process.env.PORT || 3333
 
-export const prismaClient = new PrismaClient({
-    log: ['query']
+app.listen(PORT, () => {
+    console.log(`> Servidor rodando na porta ${PORT}`)
 })
-
-app.listen(PORT, () => (console.log('App working')))
-
