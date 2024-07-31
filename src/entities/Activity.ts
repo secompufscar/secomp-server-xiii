@@ -4,6 +4,6 @@ export interface Activity {
     data: Date
     palestranteNome: String
     categoriaId: number
-    createdAt: string
-    updatedAt: string
+    createdAt: Date
+    updatedAt: Date | null
 }

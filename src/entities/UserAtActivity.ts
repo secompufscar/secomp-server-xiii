@@ -5,6 +5,6 @@ export interface UserAtActivity {
     listaEspera: String
     userId: number
     activityId: number
-    createdAt: string
-    updatedAt: string
+    createdAt: Date
+    updatedAt: Date | null
 }

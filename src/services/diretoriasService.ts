@@ -9,7 +9,7 @@ import { Activity } from "../entities/Activity"
 import { User } from "../entities/User"
 
 export default {
-    async findById(id: number) {
+    async findById(id: string) {
         const diretoria = await diretoriasRepository.findById(id)
 
         if (!diretoria) {

@@ -19,7 +19,7 @@ export default {
         return response
     },
 
-    async findById(id: number): Promise<Category> {
+    async findById(id: string): Promise<Category> {
         const response = await client.category.findFirst({
             where: {
                 id

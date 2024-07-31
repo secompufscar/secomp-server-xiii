@@ -4,6 +4,7 @@ export interface User {
     email: string
     senha: string
     tipo: string
-    createdAt: string
-    updatedAt: string    
+    qrCode: string | null
+    createdAt: Date
+    updatedAt: Date | null
 }
