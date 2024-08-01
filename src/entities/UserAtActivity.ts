@@ -1,10 +1,10 @@
 export interface UserAtActivity {
-    id: String
+    id: string
     presente: boolean
     inscricaoPrevia: boolean
     listaEspera: boolean
-    userId: String
-    activityId: String
+    userId: string
+    activityId: string
     createdAt: Date
     updatedAt: Date | null
 }

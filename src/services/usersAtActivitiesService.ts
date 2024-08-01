@@ -17,7 +17,7 @@ export default {
     },
 
     async create({ userId, activityId, presente, inscricaoPrevia, listaEspera }: CreateUserAtActivityDTOS) {
-        const existingUserAtActivity = await usersAtActivitiesRepository.findManyByUserIdAndActivityId(userId, activityId)
+        const existingUserAtActivity = await usersAtActivitiesRepository.findByUserIdAndActivityId(userId, activityId)
 
         if (existingUserAtActivity) {
             throw new Error('Usuário já está associado a esta atividade.')

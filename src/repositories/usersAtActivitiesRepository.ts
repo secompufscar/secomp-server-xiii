@@ -39,21 +39,22 @@ export default {
     async findManyByUserId(userId: string): Promise<UserAtActivity[]> {
         const response = await client.userAtActivity.findMany({
             where: {
-                userId: userId
+                userId,
             },
             include: {
                 user: true
             }
+        
         })
 
         return response
     },
 
-    async findManyByUserIdAndActivityId(userId: string, activityId: string): Promise<UserAtActivity[]> {
-        const response = await client.userAtActivity.findMany({
+    async findByUserIdAndActivityId(userId: string, activityId: string): Promise<UserAtActivity | null> {
+        const response = await client.userAtActivity.findFirst({
             where: {
-                userId: userId,
-                activityId: activityId
+                userId,
+                activityId,
             }
         })
 

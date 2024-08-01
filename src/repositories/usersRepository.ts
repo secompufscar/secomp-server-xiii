@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client"
 
 import { User } from "../entities/User"
 
-import { CreateUserDTOS, UpdateUserDTOS } from "../dtos/usersDtos"
+import { CreateUserDTOS, UpdateQrCodeUsersDTOS, UpdateUserDTOS } from "../dtos/usersDtos"
 
 const client = new PrismaClient()
 
@@ -58,5 +58,11 @@ export default {
                 id
             }
         })
-    }
+    },
+    async updateQRCode(id: string, data: UpdateQrCodeUsersDTOS): Promise<UpdateQrCodeUsersDTOS> {
+        return await client.user.update({
+            data,
+            where: { id }
+        });
+    },
 }
