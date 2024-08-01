@@ -4,7 +4,7 @@ import usersAtActivitiesRepository from "../repositories/usersAtActivitiesReposi
 import { Activity } from "../entities/Activity"
 
 export default {
-    async findById(id: number) {
+    async findById(id: string) {
         const atividade = await activitiesRepository.findById(id)
 
         if (!atividade) {
@@ -35,7 +35,7 @@ export default {
         return newAtividade
     },
 
-    async update(id: number, { nome, data, palestranteNome, categoriaId }: Activity) {
+    async update(id: string, { nome, data, palestranteNome, categoriaId }: Activity) {
         const existingAtividade = await activitiesRepository.findById(id)
 
         if (!existingAtividade) {
@@ -52,7 +52,7 @@ export default {
         return updatedAtividade
     },
 
-    async delete(id: number) {
+    async delete(id: string) {
         const userAtActivities = await usersAtActivitiesRepository.findByActivityId(id)
 
         if (userAtActivities.length > 0) {

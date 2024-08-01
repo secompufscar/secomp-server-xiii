@@ -26,7 +26,7 @@ export default {
   async update(request: Request, response: Response) {
     const { id } = request.params;
 
-    const data = await activitiesService.update(request.body)
+    const data = await activitiesService.update(id, request.body)
 
     response.status(200).json(data)
   },
