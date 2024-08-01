@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import checkInService from '../services/checkInService';
+import checkInRepository from '../repositories/checkInRepository';
 
 export default {
     async checkIn(request: Request, response: Response) {
@@ -12,6 +13,13 @@ export default {
         response.status(200).json(data);
  
     },
+    async listParticipants(request: Request, response: Response) {
+        const { activityId } = request.params;
+
+        const participants = await checkInRepository.findParticipantsByActivity(activityId);
+        response.status(200).json(participants);
+   
+    }
 
    
 };

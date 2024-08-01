@@ -30,4 +30,16 @@ export default {
             }
         });
     },
-};
+
+    async findParticipantsByActivity(activityId: string): Promise<UserAtActivity[]> {
+        return await client.userAtActivity.findMany({
+            where: {
+                activityId,
+                presente: true
+            },
+            include: {
+                user: true 
+            }
+        });
+},
+}
