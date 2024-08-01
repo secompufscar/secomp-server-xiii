@@ -6,13 +6,13 @@ export default {
         const userAtActivity = await checkInRepository.findUserAtActivity(userId, activityId);
 
         if (!userAtActivity) {
-            throw new Error('User is not registered for this activity');
+            return await checkInRepository.createWaitlistEntry(userId, activityId);
         }
 
         // Marcar como presente
-        const updatedUserAtActivity = await checkInRepository.markAsPresent(userAtActivity.id);
+        return await checkInRepository.markAsPresent(userAtActivity.id);
 
-        return updatedUserAtActivity;
+
     },
 
 };
