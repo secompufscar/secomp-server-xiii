@@ -6,8 +6,14 @@ export interface CreateUserDTOS {
 }
 
 export interface UpdateUserDTOS {
-    nome: string
+    nome: string 
     email: string
     senha: string
+
+
+}
+
+export interface UpdateQrCodeUsersDTOS {
+    qrCode: string | null
 
 }

@@ -1,14 +1,11 @@
 import * as jwt from "jsonwebtoken"
 import { compareSync, hashSync } from 'bcrypt';
-
 import usersRepository from '../repositories/usersRepository';
-
 import { auth } from '../config/auth';
 import { User } from "../entities/User";
-
 import { ApiError, ErrorsCode } from "../utils/api-errors"
-
-import { CreateUserDTOS, UpdateUserDTOS } from "../dtos/usersDtos";
+import { generateQRCode } from "../utils/qrCode";
+import { CreateUserDTOS, UpdateUserDTOS, UpdateQrCodeUsersDTOS } from "../dtos/usersDtos";
 
 export default {
     async login({ email, senha }: User) {
@@ -51,7 +48,10 @@ export default {
    
         })
 
-        return user
+        const qrCode = await generateQRCode(user.id);
+        const updatedUser = await usersRepository.updateQRCode(user.id, {qrCode});
+
+        return updatedUser
     }
 
 

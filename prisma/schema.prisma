@@ -22,7 +22,7 @@ model User {
   email           String      @unique
   senha           String 
   tipo            String        @default("USER")
-  qrCode          String? 
+  qrCode          String?     @db.Text
   createdAt       DateTime   @default(now()) @db.DateTime(6)
   updatedAt       DateTime?   @updatedAt @db.Timestamp
   userAtActivity  UserAtActivity[]

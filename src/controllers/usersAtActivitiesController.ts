@@ -21,7 +21,7 @@ export default {
   },
 
   async create(request: Request, response: Response) {
-    const data = await usersAtActivities.findManyByUserId(request.body)
+    const data = await usersAtActivities.create(request.body)
 
     response.status(201).json(data)
   },
