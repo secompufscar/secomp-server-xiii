@@ -2,6 +2,8 @@ import { PrismaClient } from "@prisma/client"
 
 import { UserAtActivity } from "../entities/UserAtActivity"
 
+import { UpdateUserAtActivityDTOS, CreateUserAtActivityDTOS } from "../dtos/userAtActivitiesDtos"
+
 const client = new PrismaClient()
 
 export default {
@@ -11,7 +13,7 @@ export default {
         return response
     },
 
-    async findById(id: number): Promise<UserAtActivity> {
+    async findById(id: string): Promise<UserAtActivity | null> {
         const response = await client.userAtActivity.findFirst({
             where: {
                 id
@@ -21,7 +23,7 @@ export default {
         return response
     },
 
-    async findManyByActivityId(activityId: number): Promise<UserAtActivity[]> {
+    async findManyByActivityId(activityId: string): Promise<UserAtActivity[]> {
         const response = await client.userAtActivity.findMany({
             where: {
                 activityId: activityId
@@ -34,7 +36,7 @@ export default {
         return response
     },
 
-    async findManyByUserId(userId: number): Promise<UserAtActivity[]> {
+    async findManyByUserId(userId: string): Promise<UserAtActivity[]> {
         const response = await client.userAtActivity.findMany({
             where: {
                 userId: userId
@@ -47,7 +49,7 @@ export default {
         return response
     },
 
-    async findManyByUserIdAndActivityId(userId: number, activityId: number): Promise<UserAtActivity[]> {
+    async findManyByUserIdAndActivityId(userId: string, activityId: string): Promise<UserAtActivity[]> {
         const response = await client.userAtActivity.findMany({
             where: {
                 userId: userId,
@@ -59,7 +61,7 @@ export default {
     },
 
 
-    async create(data: UserAtActivity): Promise<UserAtActivity> {
+    async create(data: CreateUserAtActivityDTOS): Promise<CreateUserAtActivityDTOS> {
         const response = await client.userAtActivity.create({
             data
         })
@@ -67,7 +69,7 @@ export default {
         return response
     },
 
-    async update(id: number, data: UserAtActivity): Promise<UserAtActivity> {
+    async update(id: string, data: UpdateUserAtActivityDTOS): Promise<UpdateUserAtActivityDTOS> {
         const response = await client.userAtActivity.update({
             data,
             where: {
@@ -78,7 +80,7 @@ export default {
         return response
     },
 
-    async delete(id: number): Promise<void> {
+    async delete(id: string): Promise<void> {
         await client.userAtActivity.delete({
             where: {
                 id

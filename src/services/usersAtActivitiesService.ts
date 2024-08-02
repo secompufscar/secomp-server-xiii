@@ -1,20 +1,22 @@
 import { UserAtActivity } from '../entities/UserAtActivity';
 import usersAtActivitiesRepository from '../repositories/usersAtActivitiesRepository';
 
+import { UpdateUserAtActivityDTOS, CreateUserAtActivityDTOS } from '../dtos/userAtActivitiesDtos';
+
 export default {
-    async findManyByActivityId(activityId: number) {
+    async findManyByActivityId(activityId: string) {
         const usersAtActivities = await usersAtActivitiesRepository.findManyByActivityId(activityId)
 
         return usersAtActivities
     },
 
-    async findManyByUserId(userId: number) {
+    async findManyByUserId(userId: string) {
         const usersAtActivities = await usersAtActivitiesRepository.findManyByUserId(userId)
 
         return usersAtActivities
     },
 
-    async create({ userId, activityId, presente, inscricaoPrevia, listaEspera }: UserAtActivity) {
+    async create({ userId, activityId, presente, inscricaoPrevia, listaEspera }: CreateUserAtActivityDTOS) {
         const existingUserAtActivity = await usersAtActivitiesRepository.findManyByUserIdAndActivityId(userId, activityId)
 
         if (existingUserAtActivity) {
@@ -32,7 +34,7 @@ export default {
         return userAtActivity
     },
 
-    async update(id: number, { presente, inscricaoPrevia, listaEspera }: UserAtActivity) {
+    async update(id: string, { presente, inscricaoPrevia, listaEspera }: UpdateUserAtActivityDTOS) {
         const existingUserAtActivity = await usersAtActivitiesRepository.findById(id);
 
         if (!existingUserAtActivity) {
@@ -48,7 +50,7 @@ export default {
         return updatedUserAtActivity
     },
 
-    async delete(id: number) {
+    async delete(id: string) {
         const existingUserAtActivity = await usersAtActivitiesRepository.findById(id)
 
         if (!existingUserAtActivity) {

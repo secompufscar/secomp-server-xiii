@@ -21,7 +21,8 @@ model User {
   nome            String
   email           String      @unique
   senha           String 
-  tipo            Tipo        @default(USER)
+  tipo            String        @default("USER")
+  qrCode          String? 
   createdAt       DateTime   @default(now()) @db.DateTime(6)
   updatedAt       DateTime?   @updatedAt @db.Timestamp
   userAtActivity  UserAtActivity[]
@@ -79,7 +80,3 @@ model UserAtActivity {
 }
 
 
-enum Tipo {
-  USER
-  ADMIN
-}

@@ -3,7 +3,7 @@ export interface Activity {
     nome: String
     data: Date
     palestranteNome: String
-    categoriaId: number
-    createdAt: string
-    updatedAt: string
+    categoriaId: String
+    createdAt: Date
+    updatedAt: Date | null
 }

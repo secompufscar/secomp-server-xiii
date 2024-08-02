@@ -2,16 +2,18 @@ import { PrismaClient } from "@prisma/client"
 
 import { Activity } from "../entities/Activity"
 
+import { UpdateActivityDTOS, CreateActivityDTOS, ActivityDTOS } from "../dtos/activitiesDtos"
+
 const client = new PrismaClient()
 
 export default {
-    async list(): Promise<Activity[]> {
+    async list(): Promise<ActivityDTOS[]> {
         const response = await client.activity.findMany()
 
         return response
     },
 
-    async findById(id: number): Promise<Activity> {
+    async findById(id: string): Promise<ActivityDTOS | null> {
         const response = await client.activity.findFirst({
             where: {
                 id
@@ -21,17 +23,18 @@ export default {
         return response
     },
 
-    async findManyByCategoryId(categoryId: number): Promise<Activity[]> {
-        const response = await client.activity.findFirst({
+    async findManyByCategoryId(categoriaId: string): Promise<ActivityDTOS[] | null> {
+        const response = await client.activity.findMany({
             where: {
-                categoryId
+                categoriaId
             }
         })
+ 
 
         return response
     },
 
-    async create(data: Activity): Promise<Activity> {
+    async create(data: CreateActivityDTOS): Promise<CreateActivityDTOS> {
         const response = await client.activity.create({
             data
         })
@@ -39,7 +42,7 @@ export default {
         return response
     },
 
-    async update(id: number, data: Activity): Promise<Activity> {
+    async update(id: string, data: UpdateActivityDTOS): Promise<UpdateActivityDTOS> {
         const response = await client.activity.update({
             data,
             where: {
@@ -50,7 +53,7 @@ export default {
         return response
     },
 
-    async delete(id: number): Promise<void> {
+    async delete(id: string): Promise<void> {
         await client.activity.delete({
             where: {
                 id

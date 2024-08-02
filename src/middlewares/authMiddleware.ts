@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { UnauthorizedUserError } from "../utils/exceptions";
 import { User } from "@prisma/client";
-import { prismaClient } from "..";
+import { PrismaClient } from "@prisma/client";
 import { JWT_SECRET } from "../secrets";
 import * as jwt from "jsonwebtoken"
 import { ApiError } from "../utils/api-errors";
@@ -9,6 +9,8 @@ import { ApiError } from "../utils/api-errors";
 type jwtPayload = {
     id: string
 }
+
+export const prismaClient = new PrismaClient();
 
 export async function authMiddleware(req: Request, res: Response, next: NextFunction) {
     try {

@@ -8,6 +8,8 @@ import { User } from "../entities/User";
 
 import { ApiError, ErrorsCode } from "../utils/api-errors"
 
+import { CreateUserDTOS, UpdateUserDTOS } from "../dtos/usersDtos";
+
 export default {
     async login({ email, senha }: User) {
         const user = await usersRepository.findByEmail(email)
@@ -34,7 +36,7 @@ export default {
         }
     },
 
-    async signup({ nome, email, senha }: User) {
+    async signup({ nome, email, senha }: CreateUserDTOS) {
         const userExists = await usersRepository.findByEmail(email)
 
         if (userExists) {
@@ -45,9 +47,13 @@ export default {
             nome,
             email,
             senha: hashSync(senha, 10),
-            tipo: 'USER'
+            tipo: 'USER',
+   
         })
 
         return user
     }
+
+
+
 }

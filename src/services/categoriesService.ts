@@ -3,8 +3,10 @@ import { Category } from '../entities/Category';
 import categoriesRepository from '../repositories/categoriesRepository';
 import activitiesRepository from '../repositories/activitiesRepository';
 
+import { CreateCategoryrDTOS, UpdateCategoryrDTOS } from '../dtos/categoriesDtos';
+
 export default {
-    async findById(id: number) {
+    async findById(id: string) {
         const category = await categoriesRepository.findById(id)
 
         if (!category) {
@@ -20,7 +22,7 @@ export default {
         return categories
     },
 
-    async create({ nome }: Category) {
+    async create({ nome }: CreateCategoryrDTOS) {
         const category = await categoriesRepository.create({
             nome
         })
@@ -28,7 +30,7 @@ export default {
         return category
     },
 
-    async update(id: number, { nome }: Category) {
+    async update(id: string, { nome }: UpdateCategoryrDTOS) {
         const updatedCategory = await categoriesRepository.update(id, {
             nome
         })
@@ -36,10 +38,10 @@ export default {
         return updatedCategory
     },
 
-    async delete(id: number) {
+    async delete(id: string) {
         const existingActivities = await activitiesRepository.findManyByCategoryId(id)
 
-        if (existingActivities.length > 0) {
+        if (existingActivities == null) {
             throw new Error('Esta categoria não pode ser excluída porque ainda existem atividades vinculadas a ela.')
         }
 

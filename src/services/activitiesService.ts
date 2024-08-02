@@ -5,8 +5,10 @@ import { Activity } from "../entities/Activity"
 
 import { ApiError, ErrorsCode } from "../utils/api-errors"
 
+import { UpdateActivityDTOS, CreateActivityDTOS, ActivityDTOS } from "../dtos/activitiesDtos"
+
 export default {
-    async findById(id: number): Promise<Activity> {
+    async findById(id: string): Promise<ActivityDTOS> {
         const atividade = await activitiesRepository.findById(id)
 
         if (!atividade) {
@@ -16,13 +18,13 @@ export default {
         return atividade
     },
 
-    async list(): Promise<Activity[]> {
+    async list(): Promise<ActivityDTOS[]> {
         const activities = await activitiesRepository.list()
         
         return activities
     },
 
-    async create({ nome, data, palestranteNome, categoriaId, vagas, detalhes }: Activity): Promise<Activity> {
+    async create({ nome, data, palestranteNome, categoriaId, vagas, detalhes }: CreateActivityDTOS): Promise<CreateActivityDTOS> {
         const newData = data ? new Date(data) : null;
 
         const newAtividade = await activitiesRepository.create({
@@ -37,7 +39,7 @@ export default {
         return newAtividade
     },
 
-    async update(id: number, { nome, data, palestranteNome, categoriaId }: Activity): Promise<Activity> {
+    async update(id: string, { nome, data, palestranteNome, categoriaId }: UpdateActivityDTOS ): Promise<UpdateActivityDTOS> {
         const existingAtividade = await activitiesRepository.findById(id)
 
         if (!existingAtividade) {
@@ -54,7 +56,7 @@ export default {
         return updatedAtividade
     },
 
-    async delete(id: number): Promise<void> {
+    async delete(id: string): Promise<void> {
         const userAtActivities = await usersAtActivitiesRepository.findManyByActivityId(id)
 
         if (userAtActivities.length > 0) {
