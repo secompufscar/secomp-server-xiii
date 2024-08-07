@@ -61,7 +61,6 @@ export default {
         return response
     },
 
-
     async create(data: CreateUserAtActivityDTOS): Promise<CreateUserAtActivityDTOS> {
         const response = await client.userAtActivity.create({
             data
@@ -79,6 +78,17 @@ export default {
         })
 
         return response
+    },
+    async findFirstInWaitlist(activityId: string): Promise<UserAtActivity | null> {
+        return await client.userAtActivity.findFirst({
+            where: {
+                activityId: activityId,
+                listaEspera: true
+            },
+            orderBy: {
+                createdAt: 'asc' // Ordena para pegar o primeiro da lista de espera
+            }
+        });
     },
 
     async delete(id: string): Promise<void> {

@@ -6,4 +6,5 @@ export interface Activity {
     categoriaId: String
     createdAt: Date
     updatedAt: Date | null
+    vagas: number | null
 }

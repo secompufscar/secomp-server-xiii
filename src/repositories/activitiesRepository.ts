@@ -34,6 +34,23 @@ export default {
         return response
     },
 
+    async isActivityFull(activityId: string): Promise<boolean> {
+        const activity = await client.activity.findUnique({
+            where: { id: activityId },
+            select: { vagas: true }
+        });
+
+        if (!activity || !activity.vagas) {
+            throw new Error('Atividade não encontrada ou número de vagas não definido.');
+        }
+
+        const countUsersAtActivity = await client.userAtActivity.count({
+            where: { activityId }
+        });
+
+        return countUsersAtActivity >= activity.vagas;
+    },
+
     async create(data: CreateActivityDTOS): Promise<CreateActivityDTOS> {
         const response = await client.activity.create({
             data

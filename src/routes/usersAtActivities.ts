@@ -10,7 +10,7 @@ routes.get('/:activityId', authMiddleware, usersAtActivitiesController.findById)
 routes.get('/all-activities/:userId', authMiddleware, usersAtActivitiesController.findByUserId)
 routes.post('/', authMiddleware, usersAtActivitiesController.create)
 routes.put('/:activityId/:id', authMiddleware, usersAtActivitiesController.update)
-routes.delete('/:activityId/:id', authMiddleware, usersAtActivitiesController.delete)
+routes.delete('/:id', authMiddleware, usersAtActivitiesController.delete)
 
 
 export default routes

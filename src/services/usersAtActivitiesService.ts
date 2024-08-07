@@ -1,5 +1,6 @@
 import { UserAtActivity } from '../entities/UserAtActivity';
 import usersAtActivitiesRepository from '../repositories/usersAtActivitiesRepository';
+import activitiesRepository from '../repositories/activitiesRepository';
 
 import { UpdateUserAtActivityDTOS, CreateUserAtActivityDTOS } from '../dtos/userAtActivitiesDtos';
 
@@ -16,19 +17,20 @@ export default {
         return usersAtActivities
     },
 
-    async create({ userId, activityId, presente, inscricaoPrevia, listaEspera }: CreateUserAtActivityDTOS) {
+    async create({ userId, activityId }: CreateUserAtActivityDTOS) {
         const existingUserAtActivity = await usersAtActivitiesRepository.findByUserIdAndActivityId(userId, activityId)
 
         if (existingUserAtActivity) {
             throw new Error('Usuário já está associado a esta atividade.')
         }
+        const isFull = await activitiesRepository.isActivityFull(activityId);
 
         const userAtActivity = await usersAtActivitiesRepository.create({
             userId,
             activityId,
-            presente,
-            inscricaoPrevia,
-            listaEspera
+            presente: false,
+            inscricaoPrevia: true,
+            listaEspera: isFull
         });
 
         return userAtActivity
@@ -51,12 +53,28 @@ export default {
     },
 
     async delete(id: string) {
-        const existingUserAtActivity = await usersAtActivitiesRepository.findById(id)
+        const existingUserAtActivity = await usersAtActivitiesRepository.findById(id);
 
         if (!existingUserAtActivity) {
-            throw new Error('Registro não encontrado.')
+    
+            throw new Error('Registro não encontrado.');
         }
 
-        await usersAtActivitiesRepository.delete(id)
-    }
+        // Deleta a inscrição do usuário
+        await usersAtActivitiesRepository.delete(id);
+    
+
+        // Verifica se há usuários na lista de espera
+        const nextInLine = await usersAtActivitiesRepository.findFirstInWaitlist(existingUserAtActivity.activityId);
+
+        if (nextInLine) {
+            // Atualiza o status do próximo na lista de espera para um participante ativo
+            await usersAtActivitiesRepository.update(nextInLine.id, {
+                listaEspera: false,
+                inscricaoPrevia: true,
+                presente: false
+            });
+        }
+        return existingUserAtActivity
+    },
 }

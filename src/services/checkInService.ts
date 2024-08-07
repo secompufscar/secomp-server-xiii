@@ -6,7 +6,7 @@ export default {
         const userAtActivity = await checkInRepository.findUserAtActivity(userId, activityId);
 
         if (!userAtActivity) {
-            return await checkInRepository.createWaitlistEntry(userId, activityId);
+            throw new Error('Usuário não está cadastrado na atividade.');
         }
 
         // Marcar como presente
