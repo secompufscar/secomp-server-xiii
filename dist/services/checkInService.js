@@ -18,7 +18,7 @@ exports.default = {
         return __awaiter(this, void 0, void 0, function* () {
             const userAtActivity = yield checkInRepository_1.default.findUserAtActivity(userId, activityId);
             if (!userAtActivity) {
-                return yield checkInRepository_1.default.createWaitlistEntry(userId, activityId);
+                throw new Error('Usuário não está cadastrado na atividade.');
             }
             // Marcar como presente
             return yield checkInRepository_1.default.markAsPresent(userAtActivity.id);

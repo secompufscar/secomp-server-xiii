@@ -38,6 +38,21 @@ exports.default = {
             return response;
         });
     },
+    isActivityFull(activityId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const activity = yield client.activity.findUnique({
+                where: { id: activityId },
+                select: { vagas: true }
+            });
+            if (!activity || !activity.vagas) {
+                throw new Error('Atividade não encontrada ou número de vagas não definido.');
+            }
+            const countUsersAtActivity = yield client.userAtActivity.count({
+                where: { activityId }
+            });
+            return countUsersAtActivity >= activity.vagas;
+        });
+    },
     create(data) {
         return __awaiter(this, void 0, void 0, function* () {
             const response = yield client.activity.create({

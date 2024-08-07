@@ -1,18 +1,151 @@
-import { Router } from 'express'
+import { Router } from 'express';
+import categoriesController from '../controllers/categoriesController';
+import { createCategorySchema, updateCategorySchema, categoryIdSchema } from '../schemas/categorySchema';
+import { authMiddleware } from '../middlewares/authMiddleware';
+import validate from '../middlewares/validate';
 
-import categoriesController from '../controllers/categoriesController'
+const routes = Router();
 
-import { createCategorySchema, updateCategorySchema, categoryIdSchema } from '../schemas/categorySchema'
+/**
+ * @swagger
+ * /categories:
+ *   get:
+ *     summary: Obtém uma lista de todas as categorias.
+ *     tags:
+ *       - Categories
+ *     responses:
+ *       200:
+ *         description: Lista de categorias retornada com sucesso.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: string
+ *                   nome:
+ *                     type: string
+ *                   createdAt:
+ *                     type: string
+ *                     format: date-time
+ *                   updatedAt:
+ *                     type: string
+ *                     format: date-time
+ */
+routes.get('/', authMiddleware, categoriesController.list);
 
-import { authMiddleware } from '../middlewares/authMiddleware'
-import validate from '../middlewares/validate'
+/**
+ * @swagger
+ * /categories/{id}:
+ *   get:
+ *     summary: Obtém uma categoria específica pelo ID.
+ *     tags:
+ *       - Categories
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID da categoria que deseja obter.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Categoria retornada com sucesso.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                 nome:
+ *                   type: string
+ *                 createdAt:
+ *                   type: string
+ *                   format: date-time
+ *                 updatedAt:
+ *                   type: string
+ *                   format: date-time
+ *       404:
+ *         description: Categoria não encontrada.
+ */
+routes.get('/:id', authMiddleware, validate(undefined, categoryIdSchema), categoriesController.findById);
 
-const routes = Router()
+/**
+ * @swagger
+ * /categories:
+ *   post:
+ *     summary: Cria uma nova categoria.
+ *     tags:
+ *       - Categories
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nome:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Categoria criada com sucesso.
+ */
+routes.post('/', authMiddleware, validate(createCategorySchema), categoriesController.create);
 
-routes.get('/', authMiddleware, categoriesController.list)
-routes.get('/:id',authMiddleware, validate(undefined, categoryIdSchema), categoriesController.findById)
-routes.post('/',authMiddleware ,validate(createCategorySchema), categoriesController.create)
-routes.put('/:id',authMiddleware, validate(updateCategorySchema, categoryIdSchema),categoriesController.update)
-routes.delete('/:id',authMiddleware, validate(undefined, categoryIdSchema), categoriesController.delete)
+/**
+ * @swagger
+ * /categories/{id}:
+ *   put:
+ *     summary: Atualiza uma categoria existente pelo ID.
+ *     tags:
+ *       - Categories
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID da categoria que deseja atualizar.
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nome:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Categoria atualizada com sucesso.
+ *       404:
+ *         description: Categoria não encontrada.
+ */
+routes.put('/:id', authMiddleware, validate(updateCategorySchema, categoryIdSchema), categoriesController.update);
 
-export default routes
+/**
+ * @swagger
+ * /categories/{id}:
+ *   delete:
+ *     summary: Deleta uma categoria pelo ID.
+ *     tags:
+ *       - Categories
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID da categoria que deseja deletar.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Categoria deletada com sucesso.
+ *       404:
+ *         description: Categoria não encontrada.
+ */
+routes.delete('/:id', authMiddleware, validate(undefined, categoryIdSchema), categoriesController.delete);
+
+export default routes;

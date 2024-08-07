@@ -1,18 +1,195 @@
-import { Router } from 'express'
+import { Router } from 'express';
+import activitiesController from '../controllers/activitiesController';
+import { createActivitySchema, activityIdSchema, updateActivitySchema } from '../schemas/activitySchema';
+import { authMiddleware } from '../middlewares/authMiddleware';
+import validate from '../middlewares/validate';
 
-import activitiesController from '../controllers/activitiesController'
+const routes = Router();
 
-import { createActivitySchema, activityIdSchema, updateActivitySchema} from '../schemas/activitySchema'
+/**
+ * @swagger
+ * /activities:
+ *   get:
+ *     summary: Obtém uma lista de todas as atividades.
+ *     tags: 
+ *       - Activities
+ *     responses:
+ *       200:
+ *         description: Lista de atividades retornada com sucesso.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: string
+ *                   nome:
+ *                     type: string
+ *                   data:
+ *                     type: string
+ *                     format: date-time
+ *                   vagas:
+ *                     type: integer
+ *                   detalhes:
+ *                     type: string
+ *                   palestranteNome:
+ *                     type: string
+ *                   categoriaId:
+ *                     type: string
+ *                   createdAt:
+ *                     type: string
+ *                     format: date-time
+ *                   updatedAt:
+ *                     type: string
+ *                     format: date-time
+ */
+routes.get('/', authMiddleware, activitiesController.list);
 
-import { authMiddleware } from '../middlewares/authMiddleware'
-import validate from '../middlewares/validate'
+/**
+ * @swagger
+ * /activities/{id}:
+ *   get:
+ *     summary: Obtém uma atividade específica pelo ID.
+ *     tags: 
+ *       - Activities
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID da atividade que deseja obter.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Atividade retornada com sucesso.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                 nome:
+ *                   type: string
+ *                 data:
+ *                   type: string
+ *                   format: date-time
+ *                 vagas:
+ *                   type: integer
+ *                 detalhes:
+ *                   type: string
+ *                 palestranteNome:
+ *                   type: string
+ *                 categoriaId:
+ *                   type: string
+ *                 createdAt:
+ *                   type: string
+ *                   format: date-time
+ *                 updatedAt:
+ *                   type: string
+ *                   format: date-time
+ *       404:
+ *         description: Atividade não encontrada.
+ */
+routes.get('/:id', authMiddleware, validate(undefined, activityIdSchema), activitiesController.findById);
 
-const routes = Router()
+/**
+ * @swagger
+ * /activities:
+ *   post:
+ *     summary: Cria uma nova atividade.
+ *     tags: 
+ *       - Activities
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nome:
+ *                 type: string
+ *               data:
+ *                 type: string
+ *                 format: date-time
+ *               vagas:
+ *                 type: integer
+ *               detalhes:
+ *                 type: string
+ *               palestranteNome:
+ *                 type: string
+ *               categoriaId:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Atividade criada com sucesso.
+ */
+routes.post('/', authMiddleware, validate(createActivitySchema), activitiesController.create);
 
-routes.get('/', authMiddleware, activitiesController.list)
-routes.get('/:id', authMiddleware, validate(undefined, activityIdSchema), activitiesController.findById)
-routes.post('/', authMiddleware, validate(createActivitySchema), activitiesController.create)
-routes.put('/:id', authMiddleware, validate(updateActivitySchema, activityIdSchema), activitiesController.update)
-routes.delete('/:id', authMiddleware, validate(undefined, activityIdSchema), activitiesController.delete)
+/**
+ * @swagger
+ * /activities/{id}:
+ *   put:
+ *     summary: Atualiza uma atividade existente pelo ID.
+ *     tags: 
+ *       - Activities
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID da atividade que deseja atualizar.
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nome:
+ *                 type: string
+ *               data:
+ *                 type: string
+ *                 format: date-time
+ *               vagas:
+ *                 type: integer
+ *               detalhes:
+ *                 type: string
+ *               palestranteNome:
+ *                 type: string
+ *               categoriaId:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Atividade atualizada com sucesso.
+ *       404:
+ *         description: Atividade não encontrada.
+ */
+routes.put('/:id', authMiddleware, validate(updateActivitySchema, activityIdSchema), activitiesController.update);
 
-export default routes
+/**
+ * @swagger
+ * /activities/{id}:
+ *   delete:
+ *     summary: Deleta uma atividade pelo ID.
+ *     tags: 
+ *       - Activities
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID da atividade que deseja deletar.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Atividade deletada com sucesso.
+ *       404:
+ *         description: Atividade não encontrada.
+ */
+routes.delete('/:id', authMiddleware, validate(undefined, activityIdSchema), activitiesController.delete);
+
+export default routes;

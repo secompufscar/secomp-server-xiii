@@ -12,9 +12,9 @@ export default {
     },
 
     async list(request: Request, response: Response) {
-      const activities = await categoriesService.list()
+      const data = await categoriesService.list()
         
-      return activities
+      response.status(200).json(data)
     },
 
     async create(request: Request, response: Response) {
