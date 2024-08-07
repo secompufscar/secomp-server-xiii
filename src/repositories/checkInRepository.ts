@@ -19,23 +19,22 @@ export default {
             data: { presente: true }
         });
     },
-    async createWaitlistEntry(userId: string, activityId: string): Promise<UserAtActivity> {
-        return await client.userAtActivity.create({
-            data: {
-                userId,
-                activityId,
-                inscricaoPrevia: false,
-                listaEspera: true,
-                presente: false
-            }
-        });
-    },
+    // async createWaitlistEntry(userId: string, activityId: string): Promise<UserAtActivity> {
+    //     return await client.userAtActivity.create({
+    //         data: {
+    //             userId,
+    //             activityId,
+    //             inscricaoPrevia: false,
+    //             listaEspera: true,
+    //             presente: false
+    //         }
+    //     });
+    // },
 
     async findParticipantsByActivity(activityId: string): Promise<UserAtActivity[]> {
         return await client.userAtActivity.findMany({
             where: {
                 activityId,
-                presente: true
             },
             include: {
                 user: true 
