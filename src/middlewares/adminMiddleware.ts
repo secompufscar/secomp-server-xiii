@@ -1,14 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import { UnauthorizedUserError } from "../utils/exceptions";
-import { User } from "@prisma/client";
-import { prismaClient } from "..";
 import { JWT_SECRET } from "../secrets";
 import * as jwt from "jsonwebtoken"
 import { ApiError } from "../utils/api-errors";
-
-type jwtPayload = {
-    id: number
-}
+import adminServices from "../services/adminServices";
 
 export async function adminMiddleware(req: Request, res: Response, next: NextFunction) {
     try {
@@ -17,12 +12,9 @@ export async function adminMiddleware(req: Request, res: Response, next: NextFun
             throw new UnauthorizedUserError("Não autorizado")
         }
         
-        const token = authorization.split(' ')[1]
-        const { id } = jwt.verify(token, JWT_SECRET) as jwtPayload
-        const user = await prismaClient.user.findFirst( { where: { id } } )
-        
-        console.log(user)
-        if(user?.tipo !== "ADMIN") {
+        const tipo = req.user.tipo
+        console.log(`tipo: ${tipo}`)
+        if(tipo !== "ADMIN") {
             throw new UnauthorizedUserError("Não autorizado")
         }
         next()

@@ -1,10 +1,10 @@
 export interface User {
-    id: string
+    id?: string
     nome: string
     email: string
     senha: string
     tipo: string
     qrCode: string | null
-    createdAt: Date
+    createdAt?: Date
     updatedAt: Date | null
 }

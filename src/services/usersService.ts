@@ -5,7 +5,7 @@ import { auth } from '../config/auth';
 import { User } from "../entities/User";
 import { ApiError, ErrorsCode } from "../utils/api-errors"
 import { generateQRCode } from "../utils/qrCode";
-import { CreateUserDTOS, UpdateUserDTOS, UpdateQrCodeUsersDTOS } from "../dtos/usersDtos";
+import { CreateUserDTOS, UpdateUserDTOS, UpdateQrCodeUsersDTOS, UserDTOS } from "../dtos/usersDtos";
 
 export default {
     async login({ email, senha }: User) {
@@ -26,7 +26,6 @@ export default {
         })
     
         const { senha:_, ...userLogin } = user
-        
         return { 
             user: userLogin,
             token: token
@@ -52,8 +51,20 @@ export default {
         const updatedUser = await usersRepository.updateQRCode(user.id, {qrCode});
 
         return updatedUser
-    }
+    },
+    
+    async findById(id: string): Promise<UserDTOS | null> {
+        const user = await usersRepository.findById(id)
 
+        console.log(`findById [usersService]: ${JSON.stringify(user, null, 2)}`)
+        return user
+    },
+
+    async findByEmail(email: string): Promise<UserDTOS | null> {
+        const user = await usersRepository.findByEmail(email)
+
+        return user
+    },
 
 
 }
