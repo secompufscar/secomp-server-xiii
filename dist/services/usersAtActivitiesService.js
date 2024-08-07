@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const usersAtActivitiesRepository_1 = __importDefault(require("../repositories/usersAtActivitiesRepository"));
+const activitiesRepository_1 = __importDefault(require("../repositories/activitiesRepository"));
 exports.default = {
     findManyByActivityId(activityId) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -27,17 +28,18 @@ exports.default = {
         });
     },
     create(_a) {
-        return __awaiter(this, arguments, void 0, function* ({ userId, activityId, presente, inscricaoPrevia, listaEspera }) {
+        return __awaiter(this, arguments, void 0, function* ({ userId, activityId }) {
             const existingUserAtActivity = yield usersAtActivitiesRepository_1.default.findByUserIdAndActivityId(userId, activityId);
             if (existingUserAtActivity) {
                 throw new Error('Usuário já está associado a esta atividade.');
             }
+            const isFull = yield activitiesRepository_1.default.isActivityFull(activityId);
             const userAtActivity = yield usersAtActivitiesRepository_1.default.create({
                 userId,
                 activityId,
-                presente,
-                inscricaoPrevia,
-                listaEspera
+                presente: false,
+                inscricaoPrevia: true,
+                listaEspera: isFull
             });
             return userAtActivity;
         });
@@ -62,7 +64,19 @@ exports.default = {
             if (!existingUserAtActivity) {
                 throw new Error('Registro não encontrado.');
             }
+            // Deleta a inscrição do usuário
             yield usersAtActivitiesRepository_1.default.delete(id);
+            // Verifica se há usuários na lista de espera
+            const nextInLine = yield usersAtActivitiesRepository_1.default.findFirstInWaitlist(existingUserAtActivity.activityId);
+            if (nextInLine) {
+                // Atualiza o status do próximo na lista de espera para um participante ativo
+                yield usersAtActivitiesRepository_1.default.update(nextInLine.id, {
+                    listaEspera: false,
+                    inscricaoPrevia: true,
+                    presente: false
+                });
+            }
+            return existingUserAtActivity;
         });
-    }
+    },
 };

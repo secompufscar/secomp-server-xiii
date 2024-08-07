@@ -84,6 +84,19 @@ exports.default = {
             return response;
         });
     },
+    findFirstInWaitlist(activityId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield client.userAtActivity.findFirst({
+                where: {
+                    activityId: activityId,
+                    listaEspera: true
+                },
+                orderBy: {
+                    createdAt: 'asc' // Ordena para pegar o primeiro da lista de espera
+                }
+            });
+        });
+    },
     delete(id) {
         return __awaiter(this, void 0, void 0, function* () {
             yield client.userAtActivity.delete({

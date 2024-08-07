@@ -30,25 +30,22 @@ exports.default = {
             });
         });
     },
-    createWaitlistEntry(userId, activityId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return yield client.userAtActivity.create({
-                data: {
-                    userId,
-                    activityId,
-                    inscricaoPrevia: false,
-                    listaEspera: true,
-                    presente: false
-                }
-            });
-        });
-    },
+    // async createWaitlistEntry(userId: string, activityId: string): Promise<UserAtActivity> {
+    //     return await client.userAtActivity.create({
+    //         data: {
+    //             userId,
+    //             activityId,
+    //             inscricaoPrevia: false,
+    //             listaEspera: true,
+    //             presente: false
+    //         }
+    //     });
+    // },
     findParticipantsByActivity(activityId) {
         return __awaiter(this, void 0, void 0, function* () {
             return yield client.userAtActivity.findMany({
                 where: {
                     activityId,
-                    presente: true
                 },
                 include: {
                     user: true

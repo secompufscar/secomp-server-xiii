@@ -11,5 +11,5 @@ routes.get('/:activityId', authMiddleware_1.authMiddleware, usersAtActivitiesCon
 routes.get('/all-activities/:userId', authMiddleware_1.authMiddleware, usersAtActivitiesController_1.default.findByUserId);
 routes.post('/', authMiddleware_1.authMiddleware, usersAtActivitiesController_1.default.create);
 routes.put('/:activityId/:id', authMiddleware_1.authMiddleware, usersAtActivitiesController_1.default.update);
-routes.delete('/:activityId/:id', authMiddleware_1.authMiddleware, usersAtActivitiesController_1.default.delete);
+routes.delete('/:id', authMiddleware_1.authMiddleware, usersAtActivitiesController_1.default.delete);
 exports.default = routes;
