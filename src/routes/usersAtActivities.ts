@@ -90,12 +90,6 @@ routes.get('/all-activities/:userId', authMiddleware, usersAtActivitiesControlle
  *                 type: string
  *               activityId:
  *                 type: string
- *               presente:
- *                 type: boolean
- *               inscricaoPrevia:
- *                 type: boolean
- *               listaEspera:
- *                 type: boolean
  *     responses:
  *       201:
  *         description: Inscrição criada com sucesso.

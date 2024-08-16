@@ -8,26 +8,50 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+const usersRepository_1 = __importDefault(require("../repositories/usersRepository"));
 exports.default = {
-    findById(request, response) {
+    findById(id) {
         return __awaiter(this, void 0, void 0, function* () {
+            const user = yield usersRepository_1.default.findById(id);
+            return user;
         });
     },
-    list(request, response) {
+    findByEmail(email) {
         return __awaiter(this, void 0, void 0, function* () {
+            const user = yield usersRepository_1.default.findByEmail(email);
+            return user;
         });
     },
-    create(request, response) {
+    list() {
         return __awaiter(this, void 0, void 0, function* () {
+            return yield usersRepository_1.default.list();
         });
     },
-    update(request, response) {
-        return __awaiter(this, void 0, void 0, function* () {
+    create(_a) {
+        return __awaiter(this, arguments, void 0, function* ({ nome, email, senha, tipo }) {
+            const user = yield usersRepository_1.default.create({
+                nome,
+                email,
+                senha,
+                tipo
+            });
+            return user;
         });
     },
-    delete(request, response) {
+    update(id_1, _a) {
+        return __awaiter(this, arguments, void 0, function* (id, { nome, email, senha, tipo }) {
+            const user = yield usersRepository_1.default.update(id, { nome, email, senha, tipo });
+            return user;
+        });
+    },
+    delete(id) {
         return __awaiter(this, void 0, void 0, function* () {
+            const user = yield usersRepository_1.default.delete(id);
+            return user;
         });
     }
 };

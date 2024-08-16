@@ -23,8 +23,8 @@ exports.default = {
     },
     list(request, response) {
         return __awaiter(this, void 0, void 0, function* () {
-            const activities = yield categoriesService_1.default.list();
-            return activities;
+            const data = yield categoriesService_1.default.list();
+            response.status(200).json(data);
         });
     },
     create(request, response) {

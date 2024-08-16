@@ -46,7 +46,7 @@ exports.default = {
         });
     },
     update(id_1, _a) {
-        return __awaiter(this, arguments, void 0, function* (id, { nome, data, palestranteNome, categoriaId }) {
+        return __awaiter(this, arguments, void 0, function* (id, { nome, data, palestranteNome, categoriaId, detalhes }) {
             const existingAtividade = yield activitiesRepository_1.default.findById(id);
             if (!existingAtividade) {
                 throw new api_errors_1.ApiError('Atividade não encontrada', api_errors_1.ErrorsCode.NOT_FOUND);
@@ -55,7 +55,8 @@ exports.default = {
                 nome,
                 data,
                 palestranteNome,
-                categoriaId
+                categoriaId,
+                detalhes,
             });
             return updatedAtividade;
         });

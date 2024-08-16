@@ -25,6 +25,8 @@ exports.default = {
                     id
                 }
             });
+            console.log(`id: ${id}`);
+            console.log(`findById [usersRepository]: ${JSON.stringify(response, null, 2)}`);
             return response;
         });
     },
@@ -68,8 +70,12 @@ exports.default = {
     },
     updateQRCode(id, data) {
         return __awaiter(this, void 0, void 0, function* () {
+            const updateData = {};
+            if (data.qrCode !== undefined) {
+                updateData.qrCode = data.qrCode; // Pode ser `string` ou `null`, mas Prisma pode não aceitar `null`
+            }
             return yield client.user.update({
-                data,
+                data: updateData,
                 where: { id }
             });
         });

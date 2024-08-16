@@ -7,9 +7,157 @@ const express_1 = require("express");
 const usersAtActivitiesController_1 = __importDefault(require("../controllers/usersAtActivitiesController"));
 const authMiddleware_1 = require("../middlewares/authMiddleware");
 const routes = (0, express_1.Router)();
+/**
+ * @swagger
+ * /userAtActivities/{activityId}:
+ *   get:
+ *     summary: Obtém todas as inscrições de usuários para uma atividade específica.
+ *     tags:
+ *       - UserAtActivities
+ *     parameters:
+ *       - in: path
+ *         name: activityId
+ *         required: true
+ *         description: ID da atividade para a qual deseja obter as inscrições.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Lista de inscrições retornada com sucesso.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: string
+ *                   userId:
+ *                     type: string
+ *                   activityId:
+ *                     type: string
+ *                   presente:
+ *                     type: boolean
+ *                   inscricaoPrevia:
+ *                     type: boolean
+ *                   listaEspera:
+ *                     type: boolean
+ *                   createdAt:
+ *                     type: string
+ *                     format: date-time
+ *                   updatedAt:
+ *                     type: string
+ *                     format: date-time
+ *       404:
+ *         description: Atividade não encontrada.
+ */
 routes.get('/:activityId', authMiddleware_1.authMiddleware, usersAtActivitiesController_1.default.findById);
+/**
+ * @swagger
+ * /userAtActivities/all-activities/{userId}:
+ *   get:
+ *     summary: Obtém todas as atividades de um usuário.
+ *     tags:
+ *       - UserAtActivities
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         description: ID do usuário.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Lista de atividades retornada com sucesso.
+ */
 routes.get('/all-activities/:userId', authMiddleware_1.authMiddleware, usersAtActivitiesController_1.default.findByUserId);
+/**
+ * @swagger
+ * /userAtActivities:
+ *   post:
+ *     summary: Cria uma nova inscrição para o usuário em uma atividade.
+ *     tags:
+ *       - UserAtActivities
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               userId:
+ *                 type: string
+ *               activityId:
+ *                 type: string
+ *               presente:
+ *                 type: boolean
+ *               inscricaoPrevia:
+ *                 type: boolean
+ *               listaEspera:
+ *                 type: boolean
+ *     responses:
+ *       201:
+ *         description: Inscrição criada com sucesso.
+ */
 routes.post('/', authMiddleware_1.authMiddleware, usersAtActivitiesController_1.default.create);
-routes.put('/:activityId/:id', authMiddleware_1.authMiddleware, usersAtActivitiesController_1.default.update);
+/**
+ * @swagger
+ * /userAtActivities/{id}:
+ *   put:
+ *     summary: Atualiza uma inscrição de um usuário em uma atividade.
+ *     tags:
+ *       - UserAtActivities
+ *     parameters:
+ *       - in: path
+ *         name: activityId
+ *         required: true
+ *         description: ID da atividade.
+ *         schema:
+ *           type: string
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID da inscrição do usuário.
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               presente:
+ *                 type: boolean
+ *               inscricaoPrevia:
+ *                 type: boolean
+ *               listaEspera:
+ *                 type: boolean
+ *     responses:
+ *       200:
+ *         description: Inscrição atualizada com sucesso.
+ */
+routes.put('/:id', authMiddleware_1.authMiddleware, usersAtActivitiesController_1.default.update);
+/**
+ * @swagger
+ * /userAtActivities/{id}:
+ *   delete:
+ *     summary: Deleta uma inscrição de um usuário em uma atividade.
+ *     tags:
+ *       - UserAtActivities
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID da inscrição do usuário na atividade.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Inscrição deletada com sucesso.
+ *       404:
+ *         description: Registro não encontrado.
+ */
 routes.delete('/:id', authMiddleware_1.authMiddleware, usersAtActivitiesController_1.default.delete);
 exports.default = routes;

@@ -13,6 +13,7 @@ export interface UpdateActivityDTOS {
     data: Date | null
     palestranteNome: string
     categoriaId: string
+    detalhes: string | null
 
 }
 
