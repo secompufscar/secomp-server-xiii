@@ -42,33 +42,34 @@ var __rest = (this && this.__rest) || function (s, e) {
         }
     return t;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.authMiddleware = exports.prismaClient = void 0;
 const exceptions_1 = require("../utils/exceptions");
 const client_1 = require("@prisma/client");
-const auth_1 = require("../config/auth");
-const usersService_1 = __importDefault(require("../services/usersService"));
+const secrets_1 = require("../secrets");
 const jwt = __importStar(require("jsonwebtoken"));
+const api_errors_1 = require("../utils/api-errors");
 exports.prismaClient = new client_1.PrismaClient();
 function authMiddleware(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
-        const { authorization } = req.headers;
-        const JWT_SECRET = auth_1.auth.secret_token;
         try {
-            if (!authorization)
+            const { authorization } = req.headers;
+            if (!authorization) {
                 throw new exceptions_1.UnauthorizedUserError("Não autorizado");
+            }
             const token = authorization.split(' ')[1];
-            const { userId } = jwt.verify(token, JWT_SECRET);
-            const user = yield usersService_1.default.findById(userId);
-            const loggedUser = __rest(user, []);
+            const { id } = jwt.verify(token, secrets_1.JWT_SECRET);
+            const user = yield exports.prismaClient.user.findFirst({ where: { id } });
+            const _a = user, { senha: _ } = _a, loggedUser = __rest(_a, ["senha"]);
             req.user = loggedUser;
             next();
         }
         catch (error) {
-            throw new exceptions_1.UnauthorizedUserError("Token inválido");
+            if (error instanceof api_errors_1.ApiError)
+                res.status(error.statusCode).json({ message: error.message, statusCode: error.statusCode });
+            else if (error instanceof jwt.TokenExpiredError)
+                res.status(401).json({ message: "Token expirado", statusCode: 401 });
+            console.error("Erro em acesso: ", error.message);
         }
     });
 }

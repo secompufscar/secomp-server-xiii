@@ -89,18 +89,5 @@ exports.default = {
             const updatedUser = yield usersRepository_1.default.updateQRCode(user.id, { qrCode });
             return updatedUser;
         });
-    },
-    findById(id) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const user = yield usersRepository_1.default.findById(id);
-            console.log(`findById [usersService]: ${JSON.stringify(user, null, 2)}`);
-            return user;
-        });
-    },
-    findByEmail(email) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const user = yield usersRepository_1.default.findByEmail(email);
-            return user;
-        });
-    },
+    }
 };

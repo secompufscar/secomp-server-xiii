@@ -34,6 +34,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.adminMiddleware = void 0;
 const exceptions_1 = require("../utils/exceptions");
+const __1 = require("..");
+const secrets_1 = require("../secrets");
 const jwt = __importStar(require("jsonwebtoken"));
 const api_errors_1 = require("../utils/api-errors");
 function adminMiddleware(req, res, next) {
@@ -43,9 +45,11 @@ function adminMiddleware(req, res, next) {
             if (!authorization) {
                 throw new exceptions_1.UnauthorizedUserError("Não autorizado");
             }
-            const tipo = req.user.tipo;
-            console.log(`tipo: ${tipo}`);
-            if (tipo !== "ADMIN") {
+            const token = authorization.split(' ')[1];
+            const { id } = jwt.verify(token, secrets_1.JWT_SECRET);
+            const user = yield __1.prismaClient.user.findFirst({ where: { id } });
+            console.log(user);
+            if ((user === null || user === void 0 ? void 0 : user.tipo) !== "ADMIN") {
                 throw new exceptions_1.UnauthorizedUserError("Não autorizado");
             }
             next();
