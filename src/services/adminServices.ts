@@ -1,44 +1,28 @@
-import { PrismaClient, User } from '@prisma/client';
-import { CreateUserDTOS, UpdateUserDTOS, UserDTOS } from '../dtos/usersDtos';
-import usersRepository from '../repositories/usersRepository';
+import { Request, Response } from 'express';
+import { PrismaClient } from '@prisma/client';
+
+import { createActivitySchema, activityIdSchema, updateActivitySchema } from '../../schemas/activitySchema';
+
+import atividadeService from "../services/atividadeService.js"
 
 export default {
-    async findById(id: string): Promise<UserDTOS | null> {
-        const user = await usersRepository.findById(id)
+    async findById(request, response) {
 
-        return user
     },
 
-    async findByEmail(email: string): Promise<UserDTOS | null> {
-        const user = await usersRepository.findByEmail(email)
+    async list(request, response) {
 
-        return user
     },
 
-    async list(): Promise<UserDTOS[]> {
-        return await usersRepository.list()
+    async create(request, response) {
+
     },
 
-    async create({ nome, email, senha, tipo }: CreateUserDTOS): Promise<CreateUserDTOS> {
-        const user = await usersRepository.create( {
-            nome,
-            email,
-            senha,
-            tipo
-        } )
+    async update(request, response) {
 
-        return user
     },
 
-    async update(id: string, { nome, email, senha, tipo }: UpdateUserDTOS): Promise<UpdateUserDTOS> {
-        const user = await usersRepository.update(id, { nome, email, senha, tipo })
+    async delete(request, response) {
 
-        return user
-    },
-
-    async delete(id: string): Promise<void> {
-        const user = await usersRepository.delete(id)
-
-        return user
     }
 }

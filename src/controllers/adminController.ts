@@ -1,35 +1,42 @@
 import { Request, Response } from 'express';
+import { PrismaClient } from '@prisma/client';
+
 import { hashSync } from "bcrypt";
-import { auth } from "../config/auth"
-import { BadRequestsException, NoJWTSecretSpecifiedError, UserNotFoundError } from "../utils/exceptions"
-import adminServices from '../services/adminServices';
+
+import { JWT_SECRET } from '../../secrets'
+
+import { BadRequestsException, NoJWTSecretSpecifiedError } from "../../exceptions/exceptions";
+
+import atividadeService from "../services/atividadeService.js"
 
 export default {
-
-    async create(req: Request, res: Response) {
+    async create(request, response) {
         const { email, senha, nome, tipo } = req.body
         const { authorization } = req.headers
-        const JWT_SECRET = auth.secret_token
-        
+        console.log("BRUH: ", authorization)
+        console.log(JWT_SECRET)
         try {
             if(!JWT_SECRET)
                 throw new NoJWTSecretSpecifiedError("Chave JWT não especificada")
-            
-            if(!authorization) 
-                throw new BadRequestsException("Acesso negado")
-
+    
             if(tipo !== "USER" && tipo !== "ADMIN")
                 throw new BadRequestsException("Tipo de usuário não reconhecido")
     
-            let user = await adminServices.findByEmail(email)
+            let user = await prismaClient.user.findFirst( { where: {email} } )
     
             if(user) {
                 throw new BadRequestsException("Email já cadastrado")
             }
     
-            await adminServices.create( { nome, email, senha: hashSync(senha, 10), tipo } )
-            user = await adminServices.findByEmail(email)
-
+            user = await prismaClient.user.create({
+                data: {
+                    email,
+                    senha: hashSync(senha, 10),
+                    nome,
+                    tipo
+                }
+            })
+    
             res.status(201).json(user)
         } 
         catch(error: any) {
@@ -38,27 +45,29 @@ export default {
         }
     },
 
-    async update(req: Request, res: Response) {
-        const { id, email, nome, senha, tipo } = req.body
+    async update(request, response) {
+        const { email, updatedEmail, nome, senha, tipo } = req.body
         const { authorization } = req.headers
-        const JWT_SECRET = auth.secret_token
+        console.log(authorization)
     
         try {
             if(!JWT_SECRET)
                 throw new NoJWTSecretSpecifiedError("Chave JWT não especificada")
-
-            if(!authorization) 
-                throw new BadRequestsException("Acesso negado")
-
-            let user = await adminServices.findById(id)
-
-            if(!user) {
-                throw new UserNotFoundError("Usuário não encontrado")
-            }
-            
-            await adminServices.update(id, { nome, email, senha, tipo })
-            
-            user = await adminServices.findById(id)
+    
+            let user = await prismaClient.user.findUnique({ where: {email} })
+    
+            if(!user)
+                throw new BadRequestsException("Email não existe")
+    
+            user = await prismaClient.user.update( {
+                where: {email},
+                data: {
+                    email: updatedEmail ?? updatedEmail,
+                    nome: nome ?? nome,
+                    senha: senha ?? hashSync(senha, 10)
+                }
+            } )
+    
             res.status(201).json(user)
         }
         catch(error: any) {
@@ -67,20 +76,19 @@ export default {
         }
     },
 
-    async delete(req: Request, res: Response) {
-        const { id } = req.body
-        const JWT_SECRET = auth.secret_token
+    async delete(request, response) {
+        const { email } = req.body
 
         try {
             if(!JWT_SECRET)
-                throw new NoJWTSecretSpecifiedError("Chave JWT não especificada")
+                throw new NoJWTSecretSpecifiedError("Chava JWT não especificada")
     
-            let user = await adminServices.findById(id)
+            let user = await prismaClient.user.findFirst({ where: { email } })
     
             if(!user)
-                throw new BadRequestsException("ID de usuário não existe")
+                throw new BadRequestsException("Email não existe")
     
-            await adminServices.delete(user.id ? user.id : "")
+            user = await prismaClient.user.delete({ where: email })
     
             res.status(201).json(user)
         }

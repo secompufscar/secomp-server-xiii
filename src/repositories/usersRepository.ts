@@ -2,29 +2,28 @@ import { PrismaClient } from "@prisma/client"
 
 import { User } from "../entities/User"
 
-import { CreateUserDTOS, UpdateQrCodeUsersDTOS, UpdateUserDTOS, UserDTOS } from "../dtos/usersDtos"
+import { CreateUserDTOS, UpdateQrCodeUsersDTOS, UpdateUserDTOS } from "../dtos/usersDtos"
 
 const client = new PrismaClient()
 
 export default {
-    async list(): Promise<UserDTOS[]> {
+    async list(): Promise<User[]> {
         const response = await client.user.findMany()
         
         return response
     },
 
-    async findById(id: string): Promise<UserDTOS | null> {
+    async findById(id: string): Promise<User | null> {
         const response = await client.user.findFirst({
             where: {
                 id
             }
         })
-        console.log(`id: ${id}`)
-        console.log(`findById [usersRepository]: ${JSON.stringify(response, null, 2)}`)
+
         return response
     },
 
-    async findByEmail(email: string): Promise<UserDTOS | null> {
+    async findByEmail(email: string): Promise<User | null> {
         const response = await client.user.findFirst({
             where: {
                 email
@@ -34,7 +33,7 @@ export default {
         return response
     },
 
-    async create(data: CreateUserDTOS): Promise<CreateUserDTOS> {
+    async create(data: CreateUserDTOS): Promise<User> {
         const response = await client.user.create({
             data
         })
@@ -42,7 +41,7 @@ export default {
         return response
     },
 
-    async update(id: string, data: UpdateUserDTOS): Promise<UpdateUserDTOS> {
+    async update(id: string, data: UpdateUserDTOS): Promise<User> {
         const response = await client.user.update({
             data,
             where: {
@@ -61,14 +60,8 @@ export default {
         })
     },
     async updateQRCode(id: string, data: UpdateQrCodeUsersDTOS): Promise<UpdateQrCodeUsersDTOS> {
-        const updateData: any = {};
-
-        if (data.qrCode !== undefined) {
-            updateData.qrCode = data.qrCode; // Pode ser `string` ou `null`, mas Prisma pode não aceitar `null`
-        }
-    
         return await client.user.update({
-            data: updateData,
+            data,
             where: { id }
         });
     },
