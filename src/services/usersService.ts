@@ -33,7 +33,7 @@ export default {
         }
     },
 
-    async signup({ nome, email, senha }: CreateUserDTOS) {
+    async signup({ nome, email, senha, tipo = 'USER'}: CreateUserDTOS) {
         const userExists = await usersRepository.findByEmail(email)
 
         if (userExists) {
@@ -44,16 +44,24 @@ export default {
             nome,
             email,
             senha: hashSync(senha, 10),
-            tipo: 'USER',
-   
+            tipo,
         })
 
         const qrCode = await generateQRCode(user.id);
         const updatedUser = await usersRepository.updateQRCode(user.id, {qrCode});
 
-        return updatedUser
+        const token = jwt.sign( { userId: user.id }, auth.secret_token, {
+            expiresIn: auth.expires_in_token
+        })
+        
+        const { senha:_, ...userLogin } = user
+
+        //return updatedUser
+
+        return { 
+            user: userLogin,
+            token: token
+        }    
     }
-
-
 
 }
