@@ -17,5 +17,11 @@ export default {
 
     async getProfile(request: Request, response: Response)  {
         return response.json(request.user)
+    },
+
+    async confirmEmail(request: Request, response: Response) {
+        const data = await usersService.confirmUser(request.params.token)
+
+        response.status(200).json(data)
     }
 }

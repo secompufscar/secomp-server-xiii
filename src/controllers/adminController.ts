@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { hashSync } from "bcrypt";
 import { auth } from "../config/auth"
-import { BadRequestsException, NoJWTSecretSpecifiedError } from "../utils/exceptions"
+import { BadRequestsException, NoJWTSecretSpecifiedError, UnauthorizedUserError } from "../utils/exceptions"
 
 const secret_token = auth.secret_token
 const prismaClient = new PrismaClient();
@@ -14,6 +14,9 @@ export default {
         
         console.log(secret_token)
         try {
+            if(!authorization)
+                throw new UnauthorizedUserError("Não autorizado")
+            
             if(!secret_token)
                 throw new NoJWTSecretSpecifiedError("Chave JWT não especificada")
     
@@ -46,9 +49,11 @@ export default {
     async update(req: Request, res: Response) {
         const { email, updatedEmail, nome, senha, tipo } = req.body
         const { authorization } = req.headers
-        console.log(authorization)
     
         try {
+            if(!authorization)
+                throw new UnauthorizedUserError("Não autorizado")
+
             if(!secret_token)
                 throw new NoJWTSecretSpecifiedError("Chave JWT não especificada")
     

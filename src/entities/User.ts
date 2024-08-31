@@ -7,4 +7,5 @@ export interface User {
     qrCode: string | null
     createdAt: Date
     updatedAt: Date | null
+    confirmed: boolean
 }

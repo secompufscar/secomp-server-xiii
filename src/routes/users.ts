@@ -92,4 +92,6 @@ routes.post('/login', usersController.login)
  */
 routes.get('/getProfile', authMiddleware, usersController.getProfile)
 
+routes.get('/confirmation/:token', usersController.confirmEmail)
+
 export default routes
