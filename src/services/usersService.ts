@@ -9,7 +9,17 @@ import { User } from "../entities/User";
 import { ApiError, ErrorsCode } from "../utils/api-errors"
 import { generateQRCode } from "../utils/qrCode";
 import { CreateUserDTOS, UpdateUserDTOS, UpdateQrCodeUsersDTOS } from "../dtos/usersDtos";
-import { BadRequestsException } from "../utils/exceptions";
+
+// Edite aqui o transportador de email
+const transporter = nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false,
+    auth: {
+        user: email.email_address,
+        pass: email.email_password
+    }
+})
 
 export default {
     async login({ email, senha }: User) {
@@ -63,8 +73,8 @@ export default {
         
         const { senha:_, ...userLogin } = user
 
-        // Envia email
-        this.sendEmail(user)
+        // Envia email de confirmação
+        this.sendConfirmationEmail(user)
         
         //return updatedUser
 
@@ -74,17 +84,7 @@ export default {
         }    
     },
 
-    async sendEmail(user: User) {
-        const transporter = nodemailer.createTransport({
-            host: 'smtp.gmail.com',
-            port: 587,
-            secure: false,
-            auth: {
-                user: email.email_address,
-                pass: email.email_password
-            }
-        })
-
+    async sendConfirmationEmail(user: User) {
         try {
             const emailToken = jwt.sign(
                 { user: _.pick(user, 'id') },
@@ -97,13 +97,14 @@ export default {
             await transporter.sendMail( {
                 to: user.email,
                 subject: "Confirme seu email",
-                html: `Clique <a href="${url}>aqui</a> para confirmar seu email`
+                html: `<h1>Olá ${user.nome}</h1>
+                Clique <a href="${url}">aqui</a> para confirmar seu email`
             } )
 
             console.log("Email enviado com sucesso")
         }
         catch(err) {
-            console.error()
+            throw new ApiError("Erro ao enviar email", ErrorsCode.INTERNAL_ERROR)
         }
     },
 
@@ -124,7 +125,52 @@ export default {
 
         }
         catch(err) {
-            throw new BadRequestsException("BRUH")
+            throw new ApiError("Erro ao confirmar e-mail", ErrorsCode.INTERNAL_ERROR)
+        }
+    },
+
+    async sendForgotPasswordEmail(user: User) {
+        try {
+            const emailToken = jwt.sign(
+                { user: _.pick(user, 'id') },
+                email.email_secret,
+                { expiresIn: '1d' }
+            )
+
+            const url = `http://localhost:3000/api/v1/users/updatePassword/${emailToken}`
+
+            await transporter.sendMail( {
+                to: user.email,
+                subject: "Atulização de senha",
+                html: `<h1>Olá, ${user.nome}</h1>
+                Parece que você esqueceu a sua senha.
+                Clique <a href="${url}">aqui</a> para alterar sua senha`
+            } )
+            console.log("Email enviado com sucesso")
+        }
+        catch(err) {
+            throw new ApiError("Erro ao enviar email", ErrorsCode.INTERNAL_ERROR)
+        }
+    },
+
+    async updatePassword(token: string) {
+        try {
+            const decoded = jwt.verify(token, email.email_secret) as jwt.JwtPayload
+
+            if(typeof decoded !== 'string' && decoded.user) {
+                const { user: { id, senha } } = decoded
+
+                const user = await usersRepository.update(id, { senha: senha })
+                const {senha:_, ...confirmedUser} = user
+
+                return {
+                    user: confirmedUser
+                }
+            }
+
+        }
+        catch(err) {
+            throw new ApiError("Erro ao confirmar e-mail", ErrorsCode.INTERNAL_ERROR)
         }
     }
 }

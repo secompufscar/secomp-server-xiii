@@ -94,4 +94,7 @@ routes.get('/getProfile', authMiddleware, usersController.getProfile)
 
 routes.get('/confirmation/:token', usersController.confirmEmail)
 
+routes.get('/updatePassword/:token', usersController.updateForgottenPassword)
+
+routes.post('/sendForgotPasswordEmail', authMiddleware, usersController.sendForgotPasswordEmail)
 export default routes
