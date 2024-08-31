@@ -154,6 +154,8 @@ export default {
     },
 
     async updatePassword(token: string) {
+        // TODO: esse método é acessado após o usuário clicar no link de email. Talvez seja mais
+        // interessante redirecionar o usuário para uma página de alteração de senha
         try {
             const decoded = jwt.verify(token, email.email_secret) as jwt.JwtPayload
 
