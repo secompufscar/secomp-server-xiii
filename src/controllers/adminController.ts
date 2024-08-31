@@ -1,22 +1,20 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
-
 import { hashSync } from "bcrypt";
+import { auth } from "../config/auth"
+import { BadRequestsException, NoJWTSecretSpecifiedError } from "../utils/exceptions"
 
-import { JWT_SECRET } from '../../secrets'
-
-import { BadRequestsException, NoJWTSecretSpecifiedError } from "../../exceptions/exceptions";
-
-import atividadeService from "../services/atividadeService.js"
+const secret_token = auth.secret_token
+const prismaClient = new PrismaClient();
 
 export default {
-    async create(request, response) {
+    async create(req: Request, res: Response) {
         const { email, senha, nome, tipo } = req.body
         const { authorization } = req.headers
-        console.log("BRUH: ", authorization)
-        console.log(JWT_SECRET)
+        
+        console.log(secret_token)
         try {
-            if(!JWT_SECRET)
+            if(!secret_token)
                 throw new NoJWTSecretSpecifiedError("Chave JWT não especificada")
     
             if(tipo !== "USER" && tipo !== "ADMIN")
@@ -45,13 +43,13 @@ export default {
         }
     },
 
-    async update(request, response) {
+    async update(req: Request, res: Response) {
         const { email, updatedEmail, nome, senha, tipo } = req.body
         const { authorization } = req.headers
         console.log(authorization)
     
         try {
-            if(!JWT_SECRET)
+            if(!secret_token)
                 throw new NoJWTSecretSpecifiedError("Chave JWT não especificada")
     
             let user = await prismaClient.user.findUnique({ where: {email} })
@@ -76,11 +74,11 @@ export default {
         }
     },
 
-    async delete(request, response) {
+    async delete(req: Request, res: Response) {
         const { email } = req.body
 
         try {
-            if(!JWT_SECRET)
+            if(!secret_token)
                 throw new NoJWTSecretSpecifiedError("Chava JWT não especificada")
     
             let user = await prismaClient.user.findFirst({ where: { email } })
