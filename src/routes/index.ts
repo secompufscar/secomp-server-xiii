@@ -14,7 +14,7 @@ routes.use('/activities', activitiesRoutes)
 routes.use('/users', usersRoutes)
 routes.use('/categories', categoriesRoutes)
 routes.use('/userAtActivities', usersAtActivitiesRoutes)
-// routes.use('/admin', adminRoutes)
+routes.use('/admin', adminRoutes)
 routes.use('/diretorias', diretoriasRoutes)
 routes.use('/checkIn', checkInRoutes)
 

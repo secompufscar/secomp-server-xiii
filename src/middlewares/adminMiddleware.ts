@@ -1,14 +1,17 @@
 import { Request, Response, NextFunction } from "express";
-import { UnauthorizedUserError } from "../utils/exceptions";
+import { BadRequestsException, UnauthorizedUserError, UserNotFoundError } from "../utils/exceptions";
 import { User } from "@prisma/client";
-import { prismaClient } from "..";
-import { JWT_SECRET } from "../secrets";
+import { PrismaClient } from "@prisma/client";
+import { auth } from "../config/auth";
 import * as jwt from "jsonwebtoken"
 import { ApiError } from "../utils/api-errors";
 
 type jwtPayload = {
-    id: number
+    userId: string
 }
+
+const prismaClient = new PrismaClient()
+const JWT_SECRET = auth.secret_token
 
 export async function adminMiddleware(req: Request, res: Response, next: NextFunction) {
     try {
@@ -18,8 +21,13 @@ export async function adminMiddleware(req: Request, res: Response, next: NextFun
         }
         
         const token = authorization.split(' ')[1]
-        const { id } = jwt.verify(token, JWT_SECRET) as jwtPayload
-        const user = await prismaClient.user.findFirst( { where: { id } } )
+        const { userId } = jwt.verify(token, JWT_SECRET) as jwtPayload
+
+        if(!userId) {
+            throw new BadRequestsException("Bad request")
+        }
+
+        const user = await prismaClient.user.findFirst( { where: { id: userId } } )
         
         console.log(user)
         if(user?.tipo !== "ADMIN") {
