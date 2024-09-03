@@ -45,7 +45,8 @@ const routes = Router();
  *                     type: string
  *                     format: date-time
  */
-routes.get('/', authMiddleware, activitiesController.list);
+//routes.get('/', authMiddleware, activitiesController.list);
+routes.get('/', activitiesController.list);
 
 /**
  * @swagger
@@ -126,7 +127,8 @@ routes.get('/:id', authMiddleware, validate(undefined, activityIdSchema), activi
  *       201:
  *         description: Atividade criada com sucesso.
  */
-routes.post('/', authMiddleware, validate(createActivitySchema), activitiesController.create);
+//routes.post('/', authMiddleware, validate(createActivitySchema), activitiesController.create);
+routes.post('/',  activitiesController.create);
 
 /**
  * @swagger

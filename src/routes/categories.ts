@@ -34,7 +34,8 @@ const routes = Router();
  *                     type: string
  *                     format: date-time
  */
-routes.get('/', authMiddleware, categoriesController.list);
+//routes.get('/', authMiddleware, categoriesController.list);
+routes.get('/', categoriesController.list);
 
 /**
  * @swagger
@@ -71,7 +72,8 @@ routes.get('/', authMiddleware, categoriesController.list);
  *       404:
  *         description: Categoria não encontrada.
  */
-routes.get('/:id', authMiddleware, validate(undefined, categoryIdSchema), categoriesController.findById);
+//routes.get('/:id', authMiddleware, validate(undefined, categoryIdSchema), categoriesController.findById);
+routes.get('/:id', categoriesController.findById);
 
 /**
  * @swagger
@@ -93,7 +95,8 @@ routes.get('/:id', authMiddleware, validate(undefined, categoryIdSchema), catego
  *       201:
  *         description: Categoria criada com sucesso.
  */
-routes.post('/', authMiddleware, validate(createCategorySchema), categoriesController.create);
+//routes.post('/', authMiddleware, validate(createCategorySchema), categoriesController.create);
+routes.post('/', categoriesController.create);
 
 /**
  * @swagger

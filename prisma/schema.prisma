@@ -10,21 +10,20 @@ generator client {
 
 datasource db {
   provider            = "mysql"
-  url                 = env("DATABASE_URL_LOCAL")
+  url                 = env("DATABASE_URL")
 
 }
 
-
-
 model User {
-  id              String     @id @default(uuid())
+  id              String        @id @default(uuid())
   nome            String
-  email           String      @unique
+  email           String        @unique
   senha           String 
   tipo            String        @default("USER")
-  qrCode          String?     @db.Text
-  createdAt       DateTime   @default(now()) @db.DateTime(6)
-  updatedAt       DateTime?   @updatedAt @db.Timestamp
+  qrCode          String?       @db.Text
+  createdAt       DateTime      @default(now()) @db.DateTime(6)
+  updatedAt       DateTime?     @updatedAt @db.Timestamp
+  confirmed       Boolean       @default(false)
   userAtActivity  UserAtActivity[]
 
 

@@ -7,7 +7,7 @@ import * as jwt from "jsonwebtoken"
 import { ApiError } from "../utils/api-errors";
 
 type jwtPayload = {
-    id: string
+    userId: string
 }
 
 export const prismaClient = new PrismaClient();
@@ -20,8 +20,9 @@ export async function authMiddleware(req: Request, res: Response, next: NextFunc
         }
         
         const token = authorization.split(' ')[1]
-        const { id } = jwt.verify(token, JWT_SECRET) as jwtPayload
-        const user = await prismaClient.user.findFirst( { where: { id } } )
+        const { userId } = jwt.verify(token, JWT_SECRET) as jwtPayload
+
+        const user = await prismaClient.user.findFirst( { where: { id: userId } } )
 
         const { senha: _, ...loggedUser } = user as User
 
