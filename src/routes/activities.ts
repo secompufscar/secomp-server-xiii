@@ -94,7 +94,7 @@ routes.get('/', activitiesController.list);
  *       404:
  *         description: Atividade não encontrada.
  */
-routes.get('/:id', authMiddleware, validate(undefined, activityIdSchema), activitiesController.findById);
+routes.get('/:id', validate(undefined, activityIdSchema), activitiesController.findById);
 
 /**
  * @swagger
@@ -170,7 +170,7 @@ routes.post('/',  activitiesController.create);
  *       404:
  *         description: Atividade não encontrada.
  */
-routes.put('/:id', authMiddleware, validate(updateActivitySchema, activityIdSchema), activitiesController.update);
+routes.put('/:id', validate(updateActivitySchema, activityIdSchema), activitiesController.update);
 
 /**
  * @swagger
@@ -192,6 +192,6 @@ routes.put('/:id', authMiddleware, validate(updateActivitySchema, activityIdSche
  *       404:
  *         description: Atividade não encontrada.
  */
-routes.delete('/:id', authMiddleware, validate(undefined, activityIdSchema), activitiesController.delete);
+routes.delete('/:id', validate(undefined, activityIdSchema), activitiesController.delete);
 
 export default routes;

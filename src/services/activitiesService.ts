@@ -66,6 +66,8 @@ export default {
             throw new ApiError('Não é possível excluir esta atividade pois já possui associações de usuários.', ErrorsCode.BAD_REQUEST)
         }
 
-        await activitiesRepository.delete(id)
+        const deletedActivity = await activitiesRepository.delete(id)
+        
+        return deletedActivity
     }
 }

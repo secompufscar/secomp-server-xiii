@@ -25,11 +25,12 @@ export default {
     async login({ email, senha }: User) {
         const user = await usersRepository.findByEmail(email)
 
-        if(!user?.confirmed) {
-            throw new ApiError("E-mail ainda não verificado", ErrorsCode.BAD_REQUEST)
-        }
         if (!user) {
             throw new ApiError("Usuario ou senha invalida", ErrorsCode.NOT_FOUND)
+        }
+
+        if(!user.confirmed) {
+            throw new ApiError("E-mail ainda não verificado", ErrorsCode.BAD_REQUEST)
         }
     
         const verifyPsw = compareSync(senha, user.senha)
@@ -70,7 +71,7 @@ export default {
         const token = jwt.sign( { userId: user.id }, auth.secret_token, {
             expiresIn: auth.expires_in_token
         })
-        
+
         const { senha:_, ...userLogin } = user
 
         // Envia email de confirmação
@@ -92,7 +93,7 @@ export default {
                 { expiresIn: '1d' }
             )
 
-            const url = `http://localhost:3000/api/v1/users/confirmation/${emailToken}`
+            const url = `https://api.secompufscar.com.br/api/v1/users/confirmation/${emailToken}`
 
             await transporter.sendMail( {
                 to: user.email,
