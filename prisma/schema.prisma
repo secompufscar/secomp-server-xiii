@@ -10,7 +10,7 @@ generator client {
 
 datasource db {
   provider            = "mysql"
-  url                 = env("DATABASE_URL_PPODUCTION")
+  url                 = env("DATABASE_URL_LOCAL")
 
 }
 
@@ -53,6 +53,7 @@ model Activity {
   categoriaId       String
   createdAt         DateTime   @default(now()) @db.DateTime(6)
   updatedAt         DateTime   @updatedAt @db.Timestamp
+  local             String     @db.VarChar(255)
   participantes     UserAtActivity[]
 
   @@map("atividades")

@@ -5,6 +5,7 @@ export interface CreateActivityDTOS {
     categoriaId: string
     vagas: number | null
     detalhes: string | null
+    local: string 
 
 }
 
@@ -14,6 +15,7 @@ export interface UpdateActivityDTOS {
     palestranteNome: string
     categoriaId: string
     detalhes: string | null
+    local: string 
 
 }
 

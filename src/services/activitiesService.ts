@@ -24,7 +24,7 @@ export default {
         return activities
     },
 
-    async create({ nome, data, palestranteNome, categoriaId, vagas, detalhes }: CreateActivityDTOS): Promise<CreateActivityDTOS> {
+    async create({ nome, data, palestranteNome, categoriaId, vagas, detalhes, local }: CreateActivityDTOS): Promise<CreateActivityDTOS> {
         const newData = data ? new Date(data) : null;
 
         const newAtividade = await activitiesRepository.create({
@@ -33,13 +33,14 @@ export default {
             palestranteNome,
             categoriaId,
             vagas,
-            detalhes
+            detalhes,
+            local,
         })
 
         return newAtividade
     },
 
-    async update(id: string, { nome, data, palestranteNome, categoriaId, detalhes }: UpdateActivityDTOS ): Promise<UpdateActivityDTOS> {
+    async update(id: string, { nome, data, palestranteNome, categoriaId, detalhes, local }: UpdateActivityDTOS ): Promise<UpdateActivityDTOS> {
         const existingAtividade = await activitiesRepository.findById(id)
 
         if (!existingAtividade) {
@@ -52,6 +53,7 @@ export default {
             palestranteNome,
             categoriaId,
             detalhes,
+            local,
         })
 
         return updatedAtividade
