@@ -127,7 +127,7 @@ exports.default = {
                 yield transporter.sendMail({
                     to: user.email,
                     subject: "Confirme seu email",
-                    html: `<h1>Olá ${user.nome}</h1>
+                    html: `<h1>Olá, ${user.nome}</h1>
                 Clique <a href="${url}">aqui</a> para confirmar seu email`
                 });
                 console.log("Email enviado com sucesso");
@@ -159,7 +159,7 @@ exports.default = {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const emailToken = jwt.sign({ user: lodash_1.default.pick(user, 'id') }, sendEmail_1.email.email_secret, { expiresIn: '1d' });
-                const url = `http://localhost:3000/api/v1/users/updatePassword/${emailToken}`;
+                const url = `https://api.secompufscar.com.br/api/v1/users/updatePassword/${emailToken}`;
                 yield transporter.sendMail({
                     to: user.email,
                     subject: "Atulização de senha",
