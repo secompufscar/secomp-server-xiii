@@ -44,7 +44,8 @@ export default {
         })
     
         const { senha:_, ...userLogin } = user
-        
+
+        console.log("BRUH")
         return { 
             user: userLogin,
             token: token

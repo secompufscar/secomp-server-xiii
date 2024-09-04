@@ -58,8 +58,11 @@ function authMiddleware(req, res, next) {
                 throw new exceptions_1.UnauthorizedUserError("Não autorizado");
             }
             const token = authorization.split(' ')[1];
-            const { id } = jwt.verify(token, secrets_1.JWT_SECRET);
-            const user = yield exports.prismaClient.user.findFirst({ where: { id } });
+            const { userId } = jwt.verify(token, secrets_1.JWT_SECRET);
+            const user = yield exports.prismaClient.user.findFirst({ where: { id: userId } });
+            if (!(user === null || user === void 0 ? void 0 : user.confirmed)) {
+                throw new exceptions_1.UnauthorizedUserError("Confirme o seu Email");
+            }
             const _a = user, { senha: _ } = _a, loggedUser = __rest(_a, ["senha"]);
             req.user = loggedUser;
             next();

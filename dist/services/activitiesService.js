@@ -69,7 +69,8 @@ exports.default = {
             if (userAtActivities.length > 0) {
                 throw new api_errors_1.ApiError('Não é possível excluir esta atividade pois já possui associações de usuários.', api_errors_1.ErrorsCode.BAD_REQUEST);
             }
-            yield activitiesRepository_1.default.delete(id);
+            const deletedActivity = yield activitiesRepository_1.default.delete(id);
+            return deletedActivity;
         });
     }
 };

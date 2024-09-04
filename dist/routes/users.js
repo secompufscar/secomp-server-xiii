@@ -94,4 +94,127 @@ routes.post('/login', usersController_1.default.login);
  *         description: Unauthorized
  */
 routes.get('/getProfile', authMiddleware_1.authMiddleware, usersController_1.default.getProfile);
+/**
+ * @swagger
+ * /confirmation/{token}:
+ *   get:
+ *     summary: Confirmação de email
+ *     parameters:
+ *       - in: path
+ *         name: token
+ *         required: true
+ *         description: Token de confirmação de email para um determinado usuario.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Usuário com email confirmado corretamente
+  *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                 nome:
+ *                   type: string
+ *                 email:
+ *                   type: string
+ *                 tipo:
+ *                   type: string
+ *                 createdAt:
+ *                   type: string
+ *                   format: date-time
+ *                 updatedAt:
+ *                   type: string
+ *                   format: date-time
+ *                 confirmed:
+ *                   type: boolean
+ *       500:
+ *         description: Internal server error
+ */
+routes.get('/confirmation/:token', usersController_1.default.confirmEmail);
+/**
+ * @swagger
+ * /updatePassword/{token}:
+ *   get:
+ *     summary: Altera a senha de um usuário.
+ *     parameters:
+ *       - in: path
+ *         name: token
+ *         required: true
+ *         description: Token de reset de senha
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Usuário com senha alterada corretamente
+  *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                 nome:
+ *                   type: string
+ *                 email:
+ *                   type: string
+ *                 tipo:
+ *                   type: string
+ *                 createdAt:
+ *                   type: string
+ *                   format: date-time
+ *                 updatedAt:
+ *                   type: string
+ *                   format: date-time
+ *                 confirmed:
+ *                   type: booleam
+ *       500:
+ *         description: Internal server error
+ */
+routes.get('/updatePassword/:token', usersController_1.default.updateForgottenPassword);
+/**
+ * @swagger
+ * /sendForgotPasswordEmail:
+ *   post:
+ *     summary: Envia um email para um usuário que esqueceu sua senha.
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               id:
+ *                 type: string
+ *                 format: email
+ *                 example: "usuario@example.com"
+ *               nome:
+ *                 type: string
+ *                 example: "Fulano da Silva"
+ *               tipo:
+ *                 type: string
+ *                 example: "USER"
+ *               qrCode:
+ *                 type: string
+ *                 example: "fwaegfaiwyegfiawegfkhagekfgogqowgfayuwegfka"
+ *               createdAt:
+ *                 type: string
+ *                 format: date-time
+ *                 example: "2024-08-31T14:37:41.050Z"
+ *               updatedAt:
+ *                 type: string
+ *                 format: date-time
+ *                 example: "2024-08-31T14:37:41.050Z"
+ *               confirmed:
+ *                 type: boolean
+ *                 example: false
+ *     responses:
+ *       200:
+ *         description: Email de alteração de senha enviado corretamente
+ *       500:
+ *         description: Internal server error
+ */
+routes.post('/sendForgotPasswordEmail', authMiddleware_1.authMiddleware, usersController_1.default.sendForgotPasswordEmail);
 exports.default = routes;
