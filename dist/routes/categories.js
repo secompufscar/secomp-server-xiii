@@ -37,7 +37,8 @@ const routes = (0, express_1.Router)();
  *                     type: string
  *                     format: date-time
  */
-routes.get('/', authMiddleware_1.authMiddleware, categoriesController_1.default.list);
+//routes.get('/', authMiddleware, categoriesController.list);
+routes.get('/', categoriesController_1.default.list);
 /**
  * @swagger
  * /categories/{id}:
@@ -73,7 +74,8 @@ routes.get('/', authMiddleware_1.authMiddleware, categoriesController_1.default.
  *       404:
  *         description: Categoria não encontrada.
  */
-routes.get('/:id', authMiddleware_1.authMiddleware, (0, validate_1.default)(undefined, categorySchema_1.categoryIdSchema), categoriesController_1.default.findById);
+//routes.get('/:id', authMiddleware, validate(undefined, categoryIdSchema), categoriesController.findById);
+routes.get('/:id', categoriesController_1.default.findById);
 /**
  * @swagger
  * /categories:
@@ -94,7 +96,8 @@ routes.get('/:id', authMiddleware_1.authMiddleware, (0, validate_1.default)(unde
  *       201:
  *         description: Categoria criada com sucesso.
  */
-routes.post('/', authMiddleware_1.authMiddleware, (0, validate_1.default)(categorySchema_1.createCategorySchema), categoriesController_1.default.create);
+//routes.post('/', authMiddleware, validate(createCategorySchema), categoriesController.create);
+routes.post('/', categoriesController_1.default.create);
 /**
  * @swagger
  * /categories/{id}:

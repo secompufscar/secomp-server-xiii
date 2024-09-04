@@ -30,5 +30,24 @@ exports.default = {
         return __awaiter(this, void 0, void 0, function* () {
             return response.json(request.user);
         });
+    },
+    confirmEmail(request, response) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const data = yield usersService_1.default.confirmUser(request.params.token);
+            response.status(200).json(data);
+        });
+    },
+    sendForgotPasswordEmail(request, response) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const user = request.user;
+            yield usersService_1.default.sendForgotPasswordEmail(user);
+            response.status(200).json({ message: "Email enviado com sucesso" });
+        });
+    },
+    updateForgottenPassword(request, response) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const data = yield usersService_1.default.updatePassword(request.params.token);
+            return response.status(200).json(data);
+        });
     }
 };

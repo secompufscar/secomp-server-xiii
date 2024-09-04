@@ -24,6 +24,10 @@ export async function authMiddleware(req: Request, res: Response, next: NextFunc
 
         const user = await prismaClient.user.findFirst( { where: { id: userId } } )
 
+        if(!user?.confirmed) {
+            throw new UnauthorizedUserError("Confirme o seu Email")
+        }
+        
         const { senha: _, ...loggedUser } = user as User
 
         req.user = loggedUser

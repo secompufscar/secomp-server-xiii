@@ -6,7 +6,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const activitiesController_1 = __importDefault(require("../controllers/activitiesController"));
 const activitySchema_1 = require("../schemas/activitySchema");
-const authMiddleware_1 = require("../middlewares/authMiddleware");
 const validate_1 = __importDefault(require("../middlewares/validate"));
 const routes = (0, express_1.Router)();
 /**
@@ -48,7 +47,8 @@ const routes = (0, express_1.Router)();
  *                     type: string
  *                     format: date-time
  */
-routes.get('/', authMiddleware_1.authMiddleware, activitiesController_1.default.list);
+//routes.get('/', authMiddleware, activitiesController.list);
+routes.get('/', activitiesController_1.default.list);
 /**
  * @swagger
  * /activities/{id}:
@@ -95,7 +95,7 @@ routes.get('/', authMiddleware_1.authMiddleware, activitiesController_1.default.
  *       404:
  *         description: Atividade não encontrada.
  */
-routes.get('/:id', authMiddleware_1.authMiddleware, (0, validate_1.default)(undefined, activitySchema_1.activityIdSchema), activitiesController_1.default.findById);
+routes.get('/:id', (0, validate_1.default)(undefined, activitySchema_1.activityIdSchema), activitiesController_1.default.findById);
 /**
  * @swagger
  * /activities:
@@ -127,7 +127,8 @@ routes.get('/:id', authMiddleware_1.authMiddleware, (0, validate_1.default)(unde
  *       201:
  *         description: Atividade criada com sucesso.
  */
-routes.post('/', authMiddleware_1.authMiddleware, (0, validate_1.default)(activitySchema_1.createActivitySchema), activitiesController_1.default.create);
+//routes.post('/', authMiddleware, validate(createActivitySchema), activitiesController.create);
+routes.post('/', activitiesController_1.default.create);
 /**
  * @swagger
  * /activities/{id}:
@@ -168,7 +169,7 @@ routes.post('/', authMiddleware_1.authMiddleware, (0, validate_1.default)(activi
  *       404:
  *         description: Atividade não encontrada.
  */
-routes.put('/:id', authMiddleware_1.authMiddleware, (0, validate_1.default)(activitySchema_1.updateActivitySchema, activitySchema_1.activityIdSchema), activitiesController_1.default.update);
+routes.put('/:id', (0, validate_1.default)(activitySchema_1.updateActivitySchema, activitySchema_1.activityIdSchema), activitiesController_1.default.update);
 /**
  * @swagger
  * /activities/{id}:
@@ -189,5 +190,5 @@ routes.put('/:id', authMiddleware_1.authMiddleware, (0, validate_1.default)(acti
  *       404:
  *         description: Atividade não encontrada.
  */
-routes.delete('/:id', authMiddleware_1.authMiddleware, (0, validate_1.default)(undefined, activitySchema_1.activityIdSchema), activitiesController_1.default.delete);
+routes.delete('/:id', (0, validate_1.default)(undefined, activitySchema_1.activityIdSchema), activitiesController_1.default.delete);
 exports.default = routes;

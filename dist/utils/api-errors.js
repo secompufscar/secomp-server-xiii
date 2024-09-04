@@ -13,4 +13,5 @@ var ErrorsCode;
     ErrorsCode[ErrorsCode["BAD_REQUEST"] = 400] = "BAD_REQUEST";
     ErrorsCode[ErrorsCode["UNAUTHORIZED"] = 401] = "UNAUTHORIZED";
     ErrorsCode[ErrorsCode["NOT_FOUND"] = 404] = "NOT_FOUND";
+    ErrorsCode[ErrorsCode["INTERNAL_ERROR"] = 500] = "INTERNAL_ERROR";
 })(ErrorsCode || (exports.ErrorsCode = ErrorsCode = {}));

@@ -12,7 +12,6 @@ export default {
         const { email, senha, nome, tipo } = req.body
         const { authorization } = req.headers
         
-        console.log(secret_token)
         try {
             if(!authorization)
                 throw new UnauthorizedUserError("Não autorizado")
@@ -84,14 +83,14 @@ export default {
 
         try {
             if(!secret_token)
-                throw new NoJWTSecretSpecifiedError("Chava JWT não especificada")
+                throw new NoJWTSecretSpecifiedError("Chave JWT não especificada")
     
             let user = await prismaClient.user.findFirst({ where: { email } })
     
             if(!user)
                 throw new BadRequestsException("Email não existe")
     
-            user = await prismaClient.user.delete({ where: email })
+            user = await prismaClient.user.delete({ where: { email } })
     
             res.status(201).json(user)
         }

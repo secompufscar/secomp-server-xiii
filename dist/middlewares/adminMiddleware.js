@@ -34,10 +34,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.adminMiddleware = void 0;
 const exceptions_1 = require("../utils/exceptions");
-const __1 = require("..");
-const secrets_1 = require("../secrets");
+const client_1 = require("@prisma/client");
+const auth_1 = require("../config/auth");
 const jwt = __importStar(require("jsonwebtoken"));
 const api_errors_1 = require("../utils/api-errors");
+const prismaClient = new client_1.PrismaClient();
+const JWT_SECRET = auth_1.auth.secret_token;
 function adminMiddleware(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -46,9 +48,11 @@ function adminMiddleware(req, res, next) {
                 throw new exceptions_1.UnauthorizedUserError("Não autorizado");
             }
             const token = authorization.split(' ')[1];
-            const { id } = jwt.verify(token, secrets_1.JWT_SECRET);
-            const user = yield __1.prismaClient.user.findFirst({ where: { id } });
-            console.log(user);
+            const { userId } = jwt.verify(token, JWT_SECRET);
+            if (!userId) {
+                throw new exceptions_1.BadRequestsException("Bad request");
+            }
+            const user = yield prismaClient.user.findFirst({ where: { id: userId } });
             if ((user === null || user === void 0 ? void 0 : user.tipo) !== "ADMIN") {
                 throw new exceptions_1.UnauthorizedUserError("Não autorizado");
             }

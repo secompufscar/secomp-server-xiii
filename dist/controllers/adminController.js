@@ -9,18 +9,21 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const client_1 = require("@prisma/client");
 const bcrypt_1 = require("bcrypt");
-const secrets_1 = require("../../secrets");
-const exceptions_1 = require("../../exceptions/exceptions");
+const auth_1 = require("../config/auth");
+const exceptions_1 = require("../utils/exceptions");
+const secret_token = auth_1.auth.secret_token;
+const prismaClient = new client_1.PrismaClient();
 exports.default = {
-    create(request, response) {
+    create(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { email, senha, nome, tipo } = req.body;
             const { authorization } = req.headers;
-            console.log("BRUH: ", authorization);
-            console.log(secrets_1.JWT_SECRET);
             try {
-                if (!secrets_1.JWT_SECRET)
+                if (!authorization)
+                    throw new exceptions_1.UnauthorizedUserError("Não autorizado");
+                if (!secret_token)
                     throw new exceptions_1.NoJWTSecretSpecifiedError("Chave JWT não especificada");
                 if (tipo !== "USER" && tipo !== "ADMIN")
                     throw new exceptions_1.BadRequestsException("Tipo de usuário não reconhecido");
@@ -44,13 +47,14 @@ exports.default = {
             }
         });
     },
-    update(request, response) {
+    update(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { email, updatedEmail, nome, senha, tipo } = req.body;
             const { authorization } = req.headers;
-            console.log(authorization);
             try {
-                if (!secrets_1.JWT_SECRET)
+                if (!authorization)
+                    throw new exceptions_1.UnauthorizedUserError("Não autorizado");
+                if (!secret_token)
                     throw new exceptions_1.NoJWTSecretSpecifiedError("Chave JWT não especificada");
                 let user = yield prismaClient.user.findUnique({ where: { email } });
                 if (!user)
@@ -71,16 +75,16 @@ exports.default = {
             }
         });
     },
-    delete(request, response) {
+    delete(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { email } = req.body;
             try {
-                if (!secrets_1.JWT_SECRET)
-                    throw new exceptions_1.NoJWTSecretSpecifiedError("Chava JWT não especificada");
+                if (!secret_token)
+                    throw new exceptions_1.NoJWTSecretSpecifiedError("Chave JWT não especificada");
                 let user = yield prismaClient.user.findFirst({ where: { email } });
                 if (!user)
                     throw new exceptions_1.BadRequestsException("Email não existe");
-                user = yield prismaClient.user.delete({ where: email });
+                user = yield prismaClient.user.delete({ where: { email } });
                 res.status(201).json(user);
             }
             catch (error) {

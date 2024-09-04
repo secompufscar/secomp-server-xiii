@@ -29,7 +29,6 @@ export async function adminMiddleware(req: Request, res: Response, next: NextFun
 
         const user = await prismaClient.user.findFirst( { where: { id: userId } } )
         
-        console.log(user)
         if(user?.tipo !== "ADMIN") {
             throw new UnauthorizedUserError("Não autorizado")
         }
