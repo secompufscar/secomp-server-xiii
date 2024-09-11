@@ -7,7 +7,7 @@ import { authMiddleware } from '../middlewares/authMiddleware'
 const routes = Router()
 
 //Fazer o swagger
-routes.get('/:userId/:activityId', usersAtActivitiesController.findByUserIdActivityId)
+routes.get('/user-activity/:userId/:activityId', usersAtActivitiesController.findByUserIdActivityId)
 
 /**
  * @swagger

@@ -8,7 +8,7 @@ const usersAtActivitiesController_1 = __importDefault(require("../controllers/us
 const authMiddleware_1 = require("../middlewares/authMiddleware");
 const routes = (0, express_1.Router)();
 //Fazer o swagger
-routes.get('/:userId/:activityId', usersAtActivitiesController_1.default.findByUserIdActivityId);
+routes.get('/user-activity/:userId/:activityId', usersAtActivitiesController_1.default.findByUserIdActivityId);
 /**
  * @swagger
  * /userAtActivities/{activityId}:
