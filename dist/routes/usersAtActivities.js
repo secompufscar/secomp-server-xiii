@@ -7,6 +7,8 @@ const express_1 = require("express");
 const usersAtActivitiesController_1 = __importDefault(require("../controllers/usersAtActivitiesController"));
 const authMiddleware_1 = require("../middlewares/authMiddleware");
 const routes = (0, express_1.Router)();
+//Fazer o swagger
+routes.get('/:userId/:activityId', usersAtActivitiesController_1.default.findByUserIdActivityId);
 /**
  * @swagger
  * /userAtActivities/{activityId}:
@@ -94,7 +96,7 @@ routes.get('/all-activities/:userId', authMiddleware_1.authMiddleware, usersAtAc
  *       201:
  *         description: Inscrição criada com sucesso.
  */
-routes.post('/', authMiddleware_1.authMiddleware, usersAtActivitiesController_1.default.create);
+routes.post('/', usersAtActivitiesController_1.default.create);
 /**
  * @swagger
  * /userAtActivities/{id}:
@@ -153,5 +155,5 @@ routes.put('/:id', authMiddleware_1.authMiddleware, usersAtActivitiesController_
  *       404:
  *         description: Registro não encontrado.
  */
-routes.delete('/:id', authMiddleware_1.authMiddleware, usersAtActivitiesController_1.default.delete);
+routes.delete('/:userId/:activityId', usersAtActivitiesController_1.default.delete);
 exports.default = routes;

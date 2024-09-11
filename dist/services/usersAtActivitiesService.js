@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const usersAtActivitiesRepository_1 = __importDefault(require("../repositories/usersAtActivitiesRepository"));
 const activitiesRepository_1 = __importDefault(require("../repositories/activitiesRepository"));
+const checkInRepository_1 = __importDefault(require("../repositories/checkInRepository"));
 exports.default = {
     findManyByActivityId(activityId) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -25,6 +26,12 @@ exports.default = {
         return __awaiter(this, void 0, void 0, function* () {
             const usersAtActivities = yield usersAtActivitiesRepository_1.default.findManyByUserId(userId);
             return usersAtActivities;
+        });
+    },
+    findUserAtActivity(userId, activityId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const userAtActivity = yield checkInRepository_1.default.findUserAtActivity(userId, activityId);
+            return userAtActivity;
         });
     },
     create(_a) {
@@ -58,16 +65,17 @@ exports.default = {
             return updatedUserAtActivity;
         });
     },
-    delete(id) {
+    delete(userId, activityId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const existingUserAtActivity = yield usersAtActivitiesRepository_1.default.findById(id);
-            if (!existingUserAtActivity) {
+            const userAtActivity = yield checkInRepository_1.default.findUserAtActivity(userId, activityId);
+            //const existingUserAtActivity = await usersAtActivitiesRepository.findById(id);
+            if (!userAtActivity) {
                 throw new Error('Registro não encontrado.');
             }
             // Deleta a inscrição do usuário
-            yield usersAtActivitiesRepository_1.default.delete(id);
+            yield usersAtActivitiesRepository_1.default.delete(userAtActivity.id);
             // Verifica se há usuários na lista de espera
-            const nextInLine = yield usersAtActivitiesRepository_1.default.findFirstInWaitlist(existingUserAtActivity.activityId);
+            const nextInLine = yield usersAtActivitiesRepository_1.default.findFirstInWaitlist(userAtActivity.activityId);
             if (nextInLine) {
                 // Atualiza o status do próximo na lista de espera para um participante ativo
                 yield usersAtActivitiesRepository_1.default.update(nextInLine.id, {
@@ -76,7 +84,7 @@ exports.default = {
                     presente: false
                 });
             }
-            return existingUserAtActivity;
+            return userAtActivity;
         });
     },
 };
