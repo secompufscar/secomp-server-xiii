@@ -26,7 +26,7 @@ export default {
         const user = await usersRepository.findByEmail(email)
 
         if (!user) {
-            throw new ApiError("Usuario ou senha invalida", ErrorsCode.NOT_FOUND)
+            throw new ApiError("Usuário não existe", ErrorsCode.NOT_FOUND)
         }
 
         if(!user.confirmed) {
@@ -36,7 +36,7 @@ export default {
         const verifyPsw = compareSync(senha, user.senha)
         
         if (!verifyPsw) {
-            throw new ApiError("Usuario ou senha invalida", ErrorsCode.NOT_FOUND)
+            throw new ApiError("Senha inválida", ErrorsCode.NOT_FOUND)
         }
 
         const token = jwt.sign( { userId: user.id }, auth.secret_token, {
@@ -55,7 +55,7 @@ export default {
         const userExists = await usersRepository.findByEmail(email)
 
         if (userExists) {
-            throw new ApiError("Usuario já existe", ErrorsCode.BAD_REQUEST)
+            throw new ApiError("Usuário já existe", ErrorsCode.BAD_REQUEST)
         }
         
         const user = await usersRepository.create({
@@ -76,17 +76,14 @@ export default {
         const { senha:_, ...userLogin } = user
 
         // Envia email de confirmação
-        this.sendConfirmationEmail(user)
+        const emailEnviado = this.sendConfirmationEmail(user)
         
         //return updatedUser
 
-        return { 
-            user: userLogin,
-            token: token
-        }    
+        return emailEnviado;
     },
 
-    async sendConfirmationEmail(user: User) {
+    async sendConfirmationEmail(user: User): Promise<boolean>  {
         try {
             const emailToken = jwt.sign(
                 { user: _.pick(user, 'id') },
@@ -98,15 +95,17 @@ export default {
 
             await transporter.sendMail( {
                 to: user.email,
-                subject: "Confirme seu email",
-                html: `<h1>Olá ${user.nome}</h1>
-                Clique <a href="${url}">aqui</a> para confirmar seu email`
+                subject: "Confirmação de email",
+                html: `<h1>Olá, ${user.nome}</h1>
+                Clique <a href="${url}">aqui</a> para confirmar seu email.`
             } )
 
             console.log("Email enviado com sucesso")
+            return true;
         }
         catch(err) {
             throw new ApiError("Erro ao enviar email", ErrorsCode.INTERNAL_ERROR)
+            return false;
         }
     },
 

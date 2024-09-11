@@ -6,6 +6,8 @@ import { authMiddleware } from '../middlewares/authMiddleware'
 
 const routes = Router()
 
+//Fazer o swagger
+routes.get('/:userId/:activityId', usersAtActivitiesController.findByUserIdActivityId)
 
 /**
  * @swagger
@@ -94,7 +96,7 @@ routes.get('/all-activities/:userId', authMiddleware, usersAtActivitiesControlle
  *       201:
  *         description: Inscrição criada com sucesso.
  */
-routes.post('/', authMiddleware, usersAtActivitiesController.create);
+routes.post('/', usersAtActivitiesController.create);
 /**
  * @swagger
  * /userAtActivities/{id}:
@@ -153,6 +155,6 @@ routes.put('/:id', authMiddleware, usersAtActivitiesController.update);
  *       404:
  *         description: Registro não encontrado.
  */
-routes.delete('/:id', authMiddleware, usersAtActivitiesController.delete);
+routes.delete('/:userId/:activityId', usersAtActivitiesController.delete);
 
 export default routes;

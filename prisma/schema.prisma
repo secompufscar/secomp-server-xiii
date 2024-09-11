@@ -25,7 +25,8 @@ model User {
   updatedAt       DateTime?     @updatedAt @db.Timestamp
   confirmed       Boolean       @default(false)
   userAtActivity  UserAtActivity[]
-
+  points           Int          @default(0)
+  
 
   @@map("users")
 }
@@ -47,7 +48,7 @@ model Activity {
   nome              String     @db.VarChar(255)
   data              DateTime?   @db.Timestamp(6)
   vagas             Int?
-  detalhes          String?
+  detalhes          String?    @db.VarChar(500)
   palestranteNome   String     @db.VarChar(255)
   categoriaId       String
   createdAt         DateTime   @default(now()) @db.DateTime(6)

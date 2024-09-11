@@ -1,6 +1,8 @@
 import { UserAtActivity } from '../entities/UserAtActivity';
 import usersAtActivitiesRepository from '../repositories/usersAtActivitiesRepository';
 import activitiesRepository from '../repositories/activitiesRepository';
+import checkInRepository from '../repositories/checkInRepository';
+
 
 import { UpdateUserAtActivityDTOS, CreateUserAtActivityDTOS } from '../dtos/userAtActivitiesDtos';
 
@@ -15,6 +17,12 @@ export default {
         const usersAtActivities = await usersAtActivitiesRepository.findManyByUserId(userId)
 
         return usersAtActivities
+    },
+
+    async findUserAtActivity(userId: string, activityId: string) {
+        const userAtActivity = await checkInRepository.findUserAtActivity(userId, activityId)
+
+        return userAtActivity
     },
 
     async create({ userId, activityId }: CreateUserAtActivityDTOS) {
@@ -52,20 +60,22 @@ export default {
         return updatedUserAtActivity
     },
 
-    async delete(id: string) {
-        const existingUserAtActivity = await usersAtActivitiesRepository.findById(id);
+    async delete(userId: string, activityId: string) {
+        const userAtActivity = await checkInRepository.findUserAtActivity(userId, activityId)
 
-        if (!existingUserAtActivity) {
+        //const existingUserAtActivity = await usersAtActivitiesRepository.findById(id);
+
+        if (!userAtActivity) {
     
             throw new Error('Registro não encontrado.');
         }
 
         // Deleta a inscrição do usuário
-        await usersAtActivitiesRepository.delete(id);
+        await usersAtActivitiesRepository.delete(userAtActivity.id);
     
 
         // Verifica se há usuários na lista de espera
-        const nextInLine = await usersAtActivitiesRepository.findFirstInWaitlist(existingUserAtActivity.activityId);
+        const nextInLine = await usersAtActivitiesRepository.findFirstInWaitlist(userAtActivity.activityId);
 
         if (nextInLine) {
             // Atualiza o status do próximo na lista de espera para um participante ativo
@@ -75,6 +85,6 @@ export default {
                 presente: false
             });
         }
-        return existingUserAtActivity
+        return userAtActivity
     },
 }
