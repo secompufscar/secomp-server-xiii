@@ -73,7 +73,7 @@ routes.get('/:activityId', authMiddleware, usersAtActivitiesController.findById)
  *       200:
  *         description: Lista de atividades retornada com sucesso.
  */
-routes.get('/all-activities/:userId', usersAtActivitiesController.findByUserId);
+routes.get('/all-activities/:userId', authMiddleware, usersAtActivitiesController.findByUserId);
 /**
  * @swagger
  * /userAtActivities:
