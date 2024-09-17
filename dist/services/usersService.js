@@ -83,7 +83,6 @@ exports.default = {
                 expiresIn: auth_1.auth.expires_in_token
             });
             const { senha: _ } = user, userLogin = __rest(user, ["senha"]);
-            console.log("BRUH");
             return {
                 user: userLogin,
                 token: token
@@ -104,6 +103,7 @@ exports.default = {
             });
             const qrCode = yield (0, qrCode_1.generateQRCode)(user.id);
             const updatedUser = yield usersRepository_1.default.updateQRCode(user.id, { qrCode });
+            user.qrCode = qrCode;
             const token = jwt.sign({ userId: user.id }, auth_1.auth.secret_token, {
                 expiresIn: auth_1.auth.expires_in_token
             });
@@ -127,7 +127,7 @@ exports.default = {
                 yield transporter.sendMail({
                     to: user.email,
                     subject: "Confirme seu email",
-                    html: `<h1>Olá, ${user.nome}</h1>
+                    html: `<h1>Olá ${user.nome}</h1>
                 Clique <a href="${url}">aqui</a> para confirmar seu email`
                 });
                 console.log("Email enviado com sucesso");

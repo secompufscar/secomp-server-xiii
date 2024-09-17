@@ -99,8 +99,64 @@ export default {
             await transporter.sendMail( {
                 to: user.email,
                 subject: "Confirme seu email",
-                html: `<h1>Olá ${user.nome}</h1>
-                Clique <a href="${url}">aqui</a> para confirmar seu email`
+                html: `<!DOCTYPE html>
+		<html lang="en">
+		<head>
+		  <meta charset="UTF-8">
+		  <title>Document</title>
+		</head>
+		<body>
+		  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+			<tr>
+			  
+			  <td 
+				style=
+				"background-color: #4E0452;
+				color: white;
+				text-align: center;
+				padding: 50px 0;
+				font-family: Arial, sans-serif;"
+			  >
+				<img src="https://prnt.sc/cEGh_iaBYYFK" alt="Logo ou Imagem Relacionada" style="width:150px; height:auto; border-radius: 50%;">
+				<h1>Confirmação de e-mail</h1>
+			  </td>
+			</tr>
+			<tr>
+			  <td style="padding: 20px; font-family: Arial, sans-serif;">
+				<p>Olá, <strong>{{user_name}}</strong>.</p>
+				<p>Estamos muito felizes com seu ingresso no <strong>{{title}}</strong>. Para concluir o cadastro utilize o seguinte código:</p>
+				<a href={{link_confirmacao}}
+				  style="display: block;
+				  width: 280px;
+				  height: 80px;
+				  margin: 20px auto;
+				  background-color: #8E1099;
+				  text-align: center;
+				  border-radius: 16px;
+				  line-height: 80px;
+				  color: white;
+				  text-decoration: none;"
+				>Confirmar e-mail</a>
+				<p>Se o botão acima não funcionar, copie e cole o link no navegador:</p>
+				<p><a href={{link_confirmacao}}>{{link_confirmacao}}</a></p>
+			  </td>
+			</tr>
+			<tr>
+			  <td 
+				style="background-color: #E6E6E6;
+				padding: 20px;
+				font-size: 15px;
+				font-family: Arial, sans-serif;"
+			  >
+				<p>NomeApp. Endereço Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+				<p>© NomeApp. Todos os direitos reservados. <a href="LINK_DA_POLITICA_AQUI">Política de privacidade</a></p>
+				<p>Este é um e-mail automático. Não responda a este e-mail.</p>
+				<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+			  </td>
+			</tr>
+		  </table>
+		</body>
+		</html>`
             } )
 
             console.log("Email enviado com sucesso")
