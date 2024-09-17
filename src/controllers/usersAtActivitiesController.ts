@@ -20,6 +20,14 @@ export default {
     response.status(200).json(data)
   },
 
+  async findByUserIdActivityId(request: Request, response: Response) {
+    const { userId, activityId} = request.params;
+
+    const data = await usersAtActivities.findUserAtActivity(userId, activityId)
+
+    response.status(200).json(data)
+  },
+
   async create(request: Request, response: Response) {
     const data = await usersAtActivities.create(request.body)
 
@@ -35,9 +43,9 @@ export default {
   },
 
   async delete(request: Request, response: Response) {
-    const { id } = request.params;
+    const {userId, activityId } = request.params;
 
-    await usersAtActivities.delete(id)
+    await usersAtActivities.delete(userId, activityId)
 
     response.status(200).send()
   }

@@ -26,7 +26,7 @@ export default {
         const user = await usersRepository.findByEmail(email)
 
         if (!user) {
-            throw new ApiError("Usuario ou senha invalida", ErrorsCode.NOT_FOUND)
+            throw new ApiError("Usuário não existe", ErrorsCode.NOT_FOUND)
         }
 
         if(!user.confirmed) {
@@ -36,7 +36,7 @@ export default {
         const verifyPsw = compareSync(senha, user.senha)
         
         if (!verifyPsw) {
-            throw new ApiError("Usuario ou senha invalida", ErrorsCode.NOT_FOUND)
+            throw new ApiError("Senha inválida", ErrorsCode.NOT_FOUND)
         }
 
         const token = jwt.sign( { userId: user.id }, auth.secret_token, {
@@ -55,7 +55,7 @@ export default {
         const userExists = await usersRepository.findByEmail(email)
 
         if (userExists) {
-            throw new ApiError("Usuario já existe", ErrorsCode.BAD_REQUEST)
+            throw new ApiError("Usuário já existe", ErrorsCode.BAD_REQUEST)
         }
         
         const user = await usersRepository.create({
@@ -76,17 +76,14 @@ export default {
         const { senha:_, ...userLogin } = user
 
         // Envia email de confirmação
-        this.sendConfirmationEmail(user)
+        const emailEnviado = this.sendConfirmationEmail(user)
         
         //return updatedUser
 
-        return { 
-            user: userLogin,
-            token: token
-        }    
+        return emailEnviado;
     },
 
-    async sendConfirmationEmail(user: User) {
+    async sendConfirmationEmail(user: User): Promise<boolean>  {
         try {
             const emailToken = jwt.sign(
                 { user: _.pick(user, 'id') },
@@ -99,70 +96,16 @@ export default {
             await transporter.sendMail( {
                 to: user.email,
                 subject: "Confirme seu email",
-                html: `<!DOCTYPE html>
-		<html lang="en">
-		<head>
-		  <meta charset="UTF-8">
-		  <title>Document</title>
-		</head>
-		<body>
-		  <table width="100%" cellpadding="0" cellspacing="0" border="0">
-			<tr>
-			  
-			  <td 
-				style=
-				"background-color: #4E0452;
-				color: white;
-				text-align: center;
-				padding: 50px 0;
-				font-family: Arial, sans-serif;"
-			  >
-				<img src="https://prnt.sc/cEGh_iaBYYFK" alt="Logo ou Imagem Relacionada" style="width:150px; height:auto; border-radius: 50%;">
-				<h1>Confirmação de e-mail</h1>
-			  </td>
-			</tr>
-			<tr>
-			  <td style="padding: 20px; font-family: Arial, sans-serif;">
-				<p>Olá, <strong>{{user_name}}</strong>.</p>
-				<p>Estamos muito felizes com seu ingresso no <strong>{{title}}</strong>. Para concluir o cadastro utilize o seguinte código:</p>
-				<a href={{link_confirmacao}}
-				  style="display: block;
-				  width: 280px;
-				  height: 80px;
-				  margin: 20px auto;
-				  background-color: #8E1099;
-				  text-align: center;
-				  border-radius: 16px;
-				  line-height: 80px;
-				  color: white;
-				  text-decoration: none;"
-				>Confirmar e-mail</a>
-				<p>Se o botão acima não funcionar, copie e cole o link no navegador:</p>
-				<p><a href={{link_confirmacao}}>{{link_confirmacao}}</a></p>
-			  </td>
-			</tr>
-			<tr>
-			  <td 
-				style="background-color: #E6E6E6;
-				padding: 20px;
-				font-size: 15px;
-				font-family: Arial, sans-serif;"
-			  >
-				<p>NomeApp. Endereço Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-				<p>© NomeApp. Todos os direitos reservados. <a href="LINK_DA_POLITICA_AQUI">Política de privacidade</a></p>
-				<p>Este é um e-mail automático. Não responda a este e-mail.</p>
-				<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
-			  </td>
-			</tr>
-		  </table>
-		</body>
-		</html>`
+                html: `<h1>Olá ${user.nome}</h1>
+                Clique <a href="${url}">aqui</a> para confirmar seu email`
             } )
 
             console.log("Email enviado com sucesso")
+            return true;
         }
         catch(err) {
             throw new ApiError("Erro ao enviar email", ErrorsCode.INTERNAL_ERROR)
+            return false;
         }
     },
 

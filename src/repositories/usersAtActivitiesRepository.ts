@@ -42,7 +42,8 @@ export default {
                 userId,
             },
             include: {
-                user: true
+                user: true,
+                activity: true
             }
         
         })

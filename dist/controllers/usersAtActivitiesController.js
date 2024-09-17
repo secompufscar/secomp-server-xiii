@@ -28,6 +28,13 @@ exports.default = {
             response.status(200).json(data);
         });
     },
+    findByUserIdActivityId(request, response) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { userId, activityId } = request.params;
+            const data = yield usersAtActivitiesService_1.default.findUserAtActivity(userId, activityId);
+            response.status(200).json(data);
+        });
+    },
     create(request, response) {
         return __awaiter(this, void 0, void 0, function* () {
             const data = yield usersAtActivitiesService_1.default.create(request.body);
@@ -43,8 +50,8 @@ exports.default = {
     },
     delete(request, response) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { id } = request.params;
-            yield usersAtActivitiesService_1.default.delete(id);
+            const { userId, activityId } = request.params;
+            yield usersAtActivitiesService_1.default.delete(userId, activityId);
             response.status(200).send();
         });
     }
