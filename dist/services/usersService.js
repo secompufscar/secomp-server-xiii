@@ -123,9 +123,9 @@ exports.default = {
                 const url = `https://api.secompufscar.com.br/api/v1/users/confirmation/${emailToken}`;
                 yield transporter.sendMail({
                     to: user.email,
-                    subject: "Confirmação de email",
-                    html: `<h1>Olá, ${user.nome}</h1>
-                Clique <a href="${url}">aqui</a> para confirmar seu email.`
+                    subject: "Confirme seu email",
+                    html: `<h1>Olá ${user.nome}</h1>
+                Clique <a href="${url}">aqui</a> para confirmar seu email`
                 });
                 console.log("Email enviado com sucesso");
                 return true;
