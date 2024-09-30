@@ -22,7 +22,9 @@ export default {
     async confirmEmail(request: Request, response: Response) {
         const data = await usersService.confirmUser(request.params.token)
 
-        response.status(200).json(data)
+        if (data) {
+            response.render('confirmationSuccess', { data })
+        }
     },
 
     async sendForgotPasswordEmail(request: Request, response: Response) {

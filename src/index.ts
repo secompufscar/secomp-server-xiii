@@ -3,10 +3,16 @@ import express from 'express'
 import cors from 'cors'
 import errorHandler from './middlewares/errorHandler'
 import routes from './routes'
+import path from "path"
 import { setupSwagger } from './swagger';
 
 
 const app = express()
+
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
+
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(express.json())
 app.use(cors())

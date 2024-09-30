@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmação de E-mail</title>
+    <!-- <script>
+      setTimeout(() => {
+          window.location.href = "hhttps://app.secompufscar.com.br/";
+      }, 5000);
+    </script> -->
+    <style>
+    .html {
+        font-family: Arial, Helvetica, sans-serif;
+    }
+    .container {
+        display: flex;
+        flex-direction: column;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        text-align: center;
+        margin-top: 10vw;
+        margin-left: 25vw;
+        margin-right: 25vw;
+        border: 1.9px solid white;
+        border-radius: 5rem;
+        box-shadow: rgba(0, 0, 0, 0.4) 0px 10px 30px 0px;
+        padding: 1rem;
+        background-color: white;
+    }
+
+    body {
+        background-color: #445be6;
+        height: 100vh;
+        margin: 0;
+    }
+
+    h1 {
+        font-size: 1.25rem;
+    }
+    p {
+        font-size: 1rem;
+    }
+    </style>
+</head>
+<body>
+    <div class="container">
+      <h1>Confirmação de E-mail</h1>
+      <p>O e-mail foi confirmado com sucesso, <%= data.user.nome %>!</p>
+      <p>Você será redirecionado em 5 segundos...</p>
+    </div>
+</body>
+</html>
