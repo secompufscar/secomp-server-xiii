@@ -120,7 +120,7 @@ exports.default = {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const emailToken = jwt.sign({ user: lodash_1.default.pick(user, 'id') }, sendEmail_1.email.email_secret, { expiresIn: '1d' });
-                const url = `https://api.secompufscar.com.br/api/v1/users/confirmation/${emailToken}`;
+                const url = `http://localhost:3000/api/v1/users/confirmation/${emailToken}`;
                 yield transporter.sendMail({
                     to: user.email,
                     subject: "Confirme seu email",
@@ -131,7 +131,7 @@ exports.default = {
                 return true;
             }
             catch (err) {
-                throw new api_errors_1.ApiError("Erro ao enviar email", api_errors_1.ErrorsCode.INTERNAL_ERROR);
+                throw new api_errors_1.ApiError(`Erro ao enviar email: ${err}`, api_errors_1.ErrorsCode.INTERNAL_ERROR);
                 return false;
             }
         });
@@ -148,9 +148,10 @@ exports.default = {
                         user: confirmedUser
                     };
                 }
+                throw new Error("Usuário não reconhecido");
             }
             catch (err) {
-                throw new api_errors_1.ApiError("Erro ao confirmar e-mail", api_errors_1.ErrorsCode.INTERNAL_ERROR);
+                throw new api_errors_1.ApiError(`Erro ao confirmar e-mail: ${err}`, api_errors_1.ErrorsCode.INTERNAL_ERROR);
             }
         });
     },
@@ -169,7 +170,7 @@ exports.default = {
                 console.log("Email enviado com sucesso");
             }
             catch (err) {
-                throw new api_errors_1.ApiError("Erro ao enviar email", api_errors_1.ErrorsCode.INTERNAL_ERROR);
+                throw new api_errors_1.ApiError(`Erro ao enviar email: ${err}`, api_errors_1.ErrorsCode.INTERNAL_ERROR);
             }
         });
     },

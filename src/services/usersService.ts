@@ -104,7 +104,7 @@ export default {
             return true;
         }
         catch(err) {
-            throw new ApiError("Erro ao enviar email", ErrorsCode.INTERNAL_ERROR)
+            throw new ApiError(`Erro ao enviar email: ${err}`, ErrorsCode.INTERNAL_ERROR)
             return false;
         }
     },
@@ -124,9 +124,10 @@ export default {
                 }
             }
 
+            throw new Error("Usuário não reconhecido")
         }
         catch(err) {
-            throw new ApiError("Erro ao confirmar e-mail", ErrorsCode.INTERNAL_ERROR)
+            throw new ApiError(`Erro ao confirmar e-mail: ${err}`, ErrorsCode.INTERNAL_ERROR)
         }
     },
 
@@ -150,7 +151,7 @@ export default {
             console.log("Email enviado com sucesso")
         }
         catch(err) {
-            throw new ApiError("Erro ao enviar email", ErrorsCode.INTERNAL_ERROR)
+            throw new ApiError(`Erro ao enviar email: ${err}`, ErrorsCode.INTERNAL_ERROR)
         }
     },
 
