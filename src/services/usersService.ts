@@ -91,7 +91,7 @@ export default {
                 { expiresIn: '1d' }
             )
 
-            const url = `http://localhost:3000/api/v1/users/confirmation/${emailToken}`
+            const url = `https://api.secompufscar.com.br/api/v1/users/confirmation/${emailToken}`
 
             await transporter.sendMail( {
                 to: user.email,
