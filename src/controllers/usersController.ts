@@ -20,10 +20,18 @@ export default {
     },
 
     async confirmEmail(request: Request, response: Response) {
-        const data = await usersService.confirmUser(request.params.token)
+        try {
+            const data = await usersService.confirmUser(request.params.token)
 
-        if (data) {
-            response.render('confirmationSuccess', { data })
+            if (data) {
+                response.render('confirmationSuccess', { data })
+            }
+            else {
+                response.render('confirmationError', { motivo: "Usuário não reconhecido" })
+            }
+        }
+        catch {
+            response.render('confirmationError', { motivo: "Erro interno"})
         }
     },
 

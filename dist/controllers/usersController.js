@@ -33,8 +33,18 @@ exports.default = {
     },
     confirmEmail(request, response) {
         return __awaiter(this, void 0, void 0, function* () {
-            const data = yield usersService_1.default.confirmUser(request.params.token);
-            response.status(200).json(data);
+            try {
+                const data = yield usersService_1.default.confirmUser(request.params.token);
+                if (data) {
+                    response.render('confirmationSuccess', { data });
+                }
+                else {
+                    response.render('confirmationError', { motivo: "Usuário não reconhecido" });
+                }
+            }
+            catch (_a) {
+                response.render('confirmationError', { motivo: "Erro interno" });
+            }
         });
     },
     sendForgotPasswordEmail(request, response) {
