@@ -101,7 +101,7 @@ export default {
                         <div style="margin-bottom: 20px;">
                             <img src="https://i.imgur.com/n61bSCd.png" alt="Logo" style="max-width: 200px;">
                         </div>
-                        <h2 style="color: #333;">Olá ${user.nome}!</h2>
+                        <h2 style="color: #333;">Olá, ${user.nome}!</h2>
                         <p>Clique <a href="${url}" style="color: #007BFF; text-decoration: none; font-weight: bold;">aqui</a> para confirmar seu email.</p>
                     </div>
                 `
@@ -111,7 +111,7 @@ export default {
             return true;
         }
         catch(err) {
-            throw new ApiError(`Erro ao enviar email: ${err}`, ErrorsCode.INTERNAL_ERROR)
+            throw new ApiError(`Erro ao enviar email`, ErrorsCode.INTERNAL_ERROR)
             return false;
         }
     },
@@ -131,10 +131,10 @@ export default {
                 }
             }
 
-            throw new Error("Usuário não reconhecido")
+            throw new Error("Token de confirmação inválido!")
         }
         catch(err) {
-            throw new ApiError(`Erro ao confirmar e-mail: ${err}`, ErrorsCode.INTERNAL_ERROR)
+            throw new ApiError(`Erro ao confirmar e-mail!`, ErrorsCode.INTERNAL_ERROR)
         }
     },
 
@@ -155,10 +155,9 @@ export default {
                 Parece que você esqueceu a sua senha.
                 Clique <a href="${url}">aqui</a> para alterar sua senha`
             } )
-            console.log("Email enviado com sucesso")
         }
         catch(err) {
-            throw new ApiError(`Erro ao enviar email: ${err}`, ErrorsCode.INTERNAL_ERROR)
+            throw new ApiError(`Erro ao enviar email!`, ErrorsCode.INTERNAL_ERROR)
         }
     },
 
@@ -181,7 +180,7 @@ export default {
 
         }
         catch(err) {
-            throw new ApiError("Erro ao confirmar e-mail", ErrorsCode.INTERNAL_ERROR)
+            throw new ApiError("Erro ao confirmar e-mail!", ErrorsCode.INTERNAL_ERROR)
         }
     }
 }
