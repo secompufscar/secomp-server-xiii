@@ -26,17 +26,17 @@ export default {
         const user = await usersRepository.findByEmail(email)
 
         if (!user) {
-            throw new ApiError("Usuário não existe", ErrorsCode.NOT_FOUND)
-        }
-
-        if(!user.confirmed) {
-            throw new ApiError("E-mail ainda não verificado", ErrorsCode.BAD_REQUEST)
+            throw new ApiError("Email ou senha incorreto!", ErrorsCode.NOT_FOUND)
         }
     
         const verifyPsw = compareSync(senha, user.senha)
         
         if (!verifyPsw) {
-            throw new ApiError("Senha inválida", ErrorsCode.NOT_FOUND)
+            throw new ApiError("Email ou senha incorreto!", ErrorsCode.NOT_FOUND)
+        }
+
+        if(!user.confirmed) {
+            throw new ApiError("Por favor, verifique o seu email e tente novamente!", ErrorsCode.BAD_REQUEST)
         }
 
         const token = jwt.sign( { userId: user.id }, auth.secret_token, {
@@ -55,7 +55,7 @@ export default {
         const userExists = await usersRepository.findByEmail(email)
 
         if (userExists) {
-            throw new ApiError("Usuário já existe", ErrorsCode.BAD_REQUEST)
+            throw new ApiError("Este email já existe na base de dados!", ErrorsCode.BAD_REQUEST)
         }
         
         const user = await usersRepository.create({
@@ -96,8 +96,15 @@ export default {
             await transporter.sendMail( {
                 to: user.email,
                 subject: "Confirme seu email",
-                html: `<h1>Olá ${user.nome}</h1>
-                Clique <a href="${url}">aqui</a> para confirmar seu email`
+                html: `
+                    <div style=" background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);">
+                        <div style="margin-bottom: 20px;">
+                            <img src="https://i.imgur.com/n61bSCd.png" alt="Logo" style="max-width: 200px;">
+                        </div>
+                        <h2 style="color: #333;">Olá ${user.nome}!</h2>
+                        <p>Clique <a href="${url}" style="color: #007BFF; text-decoration: none; font-weight: bold;">aqui</a> para confirmar seu email.</p>
+                    </div>
+                `
             } )
 
             console.log("Email enviado com sucesso")

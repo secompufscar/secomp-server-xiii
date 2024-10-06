@@ -70,14 +70,14 @@ exports.default = {
         return __awaiter(this, arguments, void 0, function* ({ email, senha }) {
             const user = yield usersRepository_1.default.findByEmail(email);
             if (!user) {
-                throw new api_errors_1.ApiError("Usuário não existe", api_errors_1.ErrorsCode.NOT_FOUND);
-            }
-            if (!user.confirmed) {
-                throw new api_errors_1.ApiError("E-mail ainda não verificado", api_errors_1.ErrorsCode.BAD_REQUEST);
+                throw new api_errors_1.ApiError("Email ou senha incorreto!", api_errors_1.ErrorsCode.NOT_FOUND);
             }
             const verifyPsw = (0, bcrypt_1.compareSync)(senha, user.senha);
             if (!verifyPsw) {
-                throw new api_errors_1.ApiError("Senha inválida", api_errors_1.ErrorsCode.NOT_FOUND);
+                throw new api_errors_1.ApiError("Email ou senha incorreto!", api_errors_1.ErrorsCode.NOT_FOUND);
+            }
+            if (!user.confirmed) {
+                throw new api_errors_1.ApiError("Por favor, verifique o seu email e tente novamente!", api_errors_1.ErrorsCode.BAD_REQUEST);
             }
             const token = jwt.sign({ userId: user.id }, auth_1.auth.secret_token, {
                 expiresIn: auth_1.auth.expires_in_token
@@ -93,7 +93,7 @@ exports.default = {
         return __awaiter(this, arguments, void 0, function* ({ nome, email, senha, tipo = 'USER' }) {
             const userExists = yield usersRepository_1.default.findByEmail(email);
             if (userExists) {
-                throw new api_errors_1.ApiError("Usuário já existe", api_errors_1.ErrorsCode.BAD_REQUEST);
+                throw new api_errors_1.ApiError("Este email já existe na base de dados!", api_errors_1.ErrorsCode.BAD_REQUEST);
             }
             const user = yield usersRepository_1.default.create({
                 nome,
@@ -120,12 +120,19 @@ exports.default = {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const emailToken = jwt.sign({ user: lodash_1.default.pick(user, 'id') }, sendEmail_1.email.email_secret, { expiresIn: '1d' });
-                const url = `http://localhost:3000/api/v1/users/confirmation/${emailToken}`;
+                const url = `https://api.secompufscar.com.br/api/v1/users/confirmation/${emailToken}`;
                 yield transporter.sendMail({
                     to: user.email,
                     subject: "Confirme seu email",
-                    html: `<h1>Olá ${user.nome}</h1>
-                Clique <a href="${url}">aqui</a> para confirmar seu email`
+                    html: `
+                    <div style=" background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);">
+                        <div style="margin-bottom: 20px;">
+                            <img src="https://i.imgur.com/n61bSCd.png" alt="Logo" style="max-width: 200px;">
+                        </div>
+                        <h2 style="color: #333;">Olá ${user.nome}!</h2>
+                        <p>Clique <a href="${url}" style="color: #007BFF; text-decoration: none; font-weight: bold;">aqui</a> para confirmar seu email.</p>
+                    </div>
+                `
                 });
                 console.log("Email enviado com sucesso");
                 return true;

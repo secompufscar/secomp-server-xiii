@@ -18,6 +18,4 @@ routes.use('/admin', adminRoutes)
 //routes.use('/diretorias', diretoriasRoutes)
 routes.use('/checkIn', checkInRoutes)
 
-routes.get('/', (_, response) => response.status(200).json({ message: "API SECOMP XII" }))
-
 export default routes

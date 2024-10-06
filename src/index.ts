@@ -18,6 +18,8 @@ app.use(express.json())
 app.use(cors())
 app.use('/api/v1', routes);
 
+app.get('/*', (_, response) => response.status(200).json({ message: "API SECOMP UFSCar XII" }))
+
 app.use(errorHandler);
 setupSwagger(app);
 

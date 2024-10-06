@@ -19,5 +19,4 @@ routes.use('/userAtActivities', usersAtActivities_1.default);
 routes.use('/admin', admin_1.default);
 //routes.use('/diretorias', diretoriasRoutes)
 routes.use('/checkIn', checkIn_1.default);
-routes.get('/', (_, response) => response.status(200).json({ message: "API SECOMP XII" }));
 exports.default = routes;

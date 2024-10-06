@@ -17,6 +17,7 @@ app.use(express_1.default.static(path_1.default.join(__dirname, 'public')));
 app.use(express_1.default.json());
 app.use((0, cors_1.default)());
 app.use('/api/v1', routes_1.default);
+app.get('/*', (_, response) => response.status(200).json({ message: "API SECOMP UFSCar XII" }));
 app.use(errorHandler_1.default);
 (0, swagger_1.setupSwagger)(app);
 const PORT = process.env.PORT || 3333;
