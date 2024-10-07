@@ -101,9 +101,9 @@ exports.default = {
                 senha: (0, bcrypt_1.hashSync)(senha, 10),
                 tipo,
             });
-            const qrCode = yield (0, qrCode_1.generateQRCode)(user.id);
-            const updatedUser = yield usersRepository_1.default.updateQRCode(user.id, { qrCode });
-            user.qrCode = qrCode;
+            // const qrCode = yield (0, qrCode_1.generateQRCode)(user.id);
+            // const updatedUser = yield usersRepository_1.default.updateQRCode(user.id, { qrCode });
+            // user.qrCode = qrCode;
             const token = jwt.sign({ userId: user.id }, auth_1.auth.secret_token, {
                 expiresIn: auth_1.auth.expires_in_token
             });
