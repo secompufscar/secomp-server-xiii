@@ -94,7 +94,7 @@ routes.get('/', activitiesController.list);
  *       404:
  *         description: Atividade não encontrada.
  */
-routes.get('/:id', validate(undefined, activityIdSchema), activitiesController.findById);
+routes.get('/:id', activitiesController.findById);
 
 /**
  * @swagger
