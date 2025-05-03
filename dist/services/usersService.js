@@ -54,7 +54,6 @@ const usersRepository_1 = __importDefault(require("../repositories/usersReposito
 const auth_1 = require("../config/auth");
 const sendEmail_1 = require("../config/sendEmail");
 const api_errors_1 = require("../utils/api-errors");
-const qrCode_1 = require("../utils/qrCode");
 // Edite aqui o transportador de email
 const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
@@ -101,9 +100,9 @@ exports.default = {
                 senha: (0, bcrypt_1.hashSync)(senha, 10),
                 tipo,
             });
-            // const qrCode = yield (0, qrCode_1.generateQRCode)(user.id);
-            // const updatedUser = yield usersRepository_1.default.updateQRCode(user.id, { qrCode });
-            // user.qrCode = qrCode;
+            // const qrCode = await generateQRCode(user.id);
+            // const updatedUser = await usersRepository.updateQRCode(user.id, {qrCode});
+            // user.qrCode = qrCode
             const token = jwt.sign({ userId: user.id }, auth_1.auth.secret_token, {
                 expiresIn: auth_1.auth.expires_in_token
             });
@@ -129,7 +128,7 @@ exports.default = {
                         <div style="margin-bottom: 20px;">
                             <img src="https://i.imgur.com/n61bSCd.png" alt="Logo" style="max-width: 200px;">
                         </div>
-                        <h2 style="color: #333;">Olá ${user.nome}!</h2>
+                        <h2 style="color: #333;">Olá, ${user.nome}!</h2>
                         <p>Clique <a href="${url}" style="color: #007BFF; text-decoration: none; font-weight: bold;">aqui</a> para confirmar seu email.</p>
                     </div>
                 `
@@ -138,7 +137,7 @@ exports.default = {
                 return true;
             }
             catch (err) {
-                throw new api_errors_1.ApiError(`Erro ao enviar email: ${err}`, api_errors_1.ErrorsCode.INTERNAL_ERROR);
+                throw new api_errors_1.ApiError(`Erro ao enviar email`, api_errors_1.ErrorsCode.INTERNAL_ERROR);
                 return false;
             }
         });
@@ -155,10 +154,10 @@ exports.default = {
                         user: confirmedUser
                     };
                 }
-                throw new Error("Usuário não reconhecido");
+                throw new Error("Token de confirmação inválido!");
             }
             catch (err) {
-                throw new api_errors_1.ApiError(`Erro ao confirmar e-mail: ${err}`, api_errors_1.ErrorsCode.INTERNAL_ERROR);
+                throw new api_errors_1.ApiError(`Erro ao confirmar e-mail!`, api_errors_1.ErrorsCode.INTERNAL_ERROR);
             }
         });
     },
@@ -174,10 +173,9 @@ exports.default = {
                 Parece que você esqueceu a sua senha.
                 Clique <a href="${url}">aqui</a> para alterar sua senha`
                 });
-                console.log("Email enviado com sucesso");
             }
             catch (err) {
-                throw new api_errors_1.ApiError(`Erro ao enviar email: ${err}`, api_errors_1.ErrorsCode.INTERNAL_ERROR);
+                throw new api_errors_1.ApiError(`Erro ao enviar email!`, api_errors_1.ErrorsCode.INTERNAL_ERROR);
             }
         });
     },
@@ -197,7 +195,7 @@ exports.default = {
                 }
             }
             catch (err) {
-                throw new api_errors_1.ApiError("Erro ao confirmar e-mail", api_errors_1.ErrorsCode.INTERNAL_ERROR);
+                throw new api_errors_1.ApiError("Erro ao confirmar e-mail!", api_errors_1.ErrorsCode.INTERNAL_ERROR);
             }
         });
     }

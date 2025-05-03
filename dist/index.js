@@ -11,7 +11,7 @@ const routes_1 = __importDefault(require("./routes"));
 const path_1 = __importDefault(require("path"));
 const swagger_1 = require("./swagger");
 const app = (0, express_1.default)();
-app.set('views', path_1.default.join(__dirname, 'views'));
+app.set('views', path_1.default.join(__dirname, "..", "src", 'views'));
 app.set('view engine', 'ejs');
 app.use(express_1.default.static(path_1.default.join(__dirname, 'public')));
 app.use(express_1.default.json());
