@@ -18,10 +18,10 @@ app.use(express.json())
 app.use(cors())
 app.use('/api/v1', routes);
 
+setupSwagger(app);
 app.get('/*', (_, response) => response.status(200).json({ message: "API SECOMP UFSCar XII" }))
 
 app.use(errorHandler);
-setupSwagger(app);
 
 const PORT  = process.env.PORT || 3333
 
