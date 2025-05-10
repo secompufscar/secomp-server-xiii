@@ -180,41 +180,21 @@ routes.get('/updatePassword/:token', usersController.updateForgottenPassword)
  *   post:
  *     summary: Envia um email para um usuário que esqueceu sua senha.
  *     requestBody:
- *       required: false 
+ *       required: true 
  *       content:
  *         application/json:
  *           schema:
  *             type: object
  *             properties:
- *               id:
+ *               email:
  *                 type: string
  *                 format: email
  *                 example: "usuario@example.com"
- *               nome:
- *                 type: string
- *                 example: "Fulano da Silva"
- *               tipo:
- *                 type: string
- *                 example: "USER"
- *               qrCode:
- *                 type: string
- *                 example: "fwaegfaiwyegfiawegfkhagekfgogqowgfayuwegfka"
- *               createdAt:
- *                 type: string
- *                 format: date-time
- *                 example: "2024-08-31T14:37:41.050Z"
- *               updatedAt:
- *                 type: string
- *                 format: date-time
- *                 example: "2024-08-31T14:37:41.050Z"
- *               confirmed:
- *                 type: boolean
- *                 example: false
  *     responses:
  *       200:
- *         description: Email de alteração de senha enviado corretamente
+ *         description: Email de alteração de senha enviado 
  *       500:
  *         description: Internal server error
  */
-routes.post('/sendForgotPasswordEmail', authMiddleware, usersController.sendForgotPasswordEmail)
+routes.post('/sendForgotPasswordEmail', usersController.sendForgotPasswordEmail)
 export default routes

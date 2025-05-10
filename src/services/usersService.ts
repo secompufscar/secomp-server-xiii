@@ -12,14 +12,14 @@ import { CreateUserDTOS, UpdateUserDTOS, UpdateQrCodeUsersDTOS } from "../dtos/u
 
 // Edite aqui o transportador de email
 const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 587,
+    host: process.env.SMTP_HOST,
+    port: Number(process.env.SMTP_PORT),
     secure: false,
     auth: {
-        user: email.email_address,
-        pass: email.email_password
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
     }
-})
+} as nodemailer.TransportOptions)
 
 export default {
     async login({ email, senha }: User) {
@@ -138,26 +138,42 @@ export default {
         }
     },
 
-    async sendForgotPasswordEmail(user: User) {
+    async sendForgotPasswordEmail(email: string) {
         try {
+            const user = await usersRepository.findByEmail(email)
+            if (!user) {
+                throw new ApiError("Usuário não encontrado!", ErrorsCode.NOT_FOUND)
+            }
+
             const emailToken = jwt.sign(
-                { user: _.pick(user, 'id') },
-                email.email_secret,
-                { expiresIn: '1d' }
+                //{ userId: user.id}, 
+                //process.env.JWT_RESET_SECRET || "default_secret",
+                //{ expiresIn: '1H' }
+                //Versão a baixo para teste local
+                { userId: user.id}, 
+                process.env.JWT_RESET_SECRET || "default_secret",
+                { expiresIn: '1H' }
             )
 
             const url = `https://api.secompufscar.com.br/api/v1/users/updatePassword/${emailToken}`
 
-            await transporter.sendMail( {
+            await transporter.sendMail({
                 to: user.email,
-                subject: "Atulização de senha",
-                html: `<h1>Olá, ${user.nome}</h1>
-                Parece que você esqueceu a sua senha.
-                Clique <a href="${url}">aqui</a> para alterar sua senha`
-            } )
+                subject: "Redefinição de Senha - SECOMP UFSCar", // Assunto mais claro
+                html: `
+                    <h1>Olá, ${user.nome}</h1>
+                    <p>Clique no link abaixo para redefinir sua senha:</p>
+                    <a href="${url}">${url}</a>
+                    <p><i>Link válido por 1 hora</i></p>
+                `
+            })
         }
         catch(err) {
-            throw new ApiError(`Erro ao enviar email!`, ErrorsCode.INTERNAL_ERROR)
+            console.log("Erro no serviço de recuperação de senha", err)
+            throw new ApiError(
+                "Erro ao enviar email de recuperação de senha!", 
+                ErrorsCode.INTERNAL_ERROR
+            )
         }
     },
 

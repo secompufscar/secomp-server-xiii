@@ -36,10 +36,14 @@ export default {
     },
 
     async sendForgotPasswordEmail(request: Request, response: Response) {
-        const user = request.user as User
-        await usersService.sendForgotPasswordEmail(user)
-
-        response.status(200).json({ message: "Email enviado com sucesso" })
+        try {
+            const { email} = request.body
+            await usersService.sendForgotPasswordEmail(email)
+            response.status(200).json({ message: "Email enviado com sucesso" })
+        } 
+        catch (error) {
+            response.status(500).json({ message: "Erro ao enviar email" })
+        }
     },
 
     async updateForgottenPassword(request: Request, response: Response) {
