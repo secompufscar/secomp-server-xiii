@@ -136,7 +136,7 @@ routes.get('/confirmation/:token', usersController.confirmEmail)
 /**
  * @swagger
  * /updatePassword/{token}:
- *   get:
+ *   patch:
  *     summary: Altera a senha de um usuário.
  *     parameters:
  *       - in: path
@@ -145,6 +145,14 @@ routes.get('/confirmation/:token', usersController.confirmEmail)
  *         description: Token de reset de senha
  *         schema:
  *           type: string
+ *         content:
+ *          application/json:
+ *           schema:
+ *            type: object
+ *           properties:
+ *            senha:
+ *              type: string
+ *             example: "novaSenha123"
  *     responses:
  *       200:
  *         description: Usuário com senha alterada corretamente
@@ -172,7 +180,7 @@ routes.get('/confirmation/:token', usersController.confirmEmail)
  *       500:
  *         description: Internal server error
  */
-routes.get('/updatePassword/:token', usersController.updateForgottenPassword)
+routes.patch('/updatePassword/:token', usersController.updateForgottenPassword)
 
 /**
  * @swagger

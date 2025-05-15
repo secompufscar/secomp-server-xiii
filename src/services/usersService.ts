@@ -1,7 +1,7 @@
 import * as jwt from "jsonwebtoken"
 import * as nodemailer from "nodemailer"
 import _ from "lodash"
-import { compareSync, hashSync } from 'bcrypt';
+import { compareSync, hashSync, hash } from 'bcrypt';
 import usersRepository from '../repositories/usersRepository';
 import { auth } from '../config/auth';
 import { email } from '../config/sendEmail';
@@ -39,9 +39,9 @@ export default {
             throw new ApiError("Por favor, verifique o seu email e tente novamente!", ErrorsCode.BAD_REQUEST)
         }
 
-        const token = jwt.sign( { userId: user.id }, auth.secret_token, {
-            expiresIn: auth.expires_in_token
-        })
+        const token = jwt.sign({ userId: user.id }, auth.secret_token as jwt.Secret, {
+            expiresIn: auth.expires_in_token as string | number
+        });
     
         const { senha:_, ...userLogin } = user
 
@@ -106,7 +106,7 @@ export default {
                     </div>
                 `
             } )
-
+            
             console.log("Email enviado com sucesso")
             return true;
         }
@@ -155,7 +155,7 @@ export default {
                 { expiresIn: '1H' }
             )
 
-            const url = `https://api.secompufscar.com.br/api/v1/users/updatePassword/${emailToken}`
+            const url = `http://localhost:3333/api/v1/users/updatePassword/${emailToken}`//`https://api.secompufscar.com.br/api/v1/users/updatePassword/${emailToken}`
 
             await transporter.sendMail({
                 to: user.email,
@@ -167,6 +167,9 @@ export default {
                     <p><i>Link válido por 1 hora</i></p>
                 `
             })
+
+            //para teste
+            console.log(emailToken)
         }
         catch(err) {
             console.log("Erro no serviço de recuperação de senha", err)
@@ -177,26 +180,36 @@ export default {
         }
     },
 
-    async updatePassword(token: string) {
-        // TODO: esse método é acessado após o usuário clicar no link de email. Talvez seja mais
-        // interessante redirecionar o usuário para uma página de alteração de senha
-        try {
-            const decoded = jwt.verify(token, email.email_secret) as jwt.JwtPayload
+    async updatePassword(token: string, newPassword: string) {
+    try {
+        // Verifica o token com a mesma chave usada na geração
+        const decoded = jwt.verify(
+            token,
+            process.env.JWT_RESET_SECRET || "default_secret" 
+        ) as { userId: string };
 
-            if(typeof decoded !== 'string' && decoded.user) {
-                const { user: { id, senha } } = decoded
-
-                const user = await usersRepository.update(id, { senha: senha })
-                const {senha:_, ...confirmedUser} = user
-
-                return {
-                    user: confirmedUser
-                }
-            }
-
+        // Busca o usuário pelo ID do token
+        const user = await usersRepository.findById(decoded.userId);
+        if (!user) {
+            throw new ApiError("Usuário não encontrado", ErrorsCode.NOT_FOUND);
         }
-        catch(err) {
-            throw new ApiError("Erro ao confirmar e-mail!", ErrorsCode.INTERNAL_ERROR)
+
+        const hashedPassword = await hash(newPassword, 10);
+
+        // Atualiza a senha no banco
+        await usersRepository.update(user.id, { senha: hashedPassword });
+
+        return { message: "Senha atualizada com sucesso" };
+
+    } catch (err) {
+        // Tratamento específico para erros do JWT
+        if (err instanceof jwt.TokenExpiredError) {
+            throw new ApiError("Token expirado", ErrorsCode.UNAUTHORIZED);
         }
+        if (err instanceof jwt.JsonWebTokenError) {
+            throw new ApiError("Token inválido", ErrorsCode.UNAUTHORIZED);
+        }
+        throw new ApiError("Erro ao atualizar senha", ErrorsCode.INTERNAL_ERROR);
     }
+}
 }

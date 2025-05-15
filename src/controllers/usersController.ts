@@ -47,8 +47,14 @@ export default {
     },
 
     async updateForgottenPassword(request: Request, response: Response) {
-        const data = await usersService.updatePassword(request.params.token)
+    try {
+        const { token } = request.params; // Token vem da URL
+        const { senha } = request.body;   // Nova senha vem do corpo
 
-        return response.status(200).json(data)
+        const data = await usersService.updatePassword(token, senha);
+        return response.status(200).json(data);
+    } catch (error) {
+        response.status(500).json({ message: "Erro ao atualizar senha" });
     }
+}
 }
