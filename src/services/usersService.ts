@@ -13,13 +13,13 @@ import { CreateUserDTOS, UpdateUserDTOS, UpdateQrCodeUsersDTOS } from "../dtos/u
 // Edite aqui o transportador de email
 const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT),
-    secure: false,
+    port: Number(process.env.SMTP_PORT) || 587,
+    secure: process.env.SMTP_PORT === '465', // true for 465 (SSL), false for 587 (TLS)
     auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-    }
-} as nodemailer.TransportOptions)
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+} as nodemailer.TransportOptions);
 
 export default {
     async login({ email, senha }: User) {
@@ -38,11 +38,13 @@ export default {
         if(!user.confirmed) {
             throw new ApiError("Por favor, verifique o seu email e tente novamente!", ErrorsCode.BAD_REQUEST)
         }
+        
+        const token = jwt.sign(
+            { userId: user.id}, 
+            auth.secret_token,
+            { expiresIn: "1h" }
+        );         
 
-        const token = jwt.sign({ userId: user.id }, auth.secret_token as jwt.Secret, {
-            expiresIn: auth.expires_in_token as string | number
-        });
-    
         const { senha:_, ...userLogin } = user
 
         return { 
@@ -69,9 +71,11 @@ export default {
         // const updatedUser = await usersRepository.updateQRCode(user.id, {qrCode});
         // user.qrCode = qrCode
         
-        const token = jwt.sign( { userId: user.id }, auth.secret_token, {
-            expiresIn: auth.expires_in_token
-        })
+        const token = jwt.sign(
+            { userId: user.id}, 
+            auth.secret_token,
+            { expiresIn: "1h" }
+        );   
 
         const { senha:_, ...userLogin } = user
 
@@ -146,16 +150,16 @@ export default {
             }
 
             const emailToken = jwt.sign(
-                //{ userId: user.id}, 
-                //process.env.JWT_RESET_SECRET || "default_secret",
-                //{ expiresIn: '1H' }
-                //Versão a baixo para teste local
-                { userId: user.id}, 
+                { user: _.pick(user, 'id') },
                 process.env.JWT_RESET_SECRET || "default_secret",
-                { expiresIn: '1H' }
+                { expiresIn: '1h' }
             )
-
-            const url = `http://secompapp.com/SetNewPassword?token=${emailToken}`//`https://api.secompufscar.com.br/api/v1/users/updatePassword/${emailToken}`
+            
+            // No servidor
+            // const url = `https://secompapp.com/SetNewPassword?token=${emailToken}`//`https://api.secompufscar.com.br/api/v1/users/updatePassword/${emailToken}`
+            
+            // Envio de e-mail localmente
+            const url = `secompapp://SetNewPassword?token=${emailToken}`//`https://api.secompufscar.com.br/api/v1/users/updatePassword/${emailToken}`
 
             await transporter.sendMail({
                 to: user.email,

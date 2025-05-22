@@ -1,5 +1,7 @@
-export const email = {
-    email_address: process.env.EMAIL as string,
-    email_password: process.env.EMAIL_PASSWORD as string,
-    email_secret: process.env.EMAIL_SECRET as string
-  }
+interface EmailConfig {
+  email_secret: string;
+}
+
+export const email: EmailConfig = {
+  email_secret: process.env.EMAIL_SECRET || 'your_email_secret_key',
+};

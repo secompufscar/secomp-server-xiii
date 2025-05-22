@@ -4,27 +4,39 @@ import cors from 'cors'
 import errorHandler from './middlewares/errorHandler'
 import routes from './routes'
 import path from "path"
+import * as dotenv from 'dotenv';
 import { setupSwagger } from './swagger';
 
+// Load environment variables early
+dotenv.config();
 
-const app = express()
+const app = express();
 
-app.set('views', path.join(__dirname, "..", "src", 'views'));
+// Set up view engine (EJS)
+app.set('views', path.join(__dirname, '..', 'src', 'views'));
 app.set('view engine', 'ejs');
 
+// Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(express.json())
-app.use(cors())
+// Middleware
+app.use(express.json());
+app.use(cors());
+
+// API Routes
 app.use('/api/v1', routes);
 
+// Swagger Documentation
 setupSwagger(app);
-app.get('/*', (_, response) => response.status(200).json({ message: "API SECOMP UFSCar XII" }))
 
+// Catch-all route for API root
+app.get('/*', (_, response) => response.status(200).json({ message: "API SECOMP UFSCar XIII" }));
+
+// Error handling middleware
 app.use(errorHandler);
 
-const PORT  = process.env.PORT || 3333
-
+// Start server
+const PORT = process.env.PORT || 3000; // Match .env PORT
 app.listen(PORT, () => {
     console.log(`> Servidor rodando na porta ${PORT}`)
 })
