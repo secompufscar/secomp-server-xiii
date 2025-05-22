@@ -49,15 +49,27 @@ exports.default = {
     },
     sendForgotPasswordEmail(request, response) {
         return __awaiter(this, void 0, void 0, function* () {
-            const user = request.user;
-            yield usersService_1.default.sendForgotPasswordEmail(user);
-            response.status(200).json({ message: "Email enviado com sucesso" });
+            try {
+                const { email } = request.body;
+                yield usersService_1.default.sendForgotPasswordEmail(email);
+                response.status(200).json({ message: "Email enviado com sucesso" });
+            }
+            catch (error) {
+                response.status(500).json({ message: "Erro ao enviar email" });
+            }
         });
     },
     updateForgottenPassword(request, response) {
         return __awaiter(this, void 0, void 0, function* () {
-            const data = yield usersService_1.default.updatePassword(request.params.token);
-            return response.status(200).json(data);
+            try {
+                const { token } = request.params; // Token vem da URL
+                const { senha } = request.body; // Nova senha vem do corpo
+                const data = yield usersService_1.default.updatePassword(token, senha);
+                return response.status(200).json(data);
+            }
+            catch (error) {
+                response.status(500).json({ message: "Erro ao atualizar senha" });
+            }
         });
     }
 };

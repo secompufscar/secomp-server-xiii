@@ -15,13 +15,23 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -56,13 +66,13 @@ const sendEmail_1 = require("../config/sendEmail");
 const api_errors_1 = require("../utils/api-errors");
 // Edite aqui o transportador de email
 const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false,
+    host: process.env.SMTP_HOST,
+    port: Number(process.env.SMTP_PORT) || 587,
+    secure: process.env.SMTP_PORT === '465', // true for 465 (SSL), false for 587 (TLS)
     auth: {
-        user: sendEmail_1.email.email_address,
-        pass: sendEmail_1.email.email_password
-    }
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+    },
 });
 exports.default = {
     login(_a) {
@@ -78,9 +88,7 @@ exports.default = {
             if (!user.confirmed) {
                 throw new api_errors_1.ApiError("Por favor, verifique o seu email e tente novamente!", api_errors_1.ErrorsCode.BAD_REQUEST);
             }
-            const token = jwt.sign({ userId: user.id }, auth_1.auth.secret_token, {
-                expiresIn: auth_1.auth.expires_in_token
-            });
+            const token = jwt.sign({ userId: user.id }, auth_1.auth.secret_token, { expiresIn: "1h" });
             const { senha: _ } = user, userLogin = __rest(user, ["senha"]);
             return {
                 user: userLogin,
@@ -103,9 +111,7 @@ exports.default = {
             // const qrCode = await generateQRCode(user.id);
             // const updatedUser = await usersRepository.updateQRCode(user.id, {qrCode});
             // user.qrCode = qrCode
-            const token = jwt.sign({ userId: user.id }, auth_1.auth.secret_token, {
-                expiresIn: auth_1.auth.expires_in_token
-            });
+            const token = jwt.sign({ userId: user.id }, auth_1.auth.secret_token, { expiresIn: "1h" });
             const { senha: _ } = user, userLogin = __rest(user
             // Envia email de confirmação
             , ["senha"]);
@@ -161,41 +167,61 @@ exports.default = {
             }
         });
     },
-    sendForgotPasswordEmail(user) {
+    sendForgotPasswordEmail(email) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const emailToken = jwt.sign({ user: lodash_1.default.pick(user, 'id') }, sendEmail_1.email.email_secret, { expiresIn: '1d' });
-                const url = `https://api.secompufscar.com.br/api/v1/users/updatePassword/${emailToken}`;
+                const user = yield usersRepository_1.default.findByEmail(email);
+                if (!user) {
+                    throw new api_errors_1.ApiError("Usuário não encontrado!", api_errors_1.ErrorsCode.NOT_FOUND);
+                }
+                const emailToken = jwt.sign({ user: lodash_1.default.pick(user, 'id') }, process.env.JWT_RESET_SECRET || "default_secret", { expiresIn: '1h' });
+                // No servidor
+                // const url = `https://secompapp.com/SetNewPassword?token=${emailToken}`//`https://api.secompufscar.com.br/api/v1/users/updatePassword/${emailToken}`
+                // Envio de e-mail localmente
+                const url = `secompapp://SetNewPassword?token=${emailToken}`; //`https://api.secompufscar.com.br/api/v1/users/updatePassword/${emailToken}`
                 yield transporter.sendMail({
                     to: user.email,
-                    subject: "Atulização de senha",
-                    html: `<h1>Olá, ${user.nome}</h1>
-                Parece que você esqueceu a sua senha.
-                Clique <a href="${url}">aqui</a> para alterar sua senha`
+                    subject: "Redefinição de Senha - SECOMP UFSCar", // Assunto mais claro
+                    html: `
+                    <h1>Olá, ${user.nome}</h1>
+                    <p>Clique no link abaixo para redefinir sua senha:</p>
+                    <a href="${url}">${url}</a>
+                    <p><i>Link válido por 1 hora</i></p>
+                `
                 });
+                //para teste
+                console.log(emailToken);
             }
             catch (err) {
-                throw new api_errors_1.ApiError(`Erro ao enviar email!`, api_errors_1.ErrorsCode.INTERNAL_ERROR);
+                console.log("Erro no serviço de recuperação de senha", err);
+                throw new api_errors_1.ApiError("Erro ao enviar email de recuperação de senha!", api_errors_1.ErrorsCode.INTERNAL_ERROR);
             }
         });
     },
-    updatePassword(token) {
+    updatePassword(token, newPassword) {
         return __awaiter(this, void 0, void 0, function* () {
-            // TODO: esse método é acessado após o usuário clicar no link de email. Talvez seja mais
-            // interessante redirecionar o usuário para uma página de alteração de senha
             try {
-                const decoded = jwt.verify(token, sendEmail_1.email.email_secret);
-                if (typeof decoded !== 'string' && decoded.user) {
-                    const { user: { id, senha } } = decoded;
-                    const user = yield usersRepository_1.default.update(id, { senha: senha });
-                    const { senha: _ } = user, confirmedUser = __rest(user, ["senha"]);
-                    return {
-                        user: confirmedUser
-                    };
+                // Verifica o token com a mesma chave usada na geração
+                const decoded = jwt.verify(token, process.env.JWT_RESET_SECRET || "default_secret");
+                // Busca o usuário pelo ID do token
+                const user = yield usersRepository_1.default.findById(decoded.userId);
+                if (!user) {
+                    throw new api_errors_1.ApiError("Usuário não encontrado", api_errors_1.ErrorsCode.NOT_FOUND);
                 }
+                const hashedPassword = yield (0, bcrypt_1.hash)(newPassword, 10);
+                // Atualiza a senha no banco
+                yield usersRepository_1.default.update(user.id, { senha: hashedPassword });
+                return { message: "Senha atualizada com sucesso" };
             }
             catch (err) {
-                throw new api_errors_1.ApiError("Erro ao confirmar e-mail!", api_errors_1.ErrorsCode.INTERNAL_ERROR);
+                // Tratamento específico para erros do JWT
+                if (err instanceof jwt.TokenExpiredError) {
+                    throw new api_errors_1.ApiError("Token expirado", api_errors_1.ErrorsCode.UNAUTHORIZED);
+                }
+                if (err instanceof jwt.JsonWebTokenError) {
+                    throw new api_errors_1.ApiError("Token inválido", api_errors_1.ErrorsCode.UNAUTHORIZED);
+                }
+                throw new api_errors_1.ApiError("Erro ao atualizar senha", api_errors_1.ErrorsCode.INTERNAL_ERROR);
             }
         });
     }

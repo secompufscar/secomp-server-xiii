@@ -1,33 +1,16 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = {
-    findById(request, response) {
-        return __awaiter(this, void 0, void 0, function* () {
-        });
-    },
-    list(request, response) {
-        return __awaiter(this, void 0, void 0, function* () {
-        });
-    },
-    create(request, response) {
-        return __awaiter(this, void 0, void 0, function* () {
-        });
-    },
-    update(request, response) {
-        return __awaiter(this, void 0, void 0, function* () {
-        });
-    },
-    delete(request, response) {
-        return __awaiter(this, void 0, void 0, function* () {
-        });
-    }
-};
+// import { createActivitySchema, activityIdSchema, updateActivitySchema } from '../../schemas/activitySchema';
+// import atividadeService from "../services/atividadeService.js"
+// export default {
+//     async findById(request, response) {
+//     },
+//     async list(request, response) {
+//     },
+//     async create(request, response) {
+//     },
+//     async update(request, response) {
+//     },
+//     async delete(request, response) {
+//     }
+// }
