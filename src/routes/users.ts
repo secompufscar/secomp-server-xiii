@@ -145,18 +145,20 @@ routes.get('/confirmation/:token', usersController.confirmEmail)
  *         description: Token de reset de senha
  *         schema:
  *           type: string
- *         content:
- *          application/json:
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
  *           schema:
- *            type: object
- *           properties:
- *            senha:
- *              type: string
- *             example: "novaSenha123"
+ *             type: object
+ *             properties:
+ *               senha:
+ *                 type: string
+ *                 example: "novaSenha123"
  *     responses:
  *       200:
  *         description: Usuário com senha alterada corretamente
-  *         content:
+ *         content:
  *           application/json:
  *             schema:
  *               type: object
@@ -176,7 +178,7 @@ routes.get('/confirmation/:token', usersController.confirmEmail)
  *                   type: string
  *                   format: date-time
  *                 confirmed:
- *                   type: booleam
+ *                   type: boolean
  *       500:
  *         description: Internal server error
  */
