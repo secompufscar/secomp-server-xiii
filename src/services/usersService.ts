@@ -155,7 +155,7 @@ export default {
                 { expiresIn: '1H' }
             )
 
-            const url = `http://localhost:3333/api/v1/users/updatePassword/${emailToken}`//`https://api.secompufscar.com.br/api/v1/users/updatePassword/${emailToken}`
+            const url = `http://secompapp.com/SetNewPassword?token=${emailToken}`//`https://api.secompufscar.com.br/api/v1/users/updatePassword/${emailToken}`
 
             await transporter.sendMail({
                 to: user.email,
