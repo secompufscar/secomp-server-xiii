@@ -36,7 +36,8 @@ app.get('/*', (_, response) => response.status(200).json({ message: "API SECOMP 
 app.use(errorHandler);
 
 // Start server
-const PORT = process.env.PORT || 3000; // Match .env PORT
+const PORT = process.env.PORT || 3000;
+const MODE = process.env.NODE_ENV;
 app.listen(PORT, () => {
-    console.log(`> Servidor rodando na porta ${PORT}`)
+    console.log(`> Servidor rodando na porta ${PORT}. Modo: ${MODE}`)
 })

@@ -80,22 +80,33 @@ export default {
         const { senha:_, ...userLogin } = user
 
         // Envia email de confirmação
-        const emailEnviado = this.sendConfirmationEmail(user)
-        
-        //return updatedUser
+        const emailEnviado = await this.sendConfirmationEmail(user)
 
-        return emailEnviado;
+        if (!emailEnviado) {
+            await usersRepository.delete(user.id);
+            throw new ApiError("Erro ao enviar email de confirmação!", ErrorsCode.INTERNAL_ERROR);
+        }
+
+        return {
+            message: "Usuário criado com sucesso. Email de confirmação enviado.",
+            emailEnviado
+        };
     },
 
     async sendConfirmationEmail(user: User): Promise<boolean>  {
         try {
             const emailToken = jwt.sign(
-                { user: _.pick(user, 'id') },
+                { userId: user.id},
                 email.email_secret,
                 { expiresIn: '1d' }
             )
 
-            const url = `https://api.secompufscar.com.br/api/v1/users/confirmation/${emailToken}`
+            const BASE_URL =
+                process.env.NODE_ENV === "production"
+                    ? process.env.BASE_URL_PROD
+                    : process.env.BASE_URL_DEV;
+
+            const url = `${BASE_URL}/users/confirmation/${emailToken}`;
 
             await transporter.sendMail( {
                 to: user.email,
@@ -116,7 +127,6 @@ export default {
         }
         catch(err) {
             throw new ApiError(`Erro ao enviar email`, ErrorsCode.INTERNAL_ERROR)
-            return false;
         }
     },
 
@@ -124,8 +134,8 @@ export default {
         try {
             const decoded = jwt.verify(token, email.email_secret) as jwt.JwtPayload
 
-            if(typeof decoded !== 'string' && decoded.user) {
-                const { user: { id } } = decoded
+            if(typeof decoded !== 'string' && decoded.userId) {
+                const id = decoded.userId;
 
                 const user = await usersRepository.update(id, { confirmed: true })
                 const {senha:_, ...confirmedUser} = user
@@ -156,18 +166,17 @@ export default {
             )
             
             // No servidor
-            // const url = `https://secompapp.com/SetNewPassword?token=${emailToken}`//`https://api.secompufscar.com.br/api/v1/users/updatePassword/${emailToken}`
+            // const url = `https://secompapp.com/SetNewPassword?token=${emailToken}`
             
             // Envio de e-mail localmente
-            const url = `secompapp://SetNewPassword?token=${emailToken}`//`https://api.secompufscar.com.br/api/v1/users/updatePassword/${emailToken}`
-
+            const url = `secompapp://SetNewPassword?token=${emailToken}`
             await transporter.sendMail({
                 to: user.email,
-                subject: "Redefinição de Senha - SECOMP UFSCar", // Assunto mais claro
+                subject: "Redefinição de Senha - SECOMP UFSCar", 
                 html: `
                     <h1>Olá, ${user.nome}</h1>
                     <p>Clique no link abaixo para redefinir sua senha:</p>
-                    <a href="${url}">${url}</a>
+                    <a href="${url}">Alterar senha</a>
                     <p><i>Link válido por 1 hora</i></p>
                 `
             })
