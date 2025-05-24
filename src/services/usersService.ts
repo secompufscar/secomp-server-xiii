@@ -129,7 +129,7 @@ export default {
 
             await transporter.sendMail( {
                 to: user.email,
-                subject: "Confirme seu email",
+                subject: "SECOMP UFSCar - Confirmação de email",
                 html,
             });
             
@@ -183,20 +183,16 @@ export default {
             const url = process.env.NODE_ENV === "development" ? 
                 `https://secompapp.com/SetNewPassword?token=${emailToken}` :
                 `secompapp://SetNewPassword?token=${emailToken}`;
-            
-            await transporter.sendMail({
-                to: user.email,
-                subject: "Redefinição de Senha - SECOMP UFSCar", 
-                html: `
-                    <h1>Olá, ${user.nome}</h1>
-                    <p>Clique no link abaixo para redefinir sua senha:</p>
-                    <a href="${url}">Alterar senha</a>
-                    <p><i>Link válido por 1 hora</i></p>
-                `
-            })
 
-            //para teste
-            console.log(emailToken)
+            const html = await loadTemplate('email-passwordreset.html', {
+                url
+            });
+            
+            await transporter.sendMail( {
+                to: user.email,
+                subject: "SECOMP UFSCar - Solicitação de alteração de senha",
+                html,
+            });
         }
         catch(err) {
             console.log("Erro no serviço de recuperação de senha", err)
