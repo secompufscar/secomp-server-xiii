@@ -6,9 +6,6 @@
     <title>SECOMP UFSCar 2024 - Confirmação de E-mail</title>
     <link rel="icon" href="https://app.secompufscar.com.br/favicon.ico" type="image/x-icon" sizes="48x48">
     <style>
-    .html {
-        font-family: Arial, Helvetica, sans-serif;
-    }
 
     #all {
         display: flex;
@@ -21,27 +18,41 @@
     .container {
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
+        justify-content: center;
         text-align: center;
-        border: 1.9px solid white;
-        border-radius: 10px;
-        box-shadow: rgba(0, 0, 0, 0.4) 0px 10px 30px 0px;
-        padding: 1rem;
+        border: 1px solid #EBEBEB;
+        border-radius: 3px;
+        padding: 2.5rem;
         max-width: 80%;
         background-color: white;
     }
 
+    .error-msg{
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        gap: 4px;
+    }
+
     body {
-        background-color: #445be6;
+        background-color: #FFFFFF;
         height: 100vh;
         margin: 0;
     }
 
     h1 {
-        font-size: 1.25rem;
+        font-family: Montserrat, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+        font-size: 1.3rem;
+        font-weight: 700; 
+        color: #141414;
     }
+
     p {
+        font-family: "Open Sans", BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
         font-size: 1rem;
+        font-weight: 400;
+        color: #3f3f3f;
+        line-height: 25px;
     }
     </style>
 </head>
@@ -49,12 +60,15 @@
     <div id="all">
         <div class="container">
             <div style="margin-bottom: 20px;">
-                <img src="https://i.imgur.com/n61bSCd.png" alt="Logo" style="max-width: 200px;">
+                <img src="https://i.imgur.com/ZGBu8yh.png" alt="Logo" style="max-width: 120px;">
             </div>
     
-            <h1>Erro inesperado!</h1>
-            <p>Não foi possível confirmar o seu email. <br> Tente novamente mais tarde ou contate alguém da organização.</p>
-            <p style="font-weight: bold;">Motivo: <%= motivo %></p>
+            <h1>Erro na confirmação</h1>
+            <p>Não foi possível confirmar o seu e-mail. <br> Tente novamente mais tarde ou contate alguém da organização.</p>
+            <div class="error-msg">
+                <p style="font-weight: bold; color: #141414;">Motivo: </p>
+                <p> <%= motivo %> </p>
+            </div>
         </div>
     </div>
 </body>

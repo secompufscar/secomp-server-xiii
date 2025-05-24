@@ -3,6 +3,7 @@ import { Request, Response } from 'express';
 import usersService from "../services/usersService"
 import { User } from '@entities/User';
 
+
 export default {
     async login(request: Request, response: Response) {
         const data = await usersService.login(request.body)
@@ -21,17 +22,15 @@ export default {
 
     async confirmEmail(request: Request, response: Response) {
         try {
-            const data = await usersService.confirmUser(request.params.token)
-
+            const data = await usersService.confirmUser(request.params.token);
+    
             if (data) {
-                response.render('confirmationSuccess', { data })
+                return response.redirect('/email-confirmado');
+            } else {
+                return response.redirect('/email-confirmado?erro=usuario-nao-reconhecido');
             }
-            else {
-                response.render('confirmationError', { motivo: "Usuário não reconhecido" })
-            }
-        }
-        catch {
-            response.render('confirmationError', { motivo: "Erro interno"})
+        } catch {
+            return response.redirect('/email-confirmado?erro=erro-interno');
         }
     },
 

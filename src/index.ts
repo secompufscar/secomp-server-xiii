@@ -29,6 +29,20 @@ app.use('/api/v1', routes);
 // Swagger Documentation
 setupSwagger(app);
 
+// Rota para confirmação de e-mail
+app.get('/email-confirmado', (req, res) => {
+    const { erro } = req.query;
+
+    if (erro === 'usuario-nao-reconhecido') {
+        return res.render('confirmationError', { motivo: "Usuário não reconhecido" });
+    }
+    if (erro === 'erro-interno') {
+        return res.render('confirmationError', { motivo: "Erro interno" });
+    }
+
+    return res.render('confirmationSuccess');
+});
+
 // Catch-all route for API root
 app.get('/*', (_, response) => response.status(200).json({ message: "API SECOMP UFSCar XIII" }));
 

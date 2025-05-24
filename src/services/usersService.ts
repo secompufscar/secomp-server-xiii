@@ -1,14 +1,16 @@
 import * as jwt from "jsonwebtoken"
 import * as nodemailer from "nodemailer"
 import _ from "lodash"
-import { compareSync, hashSync, hash } from 'bcrypt';
 import usersRepository from '../repositories/usersRepository';
+import { compareSync, hashSync, hash } from 'bcrypt';
 import { auth } from '../config/auth';
 import { email } from '../config/sendEmail';
 import { User } from "../entities/User";
 import { ApiError, ErrorsCode } from "../utils/api-errors"
 import { generateQRCode } from "../utils/qrCode";
 import { CreateUserDTOS, UpdateUserDTOS, UpdateQrCodeUsersDTOS } from "../dtos/usersDtos";
+import { promises as fs } from 'fs';
+import path from 'path';
 
 // Edite aqui o transportador de email
 const transporter = nodemailer.createTransport({
@@ -20,6 +22,19 @@ const transporter = nodemailer.createTransport({
       pass: process.env.SMTP_PASS,
     },
 } as nodemailer.TransportOptions);
+
+// Carrega o html do email
+export async function loadTemplate(templateName: string, data: Record<string, string>) {
+    const templatePath = path.join(__dirname, '..', 'views', templateName);
+    let html = await fs.readFile(templatePath, 'utf-8');
+
+    for (const [key, value] of Object.entries(data)) {
+        const regex = new RegExp(`{{\\s*${key}\\s*}}`, 'g');
+        html = html.replace(regex, value);
+    }
+
+    return html;
+}
 
 export default {
     async login({ email, senha }: User) {
@@ -108,19 +123,15 @@ export default {
 
             const url = `${BASE_URL}/users/confirmation/${emailToken}`;
 
+            const html = await loadTemplate('email-confirmation.html', {
+                url
+            });
+
             await transporter.sendMail( {
                 to: user.email,
                 subject: "Confirme seu email",
-                html: `
-                    <div style=" background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);">
-                        <div style="margin-bottom: 20px;">
-                            <img src="https://i.imgur.com/n61bSCd.png" alt="Logo" style="max-width: 200px;">
-                        </div>
-                        <h2 style="color: #333;">Olá, ${user.nome}!</h2>
-                        <p>Clique <a href="${url}" style="color: #007BFF; text-decoration: none; font-weight: bold;">aqui</a> para confirmar seu email.</p>
-                    </div>
-                `
-            } )
+                html,
+            });
             
             console.log("Email enviado com sucesso")
             return true;
@@ -148,7 +159,10 @@ export default {
             throw new Error("Token de confirmação inválido!")
         }
         catch(err) {
-            throw new ApiError(`Erro ao confirmar e-mail!`, ErrorsCode.INTERNAL_ERROR)
+            if (err instanceof jwt.TokenExpiredError) {
+                throw new ApiError("Token expirado. Solicite um novo.", ErrorsCode.UNAUTHORIZED);
+            }
+            throw new ApiError("Erro ao confirmar e-mail!", ErrorsCode.INTERNAL_ERROR);
         }
     },
 
@@ -165,11 +179,11 @@ export default {
                 { expiresIn: '1h' }
             )
             
-            // No servidor
-            // const url = `https://secompapp.com/SetNewPassword?token=${emailToken}`
+            // Link com protocolo personalizado que é interpretado pelo app mobile
+            const url = process.env.NODE_ENV === "development" ? 
+                `https://secompapp.com/SetNewPassword?token=${emailToken}` :
+                `secompapp://SetNewPassword?token=${emailToken}`;
             
-            // Envio de e-mail localmente
-            const url = `secompapp://SetNewPassword?token=${emailToken}`
             await transporter.sendMail({
                 to: user.email,
                 subject: "Redefinição de Senha - SECOMP UFSCar", 
