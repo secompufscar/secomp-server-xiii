@@ -36,14 +36,14 @@ exports.default = {
             try {
                 const data = yield usersService_1.default.confirmUser(request.params.token);
                 if (data) {
-                    response.render('confirmationSuccess', { data });
+                    return response.redirect('/email-confirmado');
                 }
                 else {
-                    response.render('confirmationError', { motivo: "Usuário não reconhecido" });
+                    return response.redirect('/email-confirmado?erro=usuario-nao-reconhecido');
                 }
             }
             catch (_a) {
-                response.render('confirmationError', { motivo: "Erro interno" });
+                return response.redirect('/email-confirmado?erro=erro-interno');
             }
         });
     },
