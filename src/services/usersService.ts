@@ -204,35 +204,52 @@ export default {
     },
 
     async updatePassword(token: string, newPassword: string) {
-    try {
-        // Verifica o token com a mesma chave usada na geração
-        const decoded = jwt.verify(
-            token,
-            process.env.JWT_RESET_SECRET || "default_secret" 
-        ) as { userId: string };
+        try {
+            // Verifica o token com a mesma chave usada na geração
+            const decoded = jwt.verify(
+                token,
+                process.env.JWT_RESET_SECRET || "default_secret" 
+            ) as { userId: string };
 
-        // Busca o usuário pelo ID do token
-        const user = await usersRepository.findById(decoded.userId);
+            // Busca o usuário pelo ID do token
+            const user = await usersRepository.findById(decoded.userId);
+            if (!user) {
+                throw new ApiError("Usuário não encontrado", ErrorsCode.NOT_FOUND);
+            }
+
+            const hashedPassword = await hash(newPassword, 10);
+
+            // Atualiza a senha no banco
+            await usersRepository.update(user.id, { senha: hashedPassword });
+
+            return { message: "Senha atualizada com sucesso" };
+
+        } catch (err) {
+            // Tratamento específico para erros do JWT
+            if (err instanceof jwt.TokenExpiredError) {
+                throw new ApiError("Token expirado", ErrorsCode.UNAUTHORIZED);
+            }
+            if (err instanceof jwt.JsonWebTokenError) {
+                throw new ApiError("Token inválido", ErrorsCode.UNAUTHORIZED);
+            }
+            throw new ApiError("Erro ao atualizar senha", ErrorsCode.INTERNAL_ERROR);
+        }
+    },
+
+    async addPushToken(userId: string, token: string) {
+        const user = await usersRepository.findById(userId);
+
         if (!user) {
             throw new ApiError("Usuário não encontrado", ErrorsCode.NOT_FOUND);
         }
 
-        const hashedPassword = await hash(newPassword, 10);
-
-        // Atualiza a senha no banco
-        await usersRepository.update(user.id, { senha: hashedPassword });
-
-        return { message: "Senha atualizada com sucesso" };
-
-    } catch (err) {
-        // Tratamento específico para erros do JWT
-        if (err instanceof jwt.TokenExpiredError) {
-            throw new ApiError("Token expirado", ErrorsCode.UNAUTHORIZED);
+        if (!Array.isArray(user.pushToken)) {
+            user.pushToken = [] as string[];
         }
-        if (err instanceof jwt.JsonWebTokenError) {
-            throw new ApiError("Token inválido", ErrorsCode.UNAUTHORIZED);
+
+        if (!user.pushToken.includes(token)) {
+            user.pushToken.push(token);
+            await usersRepository.update(userId, { pushToken: user.pushToken });
         }
-        throw new ApiError("Erro ao atualizar senha", ErrorsCode.INTERNAL_ERROR);
     }
-}
 }

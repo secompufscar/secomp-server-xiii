@@ -21,6 +21,7 @@ model User {
   senha           String 
   tipo            String        @default("USER")
   qrCode          String?       @db.Text
+  pushToken       String?
   createdAt       DateTime      @default(now()) @db.DateTime(6)
   updatedAt       DateTime?     @updatedAt @db.Timestamp
   confirmed       Boolean       @default(false)

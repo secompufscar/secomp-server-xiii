@@ -46,14 +46,30 @@ export default {
     },
 
     async updateForgottenPassword(request: Request, response: Response) {
-    try {
-        const { token } = request.params; // Token vem da URL
-        const { senha } = request.body;   // Nova senha vem do corpo
+        try {
+            const { token } = request.params; // Token vem da URL
+            const { senha } = request.body;   // Nova senha vem do corpo
 
-        const data = await usersService.updatePassword(token, senha);
-        return response.status(200).json(data);
-    } catch (error) {
-        response.status(500).json({ message: "Erro ao atualizar senha" });
+            const data = await usersService.updatePassword(token, senha);
+            return response.status(200).json(data);
+        } catch (error) {
+            response.status(500).json({ message: "Erro ao atualizar senha" });
+        }
+    },
+
+    async registerPushToken(req: Request, res: Response) {
+        const userId = req.user?.id;
+        const { token } = req.body;
+
+        if (typeof userId !== 'string') {
+            return res.status(400).json({ success: false, message: "User ID is required and must be a string" });
+        }
+
+        if (typeof token !== 'string') {
+            return res.status(400).json({ success: false, message: "Token is required and must be a string" });
+        }
+
+        await usersService.addPushToken(userId, token);
+        res.status(200).json({ success: true });
     }
-}
 }
