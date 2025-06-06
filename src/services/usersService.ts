@@ -82,9 +82,9 @@ export default {
             tipo,
         })
 
-        // const qrCode = await generateQRCode(user.id);
-        // const updatedUser = await usersRepository.updateQRCode(user.id, {qrCode});
-        // user.qrCode = qrCode
+        const qrCode = await generateQRCode(user.id);
+        const updatedUser = await usersRepository.updateQRCode(user.id, {qrCode});
+        user.qrCode = qrCode
         
         const token = jwt.sign(
             { userId: user.id}, 
