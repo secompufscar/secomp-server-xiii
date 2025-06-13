@@ -28,11 +28,26 @@ export default {
     response.status(200).json(data)
   },
 
-  async create(request: Request, response: Response) {
-    const data = await usersAtActivities.create(request.body)
+ async create(request: Request, response: Response) {
+  // modifiquei pois estava dando varios problemas com o id, id undefined, etc
+  const userId = request.user.id;
+   if (!userId) {
+    return response.status(401).json({ error: "Usuário não autenticado" });
+  }
 
-    response.status(201).json(data)
-  },
+  const { activityId, presente, inscricaoPrevia, listaEspera } = request.body;
+
+  const data = await usersAtActivities.create({
+    userId,
+    activityId,
+    presente,
+    inscricaoPrevia,
+    listaEspera,
+  });
+
+  response.status(201).json(data);
+},
+
 
   async update(request: Request, response: Response) {
     const { id } = request.params;

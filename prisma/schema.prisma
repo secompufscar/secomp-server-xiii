@@ -26,11 +26,29 @@ model User {
   confirmed       Boolean       @default(false)
   userAtActivity  UserAtActivity[]
   points           Int          @default(0)
+  registrationStatus Int     @default(0)  //  0 nao inscrito, 1 inscrito, 2 evento fechado 
+  currentEdition     String?             // ano da ediçao
   
+  userEvents      UserEvent[]    // Relação com eventos
 
   @@map("users")
 }
 
+// Nova tabela para evento
+model Event {
+  id          String   @id @default(uuid())
+  year        Int   @unique // Ex: "2024"
+  startDate   DateTime // Data de início do evento
+  endDate     DateTime // Data de término do evento
+  isCurrent   Boolean  @default(true) // Indica se é a edição atual
+  createdAt   DateTime      @default(now()) @db.DateTime(6)
+  
+
+  // Relações
+  userEvents  UserEvent[]
+  
+  @@map("events")
+}
 
 model Category {
   id           String     @id @default(uuid())
@@ -60,7 +78,6 @@ model Activity {
   
   // Relacionamentos
   categoria     Category   @relation(fields: [categoriaId], references: [id])
-  
 }
 
 model UserAtActivity {
@@ -78,6 +95,22 @@ model UserAtActivity {
   activity    Activity  @relation(fields: [activityId], references: [id])
 
   @@map("userAtActivity")
+}
+
+// nova tabela
+// Tabela de relacionamento usuário-edicao (para controle de inscrição no evento)
+model UserEvent {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  eventId   String
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  status      Int       @default(0) // 0 = pendente, 1 = confirmado, 2 = cancelado
+  createdAt   DateTime @default(now())
+  @@unique([userId, eventId]) 
+
+  @@map("userEvent")
+
 }
 
 

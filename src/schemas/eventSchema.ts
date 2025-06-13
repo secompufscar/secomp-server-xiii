@@ -1,5 +1,5 @@
 // src/schemas/eventSchema.ts
-import { z } from 'zod';
+import { z } from "zod";
 
 export const eventIdSchema = z.object({
   id: z.string().uuid('ID deve ser um UUID válido')

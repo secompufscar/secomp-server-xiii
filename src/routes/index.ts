@@ -7,6 +7,8 @@ import usersAtActivitiesRoutes from "./usersAtActivities"
 import categoriesRoutes from "./categories"
 //import diretoriasRoutes from "./diretorias"
 import checkInRoutes from "./checkIn"
+import eventRoutes from "./event"
+import userEventRoutes from "./userEvent"
 
 const routes = Router()
 
@@ -17,5 +19,6 @@ routes.use('/userAtActivities', usersAtActivitiesRoutes)
 routes.use('/admin', adminRoutes)
 //routes.use('/diretorias', diretoriasRoutes)
 routes.use('/checkIn', checkInRoutes)
-
+routes.use('/event', eventRoutes)
+routes.use('/userEvent', userEventRoutes)
 export default routes

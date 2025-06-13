@@ -180,10 +180,7 @@ export default {
             )
             
             // Link com protocolo personalizado que é interpretado pelo app mobile
-            const url = process.env.NODE_ENV === "development" ? 
-                `https://secompapp.com/SetNewPassword?token=${emailToken}` :
-                `secompapp://SetNewPassword?token=${emailToken}`;
-
+            const url = `https://secompapp.com/SetNewPassword?token=${emailToken}`;
             const html = await loadTemplate('email-passwordreset.html', {
                 url
             });

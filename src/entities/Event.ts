@@ -5,4 +5,3 @@ export interface Event{
   endDate: Date;
   isCurrent: boolean;
 }
-//nova entidade.
