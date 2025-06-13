@@ -1,0 +1,116 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider            = "mysql"
+  url                 = env("DATABASE_URL")
+
+}
+
+model User {
+  id              String        @id @default(uuid())
+  nome            String
+  email           String        @unique
+  senha           String 
+  tipo            String        @default("USER")
+  qrCode          String?       @db.Text
+  createdAt       DateTime      @default(now()) @db.DateTime(6)
+  updatedAt       DateTime?     @updatedAt @db.Timestamp
+  confirmed       Boolean       @default(false)
+  userAtActivity  UserAtActivity[]
+  points           Int          @default(0)
+  registrationStatus Int     @default(0)  //  0 nao inscrito, 1 inscrito, 2 evento fechado 
+  currentEdition     String?             // ano da ediçao
+  
+  userEvents      UserEvent[]    // Relação com eventos
+
+  @@map("users")
+}
+
+// Nova tabela para evento
+model Event {
+  id          String   @id @default(uuid())
+  year        Int   @unique // Ex: "2024"
+  startDate   DateTime // Data de início do evento
+  endDate     DateTime // Data de término do evento
+  isCurrent   Boolean  @default(true) // Indica se é a edição atual
+  createdAt   DateTime      @default(now()) @db.DateTime(6)
+  
+
+  // Relações
+  userEvents  UserEvent[]
+  
+  @@map("events")
+}
+model Category {
+  id           String     @id @default(uuid())
+  nome         String     @db.VarChar(255)
+  createdAt    DateTime   @default(now()) @db.DateTime(6)
+  updatedAt    DateTime   @updatedAt @db.Timestamp
+  atividades   Activity[]
+
+  @@map("category")
+}
+
+
+model Activity {
+  id                String     @id @default(uuid())
+  nome              String     @db.VarChar(255)
+  data              DateTime?   @db.Timestamp(6)
+  vagas             Int?
+  detalhes          String?    @db.VarChar(500)
+  palestranteNome   String     @db.VarChar(255)
+  categoriaId       String
+  createdAt         DateTime   @default(now()) @db.DateTime(6)
+  updatedAt         DateTime   @updatedAt @db.Timestamp
+  local             String     @db.VarChar(255)
+  participantes     UserAtActivity[]
+
+  @@map("atividades")
+  
+  // Relacionamentos
+  categoria     Category   @relation(fields: [categoriaId], references: [id])
+
+  
+}
+
+model UserAtActivity {
+  id              String     @id @default(uuid())
+  presente        Boolean
+  inscricaoPrevia Boolean
+  listaEspera     Boolean
+  createdAt       DateTime  @default(now()) @db.DateTime(6)
+  updatedAt       DateTime  @updatedAt @db.Timestamp
+
+  // Relacionamentos com User e Activity
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  activityId  String
+  activity    Activity  @relation(fields: [activityId], references: [id])
+
+  @@map("userAtActivity")
+}
+// nova tabela
+// Tabela de relacionamento usuário-edicao (para controle de inscrição no evento)
+model UserEvent {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  eventId   String
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  status      Int       @default(0) // 0 = pendente, 1 = confirmado, 2 = cancelado
+  createdAt   DateTime @default(now())
+  @@unique([userId, eventId]) 
+
+  @@map("userEvent")
+
+}
+
+
