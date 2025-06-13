@@ -57,6 +57,7 @@ export default {
         }
     },
 
+    // Método para registrar o token de push
     async registerPushToken(req: Request, res: Response) {
         const userId = req.user?.id;
         const { token } = req.body;

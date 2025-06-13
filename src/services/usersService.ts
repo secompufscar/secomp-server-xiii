@@ -236,6 +236,7 @@ export default {
         }
     },
 
+    // Método para adicionar um token de push ao usuário
     async addPushToken(userId: string, token: string) {
         const user = await usersRepository.findById(userId);
 
