@@ -89,6 +89,13 @@ Modo produção:
 npm start
 ```
 
+<div align="center">
+  <br/>
+    <div>
+      <sub>Copyright © 2024 - <a href="https://github.com/secompufscar">secompufscar</sub></a>
+    </div>
+</div>
+
 [git-url]: https://git-scm.com/
 [git-logo]: https://img.shields.io/badge/Git-f14e32?style=for-the-badge&logo=git&logoColor=white
 [expo-url]: https://docs.expo.dev/
