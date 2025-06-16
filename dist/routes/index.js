@@ -11,11 +11,13 @@ const usersAtActivities_1 = __importDefault(require("./usersAtActivities"));
 const categories_1 = __importDefault(require("./categories"));
 //import diretoriasRoutes from "./diretorias"
 const checkIn_1 = __importDefault(require("./checkIn"));
+const notifications_1 = __importDefault(require("./notifications"));
 const routes = (0, express_1.Router)();
 routes.use('/activities', activities_1.default);
 routes.use('/users', users_1.default);
 routes.use('/categories', categories_1.default);
 routes.use('/userAtActivities', usersAtActivities_1.default);
+routes.use('/notifications', notifications_1.default);
 routes.use('/admin', admin_1.default);
 //routes.use('/diretorias', diretoriasRoutes)
 routes.use('/checkIn', checkIn_1.default);

@@ -36,14 +36,14 @@ exports.default = {
             try {
                 const data = yield usersService_1.default.confirmUser(request.params.token);
                 if (data) {
-                    response.render('confirmationSuccess', { data });
+                    return response.redirect('/email-confirmado');
                 }
                 else {
-                    response.render('confirmationError', { motivo: "Usuário não reconhecido" });
+                    return response.redirect('/email-confirmado?erro=usuario-nao-reconhecido');
                 }
             }
             catch (_a) {
-                response.render('confirmationError', { motivo: "Erro interno" });
+                return response.redirect('/email-confirmado?erro=erro-interno');
             }
         });
     },
@@ -70,6 +70,22 @@ exports.default = {
             catch (error) {
                 response.status(500).json({ message: "Erro ao atualizar senha" });
             }
+        });
+    },
+    // Método para registrar o token de push
+    registerPushToken(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+            const { token } = req.body;
+            if (typeof userId !== 'string') {
+                return res.status(400).json({ success: false, message: "User ID is required and must be a string" });
+            }
+            if (typeof token !== 'string') {
+                return res.status(400).json({ success: false, message: "Token is required and must be a string" });
+            }
+            yield usersService_1.default.addPushToken(userId, token);
+            res.status(200).json({ success: true });
         });
     }
 };

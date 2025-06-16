@@ -244,13 +244,13 @@ export default {
             throw new ApiError("Usuário não encontrado", ErrorsCode.NOT_FOUND);
         }
 
-        if (!Array.isArray(user.pushToken)) {
-            user.pushToken = [] as string[];
-        }
-
-        if (!user.pushToken.includes(token)) {
-            user.pushToken.push(token);
-            await usersRepository.update(userId, { pushToken: user.pushToken });
-        }
+        user.pushToken = token;
+        const updatedUser = await usersRepository.update(userId, {
+            pushToken: token
+        });
+        return {
+            message: "Token de push adicionado com sucesso",
+            user: _.omit(updatedUser, ['senha'])
+        };
     }
 }
