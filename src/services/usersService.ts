@@ -234,5 +234,29 @@ export default {
         }
         throw new ApiError("Erro ao atualizar senha", ErrorsCode.INTERNAL_ERROR);
     }
-}
+},
+    async getUserRanking(id:string){
+        try{
+            const userRank = await usersRepository.getUserRanking(id);
+            return userRank;
+        }
+        catch(error){
+            console.error('Erro usersService.ts: '+error);
+            throw new ApiError('erro ao encontrar ranking do usuário', ErrorsCode.NOT_FOUND);
+        }
+    },
+    async getUserById(id:string){
+        try{
+            const user = await usersRepository.findById(id)
+            if(!user){
+                throw new ApiError('erro ao encontrar usuário: ', ErrorsCode.NOT_FOUND);
+            }
+
+            return user;
+        }
+        catch(error){
+            console.error('usersService.ts: '+error);
+            throw new Error('erro ao encontrar usuário por id');
+        }
+    }
 }

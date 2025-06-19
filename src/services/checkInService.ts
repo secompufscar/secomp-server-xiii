@@ -4,8 +4,9 @@ import { UserAtActivity } from '../entities/UserAtActivity';
 export default {
     async checkIn(userId: string, activityId: string): Promise<UserAtActivity> {
         const userAtActivity = await checkInRepository.findUserAtActivity(userId, activityId);
-
+        console.log(userAtActivity);
         if (!userAtActivity) {
+            console.log(userAtActivity)
             throw new Error('Usuário não está cadastrado na atividade.');
         }
 

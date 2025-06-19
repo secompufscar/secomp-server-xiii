@@ -3,6 +3,7 @@ import { PrismaClient } from "@prisma/client"
 import { User } from "../entities/User"
 
 import { CreateUserDTOS, UpdateQrCodeUsersDTOS, UpdateUserDTOS } from "../dtos/usersDtos"
+import { prismaClient } from "@middlewares/authMiddleware"
 
 const client = new PrismaClient()
 
@@ -65,4 +66,30 @@ export default {
             where: { id }
         });
     },
+
+    async getUserRanking(id: string): Promise<Number>{
+
+        //recebe os pontos do usuário com o id que estamos procurando
+        const userPoints = await client.user.findUnique({
+            where:{id},
+            select:{points:true}
+        })
+
+
+        //verifica se o campo é válido
+        if(!userPoints){
+            throw new Error("User not found!");
+        }
+
+        //conta quantos usuários existem antes dele para determinar
+        //seu ranking
+        const rank = await client.user.count({
+            where:{
+                points:{
+                    gt:userPoints.points,
+                },
+            },
+        }) 
+        return rank +1;
+    }
 }
