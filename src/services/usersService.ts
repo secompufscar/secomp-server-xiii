@@ -23,6 +23,12 @@ const transporter = nodemailer.createTransport({
     },
 } as nodemailer.TransportOptions);
 
+function isValidUUID(uuid:string) {
+    const regex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    return regex.test(uuid);
+}
+
+
 // Carrega o html do email
 export async function loadTemplate(templateName: string, data: Record<string, string>) {
     const templatePath = path.join(__dirname, '..', 'views', templateName);
@@ -247,6 +253,11 @@ export default {
     },
     async getUserById(id:string){
         try{
+            //verifica se o id enviado não está errado
+            if(!isValidUUID(id)){
+                throw new ApiError('erro com o id enviado', ErrorsCode.BAD_REQUEST)
+            }
+
             const user = await usersRepository.findById(id)
             if(!user){
                 throw new ApiError('erro ao encontrar usuário: ', ErrorsCode.NOT_FOUND);
@@ -256,7 +267,7 @@ export default {
         }
         catch(error){
             console.error('usersService.ts: '+error);
-            throw new Error('erro ao encontrar usuário por id');
+            throw new Error('erro ao consultar ranking do usuário');
         }
     }
 }

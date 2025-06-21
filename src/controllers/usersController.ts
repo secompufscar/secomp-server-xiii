@@ -1,15 +1,6 @@
 import { Request, Response } from 'express';
 
 import usersService from "../services/usersService"
-import { User } from '@entities/User';
-import { z } from 'zod';
-
-
-//método para verificar se o UUID é válido
-//UUID v4
-const paramsSchema = z.object({
-    id: z.string().uuid(),
-})
 
 export default {
     async login(request: Request, response: Response) {
@@ -65,16 +56,12 @@ export default {
 },
     async getUserRanking(request: Request, response: Response){
         try{
-            const {id} = paramsSchema.parse( request.params);
-
-            const user = await usersService.getUserById(id);
-
-            const ranking = await usersService.getUserRanking(id);
+            const ranking = await usersService.getUserRanking(request.params.id);
             response.status(200).json({rank:ranking});
         }
         catch(error){
             console.error('Erro usersController.ts: '+error);
-            response.status(400).json({msg:'id inválido'})
+            response.status(500).json({msg:'Erro ao consultar ranking do usuario'})
         }
     }
 }

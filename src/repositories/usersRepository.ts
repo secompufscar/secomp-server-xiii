@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client"
 
 import { User } from "../entities/User"
 
+import { Prisma } from "@prisma/client"
 import { CreateUserDTOS, UpdateQrCodeUsersDTOS, UpdateUserDTOS } from "../dtos/usersDtos"
 import { prismaClient } from "@middlewares/authMiddleware"
 
@@ -66,30 +67,54 @@ export default {
             where: { id }
         });
     },
+    async getUserRanking(id: string): Promise<number> {
+        const result = await client.$queryRaw<{ rank: number }[]>(
+            Prisma.sql`
+              SELECT COUNT(*) + 1 AS \`rank\`
+              FROM (
+                SELECT
+                  u.id,
+                  u.points,
+                  COUNT(CASE WHEN ua.presente = 1 THEN 1 END) AS presences,
+                  u.createdAt
+                FROM \`users\` u
+                LEFT JOIN \`userAtActivity\` ua ON ua.userId = u.id
+                GROUP BY u.id, u.points, u.createdAt
+              ) AS other_users
+              WHERE (
+                other_users.points > (
+                  SELECT points FROM \`users\` WHERE id = ${id}
+                )
+                OR (
+                  other_users.points = (
+                    SELECT points FROM \`users\` WHERE id = ${id}
+                  ) AND other_users.presences > (
+                    SELECT COUNT(*) FROM \`userAtActivity\`
+                    WHERE userId = ${id} AND presente = 1
+                  )
+                )
+                OR (
+                  other_users.points = (
+                    SELECT points FROM \`users\` WHERE id = ${id}
+                  ) AND other_users.presences = (
+                    SELECT COUNT(*) FROM \`userAtActivity\`
+                    WHERE userId = ${id} AND presente = 1
+                  ) AND other_users.createdAt < (
+                    SELECT createdAt FROM \`users\` WHERE id = ${id}
+                  )
+                )
+              );
+            `
+          );
+          
+          
 
-    async getUserRanking(id: string): Promise<Number>{
+          if(result.length===0){
+            throw new Error('não foi possivel recuperar o ranking')
+          }
+          return Number( result[0].rank);
+          
 
-        //recebe os pontos do usuário com o id que estamos procurando
-        const userPoints = await client.user.findUnique({
-            where:{id},
-            select:{points:true}
-        })
-
-
-        //verifica se o campo é válido
-        if(!userPoints){
-            throw new Error("User not found!");
-        }
-
-        //conta quantos usuários existem antes dele para determinar
-        //seu ranking
-        const rank = await client.user.count({
-            where:{
-                points:{
-                    gt:userPoints.points,
-                },
-            },
-        }) 
-        return rank +1;
     }
+
 }
