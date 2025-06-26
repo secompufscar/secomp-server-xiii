@@ -1,20 +1,20 @@
 ## Testando criação de usuário
-POST http://localhost:3000/api/auth/signup
+POST http://localhost:3333/api/v1/users/signup
 Content-Type: application/json
 
 {
     "email": "teste@teste.com",
     "nome": "teste jr",
-    "senha": "senha"
+    "senha": "senha1"
 }
 
 ### Testando login de usuário já cadastrado
-POST http://localhost:3000/api/auth/login
+POST http://localhost:3333/api/v1/users/login
 Content-Type: application/json
 
 {
     "email": "teste@teste.com",
-    "senha": "senha"
+    "senha": "senha1"
 }
 
 ### Testando login de usuário não cadastrado
@@ -41,5 +41,24 @@ Content-Type: application/json
 
 {
     "email": "teste@teste.com",
-    "senha": "senha"
+    "senha": "senha1"
+}
+
+### Testando registro de token de push
+POST http://localhost:3333/api/v1/users/registerPushToken
+Content-Type: application/json
+
+{
+    "token": "example-push-token"
+}
+
+
+
+### Testando envio de notificação push
+POST http://localhost:3333/api/v1/notifications/send
+Content-Type: application/json
+
+{
+    "title": "Título da Notificação",
+    "body": "Corpo da Notificação"
 }

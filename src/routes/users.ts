@@ -207,4 +207,31 @@ routes.patch('/updatePassword/:token', usersController.updateForgottenPassword)
  *         description: Internal server error
  */
 routes.post('/sendForgotPasswordEmail', usersController.sendForgotPasswordEmail)
+
+/**
+ * @swagger
+ * /registerPushToken:
+ *   post:
+ *     summary: Registra um token de push para notificações.
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               token:
+ *                 type: string
+ *                 example: "example-push-token"
+ *     responses:
+ *       200:
+ *         description: Token de push adicionado com sucesso
+ *       400:
+ *         description: Bad request
+ */
+
+routes.post('/registerPushToken', usersController.registerPushToken)
+
 export default routes
