@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 
 import usersService from "../services/usersService"
+import { UpdateProfileDTO } from '../dtos/usersDtos';
 
 export default {
     async login(request: Request, response: Response) {
@@ -63,5 +64,20 @@ export default {
             console.error('Erro usersController.ts: '+error);
             response.status(500).json({msg:'Erro ao consultar ranking do usuario'})
         }
+    },
+     async updateProfile(request: Request, response: Response) {
+        // CORREÇÃO AQUI: Extraímos a propriedade 'id' do request.user.
+        const userId = request.user.id;
+        
+        const updateData: UpdateProfileDTO = request.body;
+
+        // Verificação para garantir que o userId não é undefined antes de prosseguir
+        if (!userId) {
+            return response.status(401).json({ message: "Usuário não autenticado corretamente." });
+        }
+
+        const updatedUser = await usersService.updateProfile(userId, updateData);
+
+        return response.status(200).json(updatedUser);
     }
 }

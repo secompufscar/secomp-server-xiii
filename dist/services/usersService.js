@@ -56,14 +56,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.loadTemplate = loadTemplate;
 const jwt = __importStar(require("jsonwebtoken"));
 const nodemailer = __importStar(require("nodemailer"));
-const lodash_1 = __importDefault(require("lodash"));
-const bcrypt_1 = require("bcrypt");
 const usersRepository_1 = __importDefault(require("../repositories/usersRepository"));
+const bcrypt_1 = require("bcrypt");
 const auth_1 = require("../config/auth");
 const sendEmail_1 = require("../config/sendEmail");
 const api_errors_1 = require("../utils/api-errors");
+const qrCode_1 = require("../utils/qrCode");
+const fs_1 = require("fs");
+const path_1 = __importDefault(require("path"));
 // Edite aqui o transportador de email
 const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
@@ -74,6 +77,22 @@ const transporter = nodemailer.createTransport({
         pass: process.env.SMTP_PASS,
     },
 });
+// Carrega o html do email
+function loadTemplate(templateName, data) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const templatePath = path_1.default.join(__dirname, '..', 'views', templateName);
+        let html = yield fs_1.promises.readFile(templatePath, 'utf-8');
+        for (const [key, value] of Object.entries(data)) {
+            const regex = new RegExp(`{{\\s*${key}\\s*}}`, 'g');
+            html = html.replace(regex, value);
+        }
+        return html;
+    });
+}
+function isValidUUID(uuid) {
+    const regex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    return regex.test(uuid);
+}
 exports.default = {
     login(_a) {
         return __awaiter(this, arguments, void 0, function* ({ email, senha }) {
@@ -108,43 +127,46 @@ exports.default = {
                 senha: (0, bcrypt_1.hashSync)(senha, 10),
                 tipo,
             });
-            // const qrCode = await generateQRCode(user.id);
-            // const updatedUser = await usersRepository.updateQRCode(user.id, {qrCode});
-            // user.qrCode = qrCode
+            const qrCode = yield (0, qrCode_1.generateQRCode)(user.id);
+            const updatedUser = yield usersRepository_1.default.updateQRCode(user.id, { qrCode });
+            user.qrCode = qrCode;
             const token = jwt.sign({ userId: user.id }, auth_1.auth.secret_token, { expiresIn: "1h" });
             const { senha: _ } = user, userLogin = __rest(user
             // Envia email de confirmação
             , ["senha"]);
             // Envia email de confirmação
-            const emailEnviado = this.sendConfirmationEmail(user);
-            //return updatedUser
-            return emailEnviado;
+            const emailEnviado = yield this.sendConfirmationEmail(user);
+            if (!emailEnviado) {
+                yield usersRepository_1.default.delete(user.id);
+                throw new api_errors_1.ApiError("Erro ao enviar email de confirmação!", api_errors_1.ErrorsCode.INTERNAL_ERROR);
+            }
+            return {
+                message: "Usuário criado com sucesso. Email de confirmação enviado.",
+                emailEnviado
+            };
         });
     },
     sendConfirmationEmail(user) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const emailToken = jwt.sign({ user: lodash_1.default.pick(user, 'id') }, sendEmail_1.email.email_secret, { expiresIn: '1d' });
-                const url = `https://api.secompufscar.com.br/api/v1/users/confirmation/${emailToken}`;
+                const emailToken = jwt.sign({ userId: user.id }, sendEmail_1.email.email_secret, { expiresIn: '1d' });
+                const BASE_URL = process.env.NODE_ENV === "production"
+                    ? process.env.BASE_URL_PROD
+                    : process.env.BASE_URL_DEV;
+                const url = `${BASE_URL}/users/confirmation/${emailToken}`;
+                const html = yield loadTemplate('email-confirmation.html', {
+                    url
+                });
                 yield transporter.sendMail({
                     to: user.email,
-                    subject: "Confirme seu email",
-                    html: `
-                    <div style=" background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);">
-                        <div style="margin-bottom: 20px;">
-                            <img src="https://i.imgur.com/n61bSCd.png" alt="Logo" style="max-width: 200px;">
-                        </div>
-                        <h2 style="color: #333;">Olá, ${user.nome}!</h2>
-                        <p>Clique <a href="${url}" style="color: #007BFF; text-decoration: none; font-weight: bold;">aqui</a> para confirmar seu email.</p>
-                    </div>
-                `
+                    subject: "SECOMP UFSCar - Confirmação de email",
+                    html,
                 });
                 console.log("Email enviado com sucesso");
                 return true;
             }
             catch (err) {
                 throw new api_errors_1.ApiError(`Erro ao enviar email`, api_errors_1.ErrorsCode.INTERNAL_ERROR);
-                return false;
             }
         });
     },
@@ -152,8 +174,8 @@ exports.default = {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const decoded = jwt.verify(token, sendEmail_1.email.email_secret);
-                if (typeof decoded !== 'string' && decoded.user) {
-                    const { user: { id } } = decoded;
+                if (typeof decoded !== 'string' && decoded.userId) {
+                    const id = decoded.userId;
                     const user = yield usersRepository_1.default.update(id, { confirmed: true });
                     const { senha: _ } = user, confirmedUser = __rest(user, ["senha"]);
                     return {
@@ -163,7 +185,10 @@ exports.default = {
                 throw new Error("Token de confirmação inválido!");
             }
             catch (err) {
-                throw new api_errors_1.ApiError(`Erro ao confirmar e-mail!`, api_errors_1.ErrorsCode.INTERNAL_ERROR);
+                if (err instanceof jwt.TokenExpiredError) {
+                    throw new api_errors_1.ApiError("Token expirado. Solicite um novo.", api_errors_1.ErrorsCode.UNAUTHORIZED);
+                }
+                throw new api_errors_1.ApiError("Erro ao confirmar e-mail!", api_errors_1.ErrorsCode.INTERNAL_ERROR);
             }
         });
     },
@@ -174,23 +199,17 @@ exports.default = {
                 if (!user) {
                     throw new api_errors_1.ApiError("Usuário não encontrado!", api_errors_1.ErrorsCode.NOT_FOUND);
                 }
-                const emailToken = jwt.sign({ user: lodash_1.default.pick(user, 'id') }, process.env.JWT_RESET_SECRET || "default_secret", { expiresIn: '1h' });
-                // No servidor
-                // const url = `https://secompapp.com/SetNewPassword?token=${emailToken}`//`https://api.secompufscar.com.br/api/v1/users/updatePassword/${emailToken}`
-                // Envio de e-mail localmente
-                const url = `secompapp://SetNewPassword?token=${emailToken}`; //`https://api.secompufscar.com.br/api/v1/users/updatePassword/${emailToken}`
+                const emailToken = jwt.sign({ userId: user.id }, process.env.JWT_RESET_SECRET || "default_secret", { expiresIn: '1h' });
+                // Link com protocolo personalizado que é interpretado pelo app mobile
+                const url = `https://secompapp.com/SetNewPassword?token=${emailToken}`;
+                const html = yield loadTemplate('email-passwordreset.html', {
+                    url
+                });
                 yield transporter.sendMail({
                     to: user.email,
-                    subject: "Redefinição de Senha - SECOMP UFSCar", // Assunto mais claro
-                    html: `
-                    <h1>Olá, ${user.nome}</h1>
-                    <p>Clique no link abaixo para redefinir sua senha:</p>
-                    <a href="${url}">${url}</a>
-                    <p><i>Link válido por 1 hora</i></p>
-                `
+                    subject: "SECOMP UFSCar - Solicitação de alteração de senha",
+                    html,
                 });
-                //para teste
-                console.log(emailToken);
             }
             catch (err) {
                 console.log("Erro no serviço de recuperação de senha", err);
@@ -224,5 +243,67 @@ exports.default = {
                 throw new api_errors_1.ApiError("Erro ao atualizar senha", api_errors_1.ErrorsCode.INTERNAL_ERROR);
             }
         });
-    }
+    },
+    getUserRanking(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const userRank = yield usersRepository_1.default.getUserRanking(id);
+                return userRank;
+            }
+            catch (error) {
+                console.error('Erro usersService.ts: ' + error);
+                throw new api_errors_1.ApiError('erro ao encontrar ranking do usuário', api_errors_1.ErrorsCode.NOT_FOUND);
+            }
+        });
+    },
+    getUserById(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                //verifica se o id enviado não está errado
+                if (!isValidUUID(id)) {
+                    throw new api_errors_1.ApiError('erro com o id enviado', api_errors_1.ErrorsCode.BAD_REQUEST);
+                }
+                const user = yield usersRepository_1.default.findById(id);
+                if (!user) {
+                    throw new api_errors_1.ApiError('erro ao encontrar usuário: ', api_errors_1.ErrorsCode.NOT_FOUND);
+                }
+                return user;
+            }
+            catch (error) {
+                console.error('usersService.ts: ' + error);
+                throw new Error('erro ao consultar ranking do usuário');
+            }
+        });
+    },
+    updateProfile(userId, data) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { nome, email } = data;
+            // Garante que o corpo da requisição não está vazio.
+            if (!nome && !email) {
+                throw new api_errors_1.ApiError("A requisição deve conter 'nome' ou 'email' para ser atualizado.", api_errors_1.ErrorsCode.BAD_REQUEST);
+            }
+            // Valida o formato do email, se ele for fornecido.
+            if (email) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    throw new api_errors_1.ApiError("O formato do email é inválido.", api_errors_1.ErrorsCode.BAD_REQUEST);
+                }
+            }
+            const userToUpdate = yield usersRepository_1.default.findById(userId);
+            if (!userToUpdate) {
+                throw new api_errors_1.ApiError("Usuário não encontrado.", api_errors_1.ErrorsCode.NOT_FOUND);
+            }
+            // Verifica se o novo e-mail já está em uso por outro usuário.
+            if (email && email !== userToUpdate.email) {
+                const userWithSameEmail = yield usersRepository_1.default.findByEmail(email);
+                if (userWithSameEmail && userWithSameEmail.id !== userId) {
+                    throw new api_errors_1.ApiError("Este e-mail já está em uso.", api_errors_1.ErrorsCode.BAD_REQUEST);
+                }
+            }
+            const updatedUser = yield usersRepository_1.default.update(userId, { nome, email });
+            // Remove a senha do retorno por segurança.
+            const { senha: _ } = updatedUser, userResult = __rest(updatedUser, ["senha"]);
+            return userResult;
+        });
+    },
 };

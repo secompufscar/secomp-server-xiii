@@ -37,7 +37,19 @@ exports.default = {
     },
     create(request, response) {
         return __awaiter(this, void 0, void 0, function* () {
-            const data = yield usersAtActivitiesService_1.default.create(request.body);
+            // modifiquei pois estava dando varios problemas com o id, id undefined, etc
+            const userId = request.user.id;
+            if (!userId) {
+                return response.status(401).json({ error: "Usuário não autenticado" });
+            }
+            const { activityId, presente, inscricaoPrevia, listaEspera } = request.body;
+            const data = yield usersAtActivitiesService_1.default.create({
+                userId,
+                activityId,
+                presente,
+                inscricaoPrevia,
+                listaEspera,
+            });
             response.status(201).json(data);
         });
     },

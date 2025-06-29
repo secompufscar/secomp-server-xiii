@@ -52,15 +52,18 @@ var __rest = (this && this.__rest) || function (s, e) {
         }
     return t;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.prismaClient = void 0;
 exports.authMiddleware = authMiddleware;
 const exceptions_1 = require("../utils/exceptions");
-const client_1 = require("@prisma/client");
+// import { PrismaClient } from "@prisma/client"; 
 const secrets_1 = require("../secrets");
 const jwt = __importStar(require("jsonwebtoken"));
 const api_errors_1 = require("../utils/api-errors");
-exports.prismaClient = new client_1.PrismaClient();
+const usersRepository_1 = __importDefault(require("../repositories/usersRepository")); // Importa o repositório
+// export const prismaClient = new PrismaClient();
 function authMiddleware(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -70,20 +73,25 @@ function authMiddleware(req, res, next) {
             }
             const token = authorization.split(' ')[1];
             const { userId } = jwt.verify(token, secrets_1.JWT_SECRET);
-            const user = yield exports.prismaClient.user.findFirst({ where: { id: userId } });
-            if (!(user === null || user === void 0 ? void 0 : user.confirmed)) {
+            // usa o repositório para buscar o usuário.
+            const user = yield usersRepository_1.default.findById(userId);
+            if (!user) { // Adicionado um check para caso o usuário não exista mais
+                throw new exceptions_1.UnauthorizedUserError("Usuário não encontrado.");
+            }
+            if (!user.confirmed) {
                 throw new exceptions_1.UnauthorizedUserError("Confirme o seu Email");
             }
-            const _a = user, { senha: _ } = _a, loggedUser = __rest(_a, ["senha"]);
+            const { senha: _ } = user, loggedUser = __rest(user, ["senha"]);
             req.user = loggedUser;
             next();
         }
         catch (error) {
             if (error instanceof api_errors_1.ApiError)
-                res.status(error.statusCode).json({ message: error.message, statusCode: error.statusCode });
+                return res.status(error.statusCode).json({ message: error.message, statusCode: error.statusCode });
             else if (error instanceof jwt.TokenExpiredError)
-                res.status(401).json({ message: "Token expirado", statusCode: 401 });
-            console.error("Erro em acesso: ", error.message);
+                return res.status(401).json({ message: "Token expirado", statusCode: 401 });
+            console.error("Erro em acesso: ", error);
+            return res.status(500).json({ message: "Erro interno no servidor" });
         }
     });
 }

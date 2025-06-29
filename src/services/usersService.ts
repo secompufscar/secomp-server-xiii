@@ -8,7 +8,7 @@ import { email } from '../config/sendEmail';
 import { User } from "../entities/User";
 import { ApiError, ErrorsCode } from "../utils/api-errors"
 import { generateQRCode } from "../utils/qrCode";
-import { CreateUserDTOS, UpdateUserDTOS, UpdateQrCodeUsersDTOS } from "../dtos/usersDtos";
+import { CreateUserDTOS, UpdateUserDTOS, UpdateQrCodeUsersDTOS, UpdateProfileDTO } from "../dtos/usersDtos";
 import { promises as fs } from 'fs';
 import path from 'path';
 
@@ -268,5 +268,42 @@ export default {
             throw new Error('erro ao consultar ranking do usuário');
         }
    },
+   
+async updateProfile(userId: string, data: UpdateProfileDTO) {
+        const { nome, email } = data;
+        // Garante que o corpo da requisição não está vazio.
+        if (!nome && !email) {
+            throw new ApiError("A requisição deve conter 'nome' ou 'email' para ser atualizado.", ErrorsCode.BAD_REQUEST);
+        }
+
+        // Valida o formato do email, se ele for fornecido.
+        if (email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                throw new ApiError("O formato do email é inválido.", ErrorsCode.BAD_REQUEST);
+            }
+        }
+        
+        const userToUpdate = await usersRepository.findById(userId);
+        if (!userToUpdate) {
+            throw new ApiError("Usuário não encontrado.", ErrorsCode.NOT_FOUND);
+        }
+
+        // Verifica se o novo e-mail já está em uso por outro usuário.
+        if (email && email !== userToUpdate.email) {
+            const userWithSameEmail = await usersRepository.findByEmail(email);
+            if (userWithSameEmail && userWithSameEmail.id !== userId) {
+                throw new ApiError("Este e-mail já está em uso.", ErrorsCode.BAD_REQUEST);
+            }
+        }
+
+        
+        const updatedUser = await usersRepository.update(userId, { nome, email });
+
+        // Remove a senha do retorno por segurança.
+        const { senha: _, ...userResult } = updatedUser;
+
+        return userResult;
+    },
   
 }
