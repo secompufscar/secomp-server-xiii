@@ -1,3 +1,4 @@
+export type RegistrationStatus = 0 | 1 | 2;
 export interface User {
     id: string
     nome: string
@@ -8,4 +9,6 @@ export interface User {
     createdAt: Date
     updatedAt: Date | null
     confirmed: boolean
+    registrationStatus: RegistrationStatus; //0 | 1 | 2;
+    currentEdition: string | null;  // Edição atual (ex: "2024")
 }

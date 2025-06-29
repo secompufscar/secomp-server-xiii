@@ -23,12 +23,6 @@ const transporter = nodemailer.createTransport({
     },
 } as nodemailer.TransportOptions);
 
-function isValidUUID(uuid:string) {
-    const regex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-    return regex.test(uuid);
-}
-
-
 // Carrega o html do email
 export async function loadTemplate(templateName: string, data: Record<string, string>) {
     const templatePath = path.join(__dirname, '..', 'views', templateName);
@@ -40,6 +34,11 @@ export async function loadTemplate(templateName: string, data: Record<string, st
     }
 
     return html;
+}
+
+function isValidUUID(uuid:string) {
+    const regex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    return regex.test(uuid);
 }
 
 export default {
@@ -186,10 +185,7 @@ export default {
             )
             
             // Link com protocolo personalizado que é interpretado pelo app mobile
-            const url = process.env.NODE_ENV === "development" ? 
-                `https://secompapp.com/SetNewPassword?token=${emailToken}` :
-                `secompapp://SetNewPassword?token=${emailToken}`;
-
+            const url = `https://secompapp.com/SetNewPassword?token=${emailToken}`;
             const html = await loadTemplate('email-passwordreset.html', {
                 url
             });
@@ -210,37 +206,38 @@ export default {
     },
 
     async updatePassword(token: string, newPassword: string) {
-    try {
-        // Verifica o token com a mesma chave usada na geração
-        const decoded = jwt.verify(
-            token,
-            process.env.JWT_RESET_SECRET || "default_secret" 
-        ) as { userId: string };
+        try {
+            // Verifica o token com a mesma chave usada na geração
+            const decoded = jwt.verify(
+                token,
+                process.env.JWT_RESET_SECRET || "default_secret" 
+            ) as { userId: string };
 
-        // Busca o usuário pelo ID do token
-        const user = await usersRepository.findById(decoded.userId);
-        if (!user) {
-            throw new ApiError("Usuário não encontrado", ErrorsCode.NOT_FOUND);
+            // Busca o usuário pelo ID do token
+            const user = await usersRepository.findById(decoded.userId);
+            if (!user) {
+                throw new ApiError("Usuário não encontrado", ErrorsCode.NOT_FOUND);
+            }
+
+            const hashedPassword = await hash(newPassword, 10);
+
+            // Atualiza a senha no banco
+            await usersRepository.update(user.id, { senha: hashedPassword });
+
+            return { message: "Senha atualizada com sucesso" };
+
+        } catch (err) {
+            // Tratamento específico para erros do JWT
+            if (err instanceof jwt.TokenExpiredError) {
+                throw new ApiError("Token expirado", ErrorsCode.UNAUTHORIZED);
+            }
+            if (err instanceof jwt.JsonWebTokenError) {
+                throw new ApiError("Token inválido", ErrorsCode.UNAUTHORIZED);
+            }
+            throw new ApiError("Erro ao atualizar senha", ErrorsCode.INTERNAL_ERROR);
         }
-
-        const hashedPassword = await hash(newPassword, 10);
-
-        // Atualiza a senha no banco
-        await usersRepository.update(user.id, { senha: hashedPassword });
-
-        return { message: "Senha atualizada com sucesso" };
-
-    } catch (err) {
-        // Tratamento específico para erros do JWT
-        if (err instanceof jwt.TokenExpiredError) {
-            throw new ApiError("Token expirado", ErrorsCode.UNAUTHORIZED);
-        }
-        if (err instanceof jwt.JsonWebTokenError) {
-            throw new ApiError("Token inválido", ErrorsCode.UNAUTHORIZED);
-        }
-        throw new ApiError("Erro ao atualizar senha", ErrorsCode.INTERNAL_ERROR);
-    }
-},
+    },
+      
     async getUserRanking(id:string){
         try{
             const userRank = await usersRepository.getUserRanking(id);
@@ -251,6 +248,7 @@ export default {
             throw new ApiError('erro ao encontrar ranking do usuário', ErrorsCode.NOT_FOUND);
         }
     },
+      
     async getUserById(id:string){
         try{
             //verifica se o id enviado não está errado
@@ -269,5 +267,6 @@ export default {
             console.error('usersService.ts: '+error);
             throw new Error('erro ao consultar ranking do usuário');
         }
-    }
+   },
+  
 }
