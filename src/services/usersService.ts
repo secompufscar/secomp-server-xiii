@@ -36,6 +36,11 @@ export async function loadTemplate(templateName: string, data: Record<string, st
     return html;
 }
 
+function isValidUUID(uuid:string) {
+    const regex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    return regex.test(uuid);
+}
+
 export default {
     async login({ email, senha }: User) {
         const user = await usersRepository.findByEmail(email)
@@ -201,35 +206,67 @@ export default {
     },
 
     async updatePassword(token: string, newPassword: string) {
-    try {
-        // Verifica o token com a mesma chave usada na geração
-        const decoded = jwt.verify(
-            token,
-            process.env.JWT_RESET_SECRET || "default_secret" 
-        ) as { userId: string };
+        try {
+            // Verifica o token com a mesma chave usada na geração
+            const decoded = jwt.verify(
+                token,
+                process.env.JWT_RESET_SECRET || "default_secret" 
+            ) as { userId: string };
 
-        // Busca o usuário pelo ID do token
-        const user = await usersRepository.findById(decoded.userId);
-        if (!user) {
-            throw new ApiError("Usuário não encontrado", ErrorsCode.NOT_FOUND);
+            // Busca o usuário pelo ID do token
+            const user = await usersRepository.findById(decoded.userId);
+            if (!user) {
+                throw new ApiError("Usuário não encontrado", ErrorsCode.NOT_FOUND);
+            }
+
+            const hashedPassword = await hash(newPassword, 10);
+
+            // Atualiza a senha no banco
+            await usersRepository.update(user.id, { senha: hashedPassword });
+
+            return { message: "Senha atualizada com sucesso" };
+
+        } catch (err) {
+            // Tratamento específico para erros do JWT
+            if (err instanceof jwt.TokenExpiredError) {
+                throw new ApiError("Token expirado", ErrorsCode.UNAUTHORIZED);
+            }
+            if (err instanceof jwt.JsonWebTokenError) {
+                throw new ApiError("Token inválido", ErrorsCode.UNAUTHORIZED);
+            }
+            throw new ApiError("Erro ao atualizar senha", ErrorsCode.INTERNAL_ERROR);
         }
-
-        const hashedPassword = await hash(newPassword, 10);
-
-        // Atualiza a senha no banco
-        await usersRepository.update(user.id, { senha: hashedPassword });
-
-        return { message: "Senha atualizada com sucesso" };
-
-    } catch (err) {
-        // Tratamento específico para erros do JWT
-        if (err instanceof jwt.TokenExpiredError) {
-            throw new ApiError("Token expirado", ErrorsCode.UNAUTHORIZED);
+    },
+      
+    async getUserRanking(id:string){
+        try{
+            const userRank = await usersRepository.getUserRanking(id);
+            return userRank;
         }
-        if (err instanceof jwt.JsonWebTokenError) {
-            throw new ApiError("Token inválido", ErrorsCode.UNAUTHORIZED);
+        catch(error){
+            console.error('Erro usersService.ts: '+error);
+            throw new ApiError('erro ao encontrar ranking do usuário', ErrorsCode.NOT_FOUND);
         }
-        throw new ApiError("Erro ao atualizar senha", ErrorsCode.INTERNAL_ERROR);
-    }
-}
+    },
+      
+    async getUserById(id:string){
+        try{
+            //verifica se o id enviado não está errado
+            if(!isValidUUID(id)){
+                throw new ApiError('erro com o id enviado', ErrorsCode.BAD_REQUEST)
+            }
+
+            const user = await usersRepository.findById(id)
+            if(!user){
+                throw new ApiError('erro ao encontrar usuário: ', ErrorsCode.NOT_FOUND);
+            }
+
+            return user;
+        }
+        catch(error){
+            console.error('usersService.ts: '+error);
+            throw new Error('erro ao consultar ranking do usuário');
+        }
+   },
+  
 }

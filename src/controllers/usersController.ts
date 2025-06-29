@@ -1,8 +1,6 @@
 import { Request, Response } from 'express';
 
 import usersService from "../services/usersService"
-import { User } from '@entities/User';
-
 
 export default {
     async login(request: Request, response: Response) {
@@ -55,5 +53,15 @@ export default {
     } catch (error) {
         response.status(500).json({ message: "Erro ao atualizar senha" });
     }
-}
+},
+    async getUserRanking(request: Request, response: Response){
+        try{
+            const ranking = await usersService.getUserRanking(request.params.id);
+            response.status(200).json({rank:ranking});
+        }
+        catch(error){
+            console.error('Erro usersController.ts: '+error);
+            response.status(500).json({msg:'Erro ao consultar ranking do usuario'})
+        }
+    }
 }

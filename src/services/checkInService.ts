@@ -17,8 +17,6 @@ export default {
 
         // Marcar como presente
         return await checkInRepository.markAsPresent(userAtActivity.id);
-
-
     },
 
 };

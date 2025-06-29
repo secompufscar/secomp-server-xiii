@@ -1,10 +1,10 @@
-// src/repositories/usersRepository.ts
 import { PrismaClient } from "@prisma/client";
 import { User, RegistrationStatus } from "../entities/User"; 
+import { Prisma } from "@prisma/client"
 import { CreateUserDTOS, UpdateQrCodeUsersDTOS, UpdateUserDTOS } from "../dtos/usersDtos";
+import { prismaClient } from "@middlewares/authMiddleware"
 
 const client = new PrismaClient();
-
 
 export default {
     async list(): Promise<User[]> {
@@ -16,7 +16,7 @@ export default {
             registrationStatus: user.registrationStatus as RegistrationStatus 
         }));
     },
-
+  
     async findById(id: string): Promise<User | null> {
         const response = await client.user.findFirst({
             where: { id }
@@ -28,7 +28,7 @@ export default {
         // Faz a asserção de tipo antes de retornar
         return { ...response, registrationStatus: response.registrationStatus as RegistrationStatus };
     },
-    
+      
     async setRegistrationStatusForAllEligibleUsers(newStatus: number): Promise<void> {
         try {
             console.log(`[userRepository.setRegistrationStatusForAllEligibleUsers] Tentando atualizar registrationStatus para ${newStatus} para usuários elegíveis.`);
@@ -71,7 +71,7 @@ export default {
             }
         });
     },
-
+  
     async findByEmail(email: string): Promise<User | null> {
         const response = await client.user.findFirst({
             where: { email }
@@ -115,4 +115,50 @@ export default {
         // Faz a asserção de tipo
         return { ...response, registrationStatus: response.registrationStatus as RegistrationStatus };
     },
+  
+    async getUserRanking(id: string): Promise<number> {
+        const result = await client.$queryRaw<{ rank: number }[]>(
+            Prisma.sql`
+              SELECT COUNT(*) + 1 AS \`rank\`
+              FROM (
+                SELECT
+                  u.id,
+                  u.points,
+                  COUNT(CASE WHEN ua.presente = 1 THEN 1 END) AS presences,
+                  u.createdAt
+                FROM \`users\` u
+                LEFT JOIN \`userAtActivity\` ua ON ua.userId = u.id
+                GROUP BY u.id, u.points, u.createdAt
+              ) AS other_users
+              WHERE (
+                other_users.points > (
+                  SELECT points FROM \`users\` WHERE id = ${id}
+                )
+                OR (
+                  other_users.points = (
+                    SELECT points FROM \`users\` WHERE id = ${id}
+                  ) AND other_users.presences > (
+                    SELECT COUNT(*) FROM \`userAtActivity\`
+                    WHERE userId = ${id} AND presente = 1
+                  )
+                )
+                OR (
+                  other_users.points = (
+                    SELECT points FROM \`users\` WHERE id = ${id}
+                  ) AND other_users.presences = (
+                    SELECT COUNT(*) FROM \`userAtActivity\`
+                    WHERE userId = ${id} AND presente = 1
+                  ) AND other_users.createdAt < (
+                    SELECT createdAt FROM \`users\` WHERE id = ${id}
+                  )
+                )
+              );
+            `
+          );
+          
+          if(result.length===0){
+            throw new Error('Não foi possivel recuperar o ranking')
+          }
+          return Number( result[0].rank);
+    }
 };
