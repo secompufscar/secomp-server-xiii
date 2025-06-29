@@ -179,10 +179,10 @@ export default {
             }
 
             const emailToken = jwt.sign(
-                { user: _.pick(user, 'id') },
+                { userId: user.id },
                 process.env.JWT_RESET_SECRET || "default_secret",
                 { expiresIn: '1h' }
-            )
+            );
             
             // Link com protocolo personalizado que é interpretado pelo app mobile
             const url = `https://secompapp.com/SetNewPassword?token=${emailToken}`;
