@@ -208,5 +208,38 @@ routes.patch('/updatePassword/:token', usersController.updateForgottenPassword)
  */
 routes.post('/sendForgotPasswordEmail', usersController.sendForgotPasswordEmail)
 
-routes.get('/getUserRanking/:id',usersController.getUserRanking)
+/**
+ * @swagger
+ * /getUserRanking/{id}:
+ *   get:
+ *     summary: Retorna o ranking de um usuário
+ *     description: Retorna informações de ranking do usuário com base no ID fornecido.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID do usuário
+ *     responses:
+ *       200:
+ *         description: Ranking do usuário recuperado com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 ranking:
+ *                   type: integer
+ *                   example: 5
+ *                 pontos:
+ *                   type: integer
+ *                   example: 1200
+ *       404:
+ *         description: Usuário não encontrado
+ *       500:
+ *         description: Erro interno do servidor
+ */
+routes.get('/getUserRanking/:id', usersController.getUserRanking)
+
 export default routes
