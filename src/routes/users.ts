@@ -242,4 +242,37 @@ routes.post('/sendForgotPasswordEmail', usersController.sendForgotPasswordEmail)
  */
 routes.get('/getUserRanking/:id', usersController.getUserRanking)
 
+/**
+ * @swagger
+ * /updateProfile:
+ *   patch:
+ *     summary: Update user profile
+ *     description: Update the authenticated user's name and/or email.
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       description: User data to update. Both fields are optional.
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nome:
+ *                 type: string
+ *                 example: "Novo Nome do Usuario"
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: "novoemail@example.com"
+ *     responses:
+ *       '200':
+ *         description: Profile updated successfully
+ *       '400':
+ *         description: Bad request (e.g., invalid email format, email already in use)
+ *       '401':
+ *         description: Unauthorized (invalid or missing token)
+ */
+routes.patch('/updateProfile', authMiddleware, usersController.updateProfile)
+
 export default routes

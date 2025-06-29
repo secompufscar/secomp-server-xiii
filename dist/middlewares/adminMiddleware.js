@@ -41,14 +41,18 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.adminMiddleware = adminMiddleware;
 const exceptions_1 = require("../utils/exceptions");
-const client_1 = require("@prisma/client");
+// import { PrismaClient } from "@prisma/client"; 
 const auth_1 = require("../config/auth");
 const jwt = __importStar(require("jsonwebtoken"));
 const api_errors_1 = require("../utils/api-errors");
-const prismaClient = new client_1.PrismaClient();
+const usersRepository_1 = __importDefault(require("../repositories/usersRepository")); // Importamos o repositório.
+// const prismaClient = new PrismaClient(); 
 const JWT_SECRET = auth_1.auth.secret_token;
 function adminMiddleware(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -62,18 +66,26 @@ function adminMiddleware(req, res, next) {
             if (!userId) {
                 throw new exceptions_1.BadRequestsException("Bad request");
             }
-            const user = yield prismaClient.user.findFirst({ where: { id: userId } });
-            if ((user === null || user === void 0 ? void 0 : user.tipo) !== "ADMIN") {
-                throw new exceptions_1.UnauthorizedUserError("Não autorizado");
+            // Usamos o repositório para buscar o usuário.
+            const user = yield usersRepository_1.default.findById(userId);
+            // Adicionado um check para caso o usuário não tenha sido encontrado no banco
+            if (!user) {
+                throw new exceptions_1.UserNotFoundError("Usuário associado ao token não encontrado.");
             }
+            // A verificação continua a mesma, mas agora sobre um objeto com tipo seguro.
+            if (user.tipo !== "ADMIN") {
+                throw new exceptions_1.UnauthorizedUserError("Acesso restrito a administradores.");
+            }
+            // Se o usuário é admin, a requisição continua.
             next();
         }
         catch (error) {
             if (error instanceof api_errors_1.ApiError)
-                res.status(error.statusCode).json({ message: error.message, statusCode: error.statusCode });
+                return res.status(error.statusCode).json({ message: error.message, statusCode: error.statusCode });
             else if (error instanceof jwt.TokenExpiredError)
-                res.status(401).json({ message: "Token expirado", statusCode: 401 });
-            console.error("Erro em acesso: ", error.message);
+                return res.status(401).json({ message: "Token expirado", statusCode: 401 });
+            console.error("Erro em acesso administrativo: ", error);
+            return res.status(500).json({ message: "Erro interno no servidor" });
         }
     });
 }

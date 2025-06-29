@@ -1,8 +1,11 @@
 import { PrismaClient } from "@prisma/client";
 import { User, RegistrationStatus } from "../entities/User"; 
 import { Prisma } from "@prisma/client"
-import { CreateUserDTOS, UpdateQrCodeUsersDTOS, UpdateUserDTOS } from "../dtos/usersDtos";
-import { prismaClient } from "@middlewares/authMiddleware"
+import { CreateUserDTOS, UpdateQrCodeUsersDTOS, UpdateUserDTOS } from "../dtos/usersDtos";7
+
+
+
+
 
 const client = new PrismaClient();
 

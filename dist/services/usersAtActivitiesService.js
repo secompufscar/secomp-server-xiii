@@ -15,6 +15,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const usersAtActivitiesRepository_1 = __importDefault(require("../repositories/usersAtActivitiesRepository"));
 const activitiesRepository_1 = __importDefault(require("../repositories/activitiesRepository"));
 const checkInRepository_1 = __importDefault(require("../repositories/checkInRepository"));
+const userEventRepository_1 = __importDefault(require("../repositories/userEventRepository"));
+const usersRepository_1 = __importDefault(require("../repositories/usersRepository"));
+const eventRepository_1 = __importDefault(require("../repositories/eventRepository"));
 exports.default = {
     findManyByActivityId(activityId) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -36,9 +39,19 @@ exports.default = {
     },
     create(_a) {
         return __awaiter(this, arguments, void 0, function* ({ userId, activityId }) {
-            const existingUserAtActivity = yield usersAtActivitiesRepository_1.default.findByUserIdAndActivityId(userId, activityId);
-            if (existingUserAtActivity) {
-                throw new Error('Usuário já está associado a esta atividade.');
+            // novo check antes de inscrever usuario em atividade
+            const currentEvent = yield eventRepository_1.default.findCurrent();
+            if (!currentEvent) {
+                throw new Error("Nenhum evento ativo no momento, nao é possivel fazer inscricao.");
+            }
+            const user = yield usersRepository_1.default.findById(userId);
+            if (!user) {
+                throw new Error('Usuário não encontrado.');
+            }
+            // novo check antes de inscrever usuario em atividade
+            const registration = yield userEventRepository_1.default.getUserRegistration(userId, currentEvent.id);
+            if (!registration || registration.status !== 1) {
+                throw new Error('Você precisa estar inscrito no evento anual para participar de atividades');
             }
             const isFull = yield activitiesRepository_1.default.isActivityFull(activityId);
             const userAtActivity = yield usersAtActivitiesRepository_1.default.create({

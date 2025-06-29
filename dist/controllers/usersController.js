@@ -71,5 +71,30 @@ exports.default = {
                 response.status(500).json({ message: "Erro ao atualizar senha" });
             }
         });
+    },
+    getUserRanking(request, response) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const ranking = yield usersService_1.default.getUserRanking(request.params.id);
+                response.status(200).json({ rank: ranking });
+            }
+            catch (error) {
+                console.error('Erro usersController.ts: ' + error);
+                response.status(500).json({ msg: 'Erro ao consultar ranking do usuario' });
+            }
+        });
+    },
+    updateProfile(request, response) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // CORREÇÃO AQUI: Extraímos a propriedade 'id' do request.user.
+            const userId = request.user.id;
+            const updateData = request.body;
+            // Verificação para garantir que o userId não é undefined antes de prosseguir
+            if (!userId) {
+                return response.status(401).json({ message: "Usuário não autenticado corretamente." });
+            }
+            const updatedUser = yield usersService_1.default.updateProfile(userId, updateData);
+            return response.status(200).json(updatedUser);
+        });
     }
 };
