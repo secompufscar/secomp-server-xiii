@@ -32,7 +32,7 @@ exports.default = {
         });
     },
     create(_a) {
-        return __awaiter(this, arguments, void 0, function* ({ nome, data, palestranteNome, categoriaId, vagas, detalhes, local }) {
+        return __awaiter(this, arguments, void 0, function* ({ nome, data, palestranteNome, categoriaId, vagas, detalhes, local, points }) {
             const newData = data ? new Date(data) : null;
             const newAtividade = yield activitiesRepository_1.default.create({
                 nome,
@@ -42,12 +42,13 @@ exports.default = {
                 vagas,
                 detalhes,
                 local,
+                points,
             });
             return newAtividade;
         });
     },
     update(id_1, _a) {
-        return __awaiter(this, arguments, void 0, function* (id, { nome, data, palestranteNome, categoriaId, detalhes, local }) {
+        return __awaiter(this, arguments, void 0, function* (id, { nome, data, palestranteNome, categoriaId, detalhes, local, points }) {
             const existingAtividade = yield activitiesRepository_1.default.findById(id);
             if (!existingAtividade) {
                 throw new api_errors_1.ApiError('Atividade não encontrada', api_errors_1.ErrorsCode.NOT_FOUND);
@@ -59,6 +60,7 @@ exports.default = {
                 categoriaId,
                 detalhes,
                 local,
+                points, // Adicione aqui também
             });
             return updatedAtividade;
         });

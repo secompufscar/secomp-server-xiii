@@ -3,6 +3,7 @@ import { PrismaClient } from '@prisma/client';
 
 import usersAtActivities from "../services/usersAtActivitiesService"
 
+
 export default {
   async findById(request: Request, response: Response) {
     const { activityId } = request.params;
@@ -28,12 +29,19 @@ export default {
     response.status(200).json(data)
   },
 
-  async create(request: Request, response: Response) {
-    const data = await usersAtActivities.create(request.body)
+async create(request: Request, response: Response) {
+       
+        const { activityId } = request.body;
+        const userId = request.user?.id;
 
-    response.status(201).json(data)
-  },
+        if (!userId) {
+            throw new Error('Usuário não autenticado');
+        }
+        
+        const data = await usersAtActivities.create({ userId, activityId });
 
+        response.status(201).json(data);
+    },
   async update(request: Request, response: Response) {
     const { id } = request.params;
 

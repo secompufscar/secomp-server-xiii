@@ -74,4 +74,55 @@ exports.default = {
             });
         });
     },
+    addPoints(userId, points) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const updatedUser = yield client.user.update({
+                    where: { id: userId },
+                    data: {
+                        points: {
+                            increment: points, // Incrementa os pontos existentes do usuário
+                        },
+                    },
+                });
+                return updatedUser;
+            }
+            catch (error) {
+                console.error(`Erro ao adicionar pontos ao usuário ${userId}:`, error);
+                throw new Error("Não foi possível adicionar pontos ao usuário.");
+            }
+        });
+    },
+    getUserPoints(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const response = yield client.user.findUnique({
+                where: { id },
+                select: { points: true }
+            });
+            return response;
+        });
+    },
+    getUserRanking(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            //recebe os pontos do usuário com o id que estamos procurando
+            const userPoints = yield client.user.findUnique({
+                where: { id },
+                select: { points: true }
+            });
+            //verifica se o campo é válido
+            if (!userPoints) {
+                throw new Error("User not found!");
+            }
+            //conta quantos usuários existem antes dele para determinar
+            //seu ranking
+            const rank = yield client.user.count({
+                where: {
+                    points: {
+                        gt: userPoints.points,
+                    },
+                },
+            });
+            return rank + 1;
+        });
+    }
 };

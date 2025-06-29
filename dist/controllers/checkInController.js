@@ -18,7 +18,7 @@ exports.default = {
     checkIn(request, response) {
         return __awaiter(this, void 0, void 0, function* () {
             const { userId, activityId } = request.params;
-            console.log(userId, activityId);
+            console.log("checkin controller: ", userId, activityId);
             const data = yield checkInService_1.default.checkIn(userId, activityId);
             response.status(200).json(data);
         });

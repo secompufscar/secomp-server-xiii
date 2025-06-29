@@ -207,4 +207,6 @@ routes.patch('/updatePassword/:token', usersController_1.default.updateForgotten
  *         description: Internal server error
  */
 routes.post('/sendForgotPasswordEmail', usersController_1.default.sendForgotPasswordEmail);
+routes.get('/getUserPoints/:id', usersController_1.default.getUserPoints);
+routes.get('/getUserRanking/:id', usersController_1.default.getUserRanking);
 exports.default = routes;

@@ -55,6 +55,7 @@ model Activity {
   updatedAt         DateTime   @updatedAt @db.Timestamp
   local             String     @db.VarChar(255)
   participantes     UserAtActivity[]
+  points            Int              @default(0) 
 
   @@map("atividades")
   

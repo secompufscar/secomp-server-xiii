@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client"
 
 import { User } from "../entities/User"
+import { Prisma } from "@prisma/client"
 
 import { CreateUserDTOS, UpdateQrCodeUsersDTOS, UpdateUserDTOS } from "../dtos/usersDtos"
 import { prismaClient } from "@middlewares/authMiddleware"
@@ -67,29 +68,78 @@ export default {
         });
     },
 
-    async getUserRanking(id: string): Promise<Number>{
-
-        //recebe os pontos do usuário com o id que estamos procurando
-        const userPoints = await client.user.findUnique({
-            where:{id},
-            select:{points:true}
-        })
-
-
-        //verifica se o campo é válido
-        if(!userPoints){
-            throw new Error("User not found!");
-        }
-
-        //conta quantos usuários existem antes dele para determinar
-        //seu ranking
-        const rank = await client.user.count({
-            where:{
-                points:{
-                    gt:userPoints.points,
+     async addPoints(userId: string, points: number): Promise<User> {
+        try {
+            const updatedUser = await client.user.update({
+                where: { id: userId },
+                data: {
+                    points: {
+                        increment: points, // Incrementa os pontos existentes do usuário
+                    },
                 },
-            },
-        }) 
-        return rank +1;
+            });
+            return updatedUser;
+        } catch (error) {
+            console.error(`Erro ao adicionar pontos ao usuário ${userId}:`, error);
+            throw new Error("Não foi possível adicionar pontos ao usuário.");
+        }
+    },
+     async getUserPoints(id: string): Promise<{ points: number } | null> {
+        const response = await client.user.findUnique({
+            where: { id },
+            select: { points: true }
+        });
+        return response;
+    },
+
+
+    async getUserRanking(id: string): Promise<number> {
+        const result = await client.$queryRaw<{ rank: number }[]>(
+            Prisma.sql`
+              SELECT COUNT(*) + 1 AS \`rank\`
+              FROM (
+                SELECT
+                  u.id,
+                  u.points,
+                  COUNT(CASE WHEN ua.presente = 1 THEN 1 END) AS presences,
+                  u.createdAt
+                FROM \`users\` u
+                LEFT JOIN \`userAtActivity\` ua ON ua.userId = u.id
+                GROUP BY u.id, u.points, u.createdAt
+              ) AS other_users
+              WHERE (
+                other_users.points > (
+                  SELECT points FROM \`users\` WHERE id = ${id}
+                )
+                OR (
+                  other_users.points = (
+                    SELECT points FROM \`users\` WHERE id = ${id}
+                  ) AND other_users.presences > (
+                    SELECT COUNT(*) FROM \`userAtActivity\`
+                    WHERE userId = ${id} AND presente = 1
+                  )
+                )
+                OR (
+                  other_users.points = (
+                    SELECT points FROM \`users\` WHERE id = ${id}
+                  ) AND other_users.presences = (
+                    SELECT COUNT(*) FROM \`userAtActivity\`
+                    WHERE userId = ${id} AND presente = 1
+                  ) AND other_users.createdAt < (
+                    SELECT createdAt FROM \`users\` WHERE id = ${id}
+                  )
+                )
+              );
+            `
+          );
+          
+          
+
+          if(result.length===0){
+            throw new Error('não foi possivel recuperar o ranking')
+          }
+          return Number( result[0].rank);
+          
+
     }
 }

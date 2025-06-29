@@ -13,6 +13,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const usersService_1 = __importDefault(require("../services/usersService"));
+const zod_1 = require("zod");
+//método para verificar se o UUID é válido
+//UUID v4
+const paramsSchema = zod_1.z.object({
+    id: zod_1.z.string().uuid(),
+});
 exports.default = {
     login(request, response) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -69,6 +75,33 @@ exports.default = {
             }
             catch (error) {
                 response.status(500).json({ message: "Erro ao atualizar senha" });
+            }
+        });
+    },
+    getUserRanking(request, response) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { id } = paramsSchema.parse(request.params);
+                const user = yield usersService_1.default.getUserById(id);
+                const ranking = yield usersService_1.default.getUserRanking(id);
+                response.status(200).json({ rank: ranking });
+            }
+            catch (error) {
+                console.error('Erro usersController.ts: ' + error);
+                response.status(400).json({ msg: 'id inválido' });
+            }
+        });
+    },
+    getUserPoints(request, response) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { id } = paramsSchema.parse(request.params);
+                const data = yield usersService_1.default.getUserScore(id);
+                response.status(200).json(data);
+            }
+            catch (error) {
+                console.error('Erro usersController.ts - getUserPoints: ' + error);
+                response.status(500).json({ msg: 'Erro ao obter pontuação do usuário' });
             }
         });
     }

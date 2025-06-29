@@ -24,41 +24,44 @@ export default {
         return activities
     },
 
-    async create({ nome, data, palestranteNome, categoriaId, vagas, detalhes, local }: CreateActivityDTOS): Promise<CreateActivityDTOS> {
-        const newData = data ? new Date(data) : null;
+   
+    async create({ nome, data, palestranteNome, categoriaId, vagas, detalhes, local, points }: CreateActivityDTOS): Promise<CreateActivityDTOS> {
+     const newData = data ? new Date(data) : null;
 
-        const newAtividade = await activitiesRepository.create({
-            nome,
-            data: newData,
-            palestranteNome,
-            categoriaId,
-            vagas,
-            detalhes,
-            local,
-        })
+     const newAtividade = await activitiesRepository.create({
+        nome,
+        data: newData,
+        palestranteNome,
+        categoriaId,
+        vagas,
+        detalhes,
+        local,
+        points, 
+    })
 
-        return newAtividade
-    },
+    return newAtividade
+},
 
-    async update(id: string, { nome, data, palestranteNome, categoriaId, detalhes, local }: UpdateActivityDTOS ): Promise<UpdateActivityDTOS> {
-        const existingAtividade = await activitiesRepository.findById(id)
+   
+async update(id: string, { nome, data, palestranteNome, categoriaId, detalhes, local, points }: UpdateActivityDTOS ): Promise<UpdateActivityDTOS> {
+    const existingAtividade = await activitiesRepository.findById(id)
 
-        if (!existingAtividade) {
-            throw new ApiError('Atividade não encontrada', ErrorsCode.NOT_FOUND)
-        }
+    if (!existingAtividade) {
+        throw new ApiError('Atividade não encontrada', ErrorsCode.NOT_FOUND)
+    }
 
-        const updatedAtividade = await activitiesRepository.update(id, {
-            nome,
-            data,
-            palestranteNome,
-            categoriaId,
-            detalhes,
-            local,
-        })
+    const updatedAtividade = await activitiesRepository.update(id, {
+        nome,
+        data,
+        palestranteNome,
+        categoriaId,
+        detalhes,
+        local,
+        points, // Adicione aqui também
+    })
 
-        return updatedAtividade
-    },
-
+    return updatedAtividade
+},
     async delete(id: string): Promise<void> {
         const userAtActivities = await usersAtActivitiesRepository.findManyByActivityId(id)
 

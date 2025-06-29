@@ -96,7 +96,7 @@ routes.get('/all-activities/:userId', authMiddleware_1.authMiddleware, usersAtAc
  *       201:
  *         description: Inscrição criada com sucesso.
  */
-routes.post('/', usersAtActivitiesController_1.default.create);
+routes.post('/', authMiddleware_1.authMiddleware, usersAtActivitiesController_1.default.create);
 /**
  * @swagger
  * /userAtActivities/{id}:

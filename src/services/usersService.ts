@@ -235,6 +235,19 @@ export default {
         throw new ApiError("Erro ao atualizar senha", ErrorsCode.INTERNAL_ERROR);
     }
 },
+ async getUserScore(id: string): Promise<{ points: number } | null> {
+        try {
+            const userPoints = await usersRepository.getUserPoints(id); 
+            if (!userPoints) {
+                throw new ApiError("Usuário não encontrado.", ErrorsCode.NOT_FOUND);
+            }
+            return userPoints; // Retorna { points: number }
+        } catch (error) {
+            console.error('Erro em usersService.getUserScore: ' + error);
+            throw new ApiError('Erro ao obter pontuação do usuário', ErrorsCode.INTERNAL_ERROR);
+        }
+    },
+
     async getUserRanking(id:string){
         try{
             const userRank = await usersRepository.getUserRanking(id);

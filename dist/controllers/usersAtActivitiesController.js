@@ -37,7 +37,17 @@ exports.default = {
     },
     create(request, response) {
         return __awaiter(this, void 0, void 0, function* () {
-            const data = yield usersAtActivitiesService_1.default.create(request.body);
+            var _a;
+            // 1. Pega o ID da atividade do corpo da requisição
+            const { activityId } = request.body;
+            // ADICIONE ESTE LOG AQUI
+            console.log('Conteúdo de request.user:', request.user);
+            // 2. Pega o ID do usuário
+            const userId = (_a = request.user) === null || _a === void 0 ? void 0 : _a.id;
+            if (!userId) {
+                throw new Error('Usuário não autenticado ou não encontrado na requisição.');
+            }
+            const data = yield usersAtActivitiesService_1.default.create({ userId, activityId });
             response.status(201).json(data);
         });
     },
