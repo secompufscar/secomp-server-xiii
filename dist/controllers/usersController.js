@@ -86,7 +86,7 @@ exports.default = {
     },
     updateProfile(request, response) {
         return __awaiter(this, void 0, void 0, function* () {
-            // CORREÇÃO AQUI: Extraímos a propriedade 'id' do request.user.
+            // Extraímos a propriedade 'id' do request.user.
             const userId = request.user.id;
             const updateData = request.body;
             // Verificação para garantir que o userId não é undefined antes de prosseguir
