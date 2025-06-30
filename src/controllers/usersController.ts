@@ -45,17 +45,18 @@ export default {
     },
 
     async updateForgottenPassword(request: Request, response: Response) {
-    try {
-        const { token } = request.params; // Token vem da URL
-        const { senha } = request.body;   // Nova senha vem do corpo
+        try {
+            const { token } = request.params; // Token vem da URL
+            const { senha } = request.body;   // Nova senha vem do corpo
 
-        const data = await usersService.updatePassword(token, senha);
-        return response.status(200).json(data);
-    } catch (error) {
-        response.status(500).json({ message: "Erro ao atualizar senha" });
-    }
-},
-      async getUserRanking(request: Request, response: Response){
+            const data = await usersService.updatePassword(token, senha);
+            return response.status(200).json(data);
+        } catch (error) {
+            response.status(500).json({ message: "Erro ao atualizar senha" });
+        }
+    },
+
+    async getUserRanking(request: Request, response: Response){
         try{
             const ranking = await usersService.getUserRanking(request.params.id);
             response.status(200).json({rank:ranking});
@@ -65,6 +66,7 @@ export default {
             response.status(500).json({msg:'Erro ao consultar ranking do usuario'})
         }
     },
+
      async getUserPoints(request: Request, response: Response) {
         try {
             const { id } = paramsSchema.parse(request.params);
@@ -75,7 +77,8 @@ export default {
             response.status(500).json({ msg: 'Erro ao obter pontuação do usuário' });
         }
     },
-     async updateProfile(request: Request, response: Response) {
+    
+    async updateProfile(request: Request, response: Response) {
         // CORREÇÃO AQUI: Extraímos a propriedade 'id' do request.user.
         const userId = request.user.id;
         

@@ -29,7 +29,5 @@ export interface ActivityDTOS {
     detalhes: string | null
     palestranteNome: string
     categoriaId: string
-    points: number;
-
-
+    points: number
 }

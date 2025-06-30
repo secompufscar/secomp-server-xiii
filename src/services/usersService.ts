@@ -237,9 +237,9 @@ export default {
             throw new ApiError("Erro ao atualizar senha", ErrorsCode.INTERNAL_ERROR);
         }
         throw new ApiError("Erro ao atualizar senha", ErrorsCode.INTERNAL_ERROR);
-    }
-},
- async getUserScore(id: string): Promise<{ points: number } | null> {
+    }, 
+
+    async getUserScore(id: string): Promise<{ points: number } | null> {
         try {
             const userPoints = await usersRepository.getUserPoints(id); 
             if (!userPoints) {
@@ -283,7 +283,7 @@ export default {
         }
    },
    
-async updateProfile(userId: string, data: UpdateProfileDTO) {
+    async updateProfile(userId: string, data: UpdateProfileDTO) {
         const { nome, email } = data;
         // Garante que o corpo da requisição não está vazio.
         if (!nome && !email) {
@@ -319,5 +319,4 @@ async updateProfile(userId: string, data: UpdateProfileDTO) {
 
         return userResult;
     },
-  
 }

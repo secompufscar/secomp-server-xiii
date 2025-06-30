@@ -1,8 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { User, RegistrationStatus } from "../entities/User"; 
-import { Prisma } from "@prisma/client"
 import { CreateUserDTOS, UpdateQrCodeUsersDTOS, UpdateUserDTOS } from "../dtos/usersDtos";7
-import { User } from "../entities/User"
 import { Prisma } from "@prisma/client"
 
 const client = new PrismaClient();
@@ -116,22 +114,28 @@ export default {
         // Faz a asserção de tipo
         return { ...response, registrationStatus: response.registrationStatus as RegistrationStatus };
     },
+
     async addPoints(userId: string, points: number): Promise<User> {
         try {
             const updatedUser = await client.user.update({
                 where: { id: userId },
                 data: {
                     points: {
-                        increment: points, // Incrementa os pontos existentes do usuário
+                        increment: points,
                     },
                 },
             });
-            return updatedUser;
+    
+            return {
+                ...updatedUser,
+                registrationStatus: updatedUser.registrationStatus as RegistrationStatus
+            };
         } catch (error) {
             console.error(`Erro ao adicionar pontos ao usuário ${userId}:`, error);
             throw new Error("Não foi possível adicionar pontos ao usuário.");
         }
     },
+    
     async getUserPoints(id: string): Promise<{ points: number } | null> {
         const response = await client.user.findUnique({
             where: { id },
@@ -139,6 +143,7 @@ export default {
         });
         return response;
     },
+
     async getUserRanking(id: string): Promise<number> {
         const result = await client.$queryRaw<{ rank: number }[]>(
             Prisma.sql`

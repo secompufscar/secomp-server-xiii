@@ -23,10 +23,6 @@ export default {
             throw new Error("Atividade não encontrada.");
         } 
       
-        
-        // Marcar como presente
-         const updatedUserAtActivity = await checkInRepository.markAsPresent(userAtActivity.id);
-
         //Adicionar a pontuação da atividade ao total de pontos do usuário
         const pointsToAdd = activity.points;
         
@@ -34,8 +30,6 @@ export default {
         await usersRepository.addPoints(userId, pointsToAdd);
 
         // Retorna o registro de presença atualizado
-        return updatedUserAtActivity;
-
         return await checkInRepository.markAsPresent(userAtActivity.id);
     },
 

@@ -11,4 +11,5 @@ export interface User {
     confirmed: boolean
     registrationStatus: RegistrationStatus; //0 | 1 | 2;
     currentEdition: string | null;  // Edição atual (ex: "2024")
+    points: number
 }
