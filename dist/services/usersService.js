@@ -59,6 +59,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.loadTemplate = loadTemplate;
 const jwt = __importStar(require("jsonwebtoken"));
 const nodemailer = __importStar(require("nodemailer"));
+const lodash_1 = __importDefault(require("lodash"));
 const usersRepository_1 = __importDefault(require("../repositories/usersRepository"));
 const bcrypt_1 = require("bcrypt");
 const auth_1 = require("../config/auth");
@@ -89,10 +90,12 @@ function loadTemplate(templateName, data) {
         return html;
     });
 }
+
 function isValidUUID(uuid) {
     const regex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     return regex.test(uuid);
 }
+
 exports.default = {
     login(_a) {
         return __awaiter(this, arguments, void 0, function* ({ email, senha }) {
@@ -199,9 +202,10 @@ exports.default = {
                 if (!user) {
                     throw new api_errors_1.ApiError("Usuário não encontrado!", api_errors_1.ErrorsCode.NOT_FOUND);
                 }
-                const emailToken = jwt.sign({ userId: user.id }, process.env.JWT_RESET_SECRET || "default_secret", { expiresIn: '1h' });
+                const emailToken = jwt.sign({ user: lodash_1.default.pick(user, 'id') }, process.env.JWT_RESET_SECRET || "default_secret", { expiresIn: '1h' });
                 // Link com protocolo personalizado que é interpretado pelo app mobile
                 const url = `https://secompapp.com/SetNewPassword?token=${emailToken}`;
+
                 const html = yield loadTemplate('email-passwordreset.html', {
                     url
                 });
@@ -244,6 +248,21 @@ exports.default = {
             }
         });
     },
+    getUserScore(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const userPoints = yield usersRepository_1.default.getUserPoints(id);
+                if (!userPoints) {
+                    throw new api_errors_1.ApiError("Usuário não encontrado.", api_errors_1.ErrorsCode.NOT_FOUND);
+                }
+                return userPoints; // Retorna { points: number }
+            }
+            catch (error) {
+                console.error('Erro em usersService.getUserScore: ' + error);
+                throw new api_errors_1.ApiError('Erro ao obter pontuação do usuário', api_errors_1.ErrorsCode.INTERNAL_ERROR);
+            }
+        });
+    },
     getUserRanking(id) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -271,7 +290,7 @@ exports.default = {
             }
             catch (error) {
                 console.error('usersService.ts: ' + error);
-                throw new Error('erro ao consultar ranking do usuário');
+                throw new Error('erro ao encontrar usuário por id');
             }
         });
     },

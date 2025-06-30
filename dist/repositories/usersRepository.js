@@ -124,6 +124,34 @@ exports.default = {
             return Object.assign(Object.assign({}, response), { registrationStatus: response.registrationStatus });
         });
     },
+    addPoints(userId, points) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const updatedUser = yield client.user.update({
+                    where: { id: userId },
+                    data: {
+                        points: {
+                            increment: points, // Incrementa os pontos existentes do usuário
+                        },
+                    },
+                });
+                return updatedUser;
+            }
+            catch (error) {
+                console.error(`Erro ao adicionar pontos ao usuário ${userId}:`, error);
+                throw new Error("Não foi possível adicionar pontos ao usuário.");
+            }
+        });
+    },
+    getUserPoints(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const response = yield client.user.findUnique({
+                where: { id },
+                select: { points: true }
+            });
+            return response;
+        });
+    },
     getUserRanking(id) {
         return __awaiter(this, void 0, void 0, function* () {
             const result = yield client.$queryRaw(client_2.Prisma.sql `

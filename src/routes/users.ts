@@ -210,6 +210,37 @@ routes.post('/sendForgotPasswordEmail', usersController.sendForgotPasswordEmail)
 
 /**
  * @swagger
+ * /getUserPoints/{id}:
+ *   get:
+ *     summary: Retorna os pontos de um usuário
+ *     description: Retorna a quantidade total de pontos do usuário com base no ID fornecido.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID do usuário
+ *     responses:
+ *       200:
+ *         description: Pontos do usuário recuperados com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 pontos:
+ *                   type: integer
+ *                   example: 1200
+ *       404:
+ *         description: Usuário não encontrado
+ *       500:
+ *         description: Erro interno do servidor
+ */
+routes.get('/getUserPoints/:id', usersController.getUserPoints);
+
+/**
+ * @swagger
  * /getUserRanking/{id}:
  *   get:
  *     summary: Retorna o ranking de um usuário

@@ -18,6 +18,7 @@ const checkInRepository_1 = __importDefault(require("../repositories/checkInRepo
 const userEventRepository_1 = __importDefault(require("../repositories/userEventRepository"));
 const usersRepository_1 = __importDefault(require("../repositories/usersRepository"));
 const eventRepository_1 = __importDefault(require("../repositories/eventRepository"));
+
 exports.default = {
     findManyByActivityId(activityId) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -69,6 +70,14 @@ exports.default = {
             const existingUserAtActivity = yield usersAtActivitiesRepository_1.default.findById(id);
             if (!existingUserAtActivity) {
                 throw new Error('Registro não encontrado.');
+            }
+            if (presente === true && existingUserAtActivity.presente === false) {
+                // Busca a atividade para saber quantos pontos ela vale.
+                const activity = yield activitiesRepository_1.default.findById(existingUserAtActivity.activityId);
+                // Verifica se a atividade concede pontos
+                if (activity && activity.points && activity.points > 0) {
+                    yield usersRepository_1.default.addPoints(existingUserAtActivity.userId, activity.points);
+                }
             }
             const updatedUserAtActivity = yield usersAtActivitiesRepository_1.default.update(id, {
                 presente: presente !== null && presente !== void 0 ? presente : existingUserAtActivity.presente,

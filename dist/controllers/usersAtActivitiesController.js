@@ -50,6 +50,7 @@ exports.default = {
                 inscricaoPrevia,
                 listaEspera,
             });
+          
             response.status(201).json(data);
         });
     },

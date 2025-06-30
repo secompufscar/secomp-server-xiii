@@ -207,6 +207,38 @@ routes.patch('/updatePassword/:token', usersController_1.default.updateForgotten
  *         description: Internal server error
  */
 routes.post('/sendForgotPasswordEmail', usersController_1.default.sendForgotPasswordEmail);
+
+/**
+ * @swagger
+ * /getUserPoints/{id}:
+ *   get:
+ *     summary: Retorna os pontos de um usuário
+ *     description: Retorna a quantidade total de pontos do usuário com base no ID fornecido.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID do usuário
+ *     responses:
+ *       200:
+ *         description: Pontos do usuário recuperados com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 pontos:
+ *                   type: integer
+ *                   example: 1200
+ *       404:
+ *         description: Usuário não encontrado
+ *       500:
+ *         description: Erro interno do servidor
+ */
+routes.get('/getUserPoints/:id', usersController_1.default.getUserPoints);
+
 /**
  * @swagger
  * /getUserRanking/{id}:
@@ -240,6 +272,7 @@ routes.post('/sendForgotPasswordEmail', usersController_1.default.sendForgotPass
  *         description: Erro interno do servidor
  */
 routes.get('/getUserRanking/:id', usersController_1.default.getUserRanking);
+
 /**
  * @swagger
  * /updateProfile:
@@ -272,4 +305,5 @@ routes.get('/getUserRanking/:id', usersController_1.default.getUserRanking);
  *         description: Unauthorized (invalid or missing token)
  */
 routes.patch('/updateProfile', authMiddleware_1.authMiddleware, usersController_1.default.updateProfile);
+
 exports.default = routes;

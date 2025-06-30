@@ -73,11 +73,13 @@ model Activity {
   updatedAt         DateTime   @updatedAt @db.Timestamp
   local             String     @db.VarChar(255)
   participantes     UserAtActivity[]
+  points            Int              @default(0) 
 
   @@map("atividades")
   
   // Relacionamentos
   categoria     Category   @relation(fields: [categoriaId], references: [id])
+  
 }
 
 model UserAtActivity {
@@ -112,5 +114,4 @@ model UserEvent {
   @@map("userEvent")
 
 }
-
 

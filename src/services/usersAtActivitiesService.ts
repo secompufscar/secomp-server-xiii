@@ -56,21 +56,30 @@ export default {
 
         return userAtActivity
     },
-
+  
     async update(id: string, { presente, inscricaoPrevia, listaEspera }: UpdateUserAtActivityDTOS) {
-        const existingUserAtActivity = await usersAtActivitiesRepository.findById(id);
+      const existingUserAtActivity = await usersAtActivitiesRepository.findById(id);
 
-        if (!existingUserAtActivity) {
-            throw new Error('Registro não encontrado.')
-        }
+      if (!existingUserAtActivity) {
+          throw new Error('Registro não encontrado.');
+      }
+      if (presente === true && existingUserAtActivity.presente === false) {
 
-        const updatedUserAtActivity = await usersAtActivitiesRepository.update(id, {
-            presente: presente ?? existingUserAtActivity.presente,
-            inscricaoPrevia: inscricaoPrevia ?? existingUserAtActivity.inscricaoPrevia,
-            listaEspera: listaEspera ?? existingUserAtActivity.listaEspera,
-        });
+          // Busca a atividade para saber quantos pontos ela vale.
+          const activity = await activitiesRepository.findById(existingUserAtActivity.activityId);
 
-        return updatedUserAtActivity
+          // Verifica se a atividade concede pontos
+          if (activity && activity.points && activity.points > 0) {
+              await userRepository.addPoints(existingUserAtActivity.userId, activity.points);
+          } 
+      }
+      const updatedUserAtActivity = await usersAtActivitiesRepository.update(id, {
+          presente: presente ?? existingUserAtActivity.presente,
+          inscricaoPrevia: inscricaoPrevia ?? existingUserAtActivity.inscricaoPrevia,
+          listaEspera: listaEspera ?? existingUserAtActivity.listaEspera,
+      });
+
+      return updatedUserAtActivity;
     },
 
     async delete(userId: string, activityId: string) {

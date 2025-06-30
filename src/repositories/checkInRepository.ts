@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { UserAtActivity } from '../entities/UserAtActivity';
 
+
 const client = new PrismaClient();
 
 export default {

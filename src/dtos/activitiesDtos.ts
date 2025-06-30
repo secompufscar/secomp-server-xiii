@@ -6,6 +6,7 @@ export interface CreateActivityDTOS {
     vagas: number | null
     detalhes: string | null
     local: string 
+    points: number;
 
 }
 
@@ -16,6 +17,7 @@ export interface UpdateActivityDTOS {
     categoriaId: string
     detalhes: string | null
     local: string 
+    points?: number;
 
 }
 
@@ -27,6 +29,7 @@ export interface ActivityDTOS {
     detalhes: string | null
     palestranteNome: string
     categoriaId: string
+    points: number;
 
 
 }

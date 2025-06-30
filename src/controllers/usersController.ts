@@ -55,7 +55,7 @@ export default {
         response.status(500).json({ message: "Erro ao atualizar senha" });
     }
 },
-    async getUserRanking(request: Request, response: Response){
+      async getUserRanking(request: Request, response: Response){
         try{
             const ranking = await usersService.getUserRanking(request.params.id);
             response.status(200).json({rank:ranking});
@@ -63,6 +63,16 @@ export default {
         catch(error){
             console.error('Erro usersController.ts: '+error);
             response.status(500).json({msg:'Erro ao consultar ranking do usuario'})
+        }
+    },
+     async getUserPoints(request: Request, response: Response) {
+        try {
+            const { id } = paramsSchema.parse(request.params);
+            const data = await usersService.getUserScore(id); 
+            response.status(200).json(data); 
+        } catch (error) {
+            console.error('Erro usersController.ts - getUserPoints: ' + error);
+            response.status(500).json({ msg: 'Erro ao obter pontuação do usuário' });
         }
     },
      async updateProfile(request: Request, response: Response) {
