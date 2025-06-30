@@ -8,7 +8,7 @@ import { email } from '../config/sendEmail';
 import { User } from "../entities/User";
 import { ApiError, ErrorsCode } from "../utils/api-errors"
 import { generateQRCode } from "../utils/qrCode";
-import { CreateUserDTOS, UpdateUserDTOS, UpdateQrCodeUsersDTOS } from "../dtos/usersDtos";
+import { CreateUserDTOS, UpdateUserDTOS, UpdateQrCodeUsersDTOS, UpdateProfileDTO } from "../dtos/usersDtos";
 import { promises as fs } from 'fs';
 import path from 'path';
 
@@ -34,6 +34,11 @@ export async function loadTemplate(templateName: string, data: Record<string, st
     }
 
     return html;
+}
+
+function isValidUUID(uuid:string) {
+    const regex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    return regex.test(uuid);
 }
 
 export default {
@@ -174,16 +179,13 @@ export default {
             }
 
             const emailToken = jwt.sign(
-                { user: _.pick(user, 'id') },
+                { userId: user.id },
                 process.env.JWT_RESET_SECRET || "default_secret",
                 { expiresIn: '1h' }
-            )
+            );
             
             // Link com protocolo personalizado que é interpretado pelo app mobile
-            const url = process.env.NODE_ENV === "development" ? 
-                `https://secompapp.com/SetNewPassword?token=${emailToken}` :
-                `secompapp://SetNewPassword?token=${emailToken}`;
-
+            const url = `https://secompapp.com/SetNewPassword?token=${emailToken}`;
             const html = await loadTemplate('email-passwordreset.html', {
                 url
             });
@@ -204,33 +206,35 @@ export default {
     },
 
     async updatePassword(token: string, newPassword: string) {
-    try {
-        // Verifica o token com a mesma chave usada na geração
-        const decoded = jwt.verify(
-            token,
-            process.env.JWT_RESET_SECRET || "default_secret" 
-        ) as { userId: string };
+        try {
+            // Verifica o token com a mesma chave usada na geração
+            const decoded = jwt.verify(
+                token,
+                process.env.JWT_RESET_SECRET || "default_secret" 
+            ) as { userId: string };
 
-        // Busca o usuário pelo ID do token
-        const user = await usersRepository.findById(decoded.userId);
-        if (!user) {
-            throw new ApiError("Usuário não encontrado", ErrorsCode.NOT_FOUND);
-        }
+            // Busca o usuário pelo ID do token
+            const user = await usersRepository.findById(decoded.userId);
+            if (!user) {
+                throw new ApiError("Usuário não encontrado", ErrorsCode.NOT_FOUND);
+            }
 
-        const hashedPassword = await hash(newPassword, 10);
+            const hashedPassword = await hash(newPassword, 10);
 
-        // Atualiza a senha no banco
-        await usersRepository.update(user.id, { senha: hashedPassword });
+            // Atualiza a senha no banco
+            await usersRepository.update(user.id, { senha: hashedPassword });
 
-        return { message: "Senha atualizada com sucesso" };
+            return { message: "Senha atualizada com sucesso" };
 
-    } catch (err) {
-        // Tratamento específico para erros do JWT
-        if (err instanceof jwt.TokenExpiredError) {
-            throw new ApiError("Token expirado", ErrorsCode.UNAUTHORIZED);
-        }
-        if (err instanceof jwt.JsonWebTokenError) {
-            throw new ApiError("Token inválido", ErrorsCode.UNAUTHORIZED);
+        } catch (err) {
+            // Tratamento específico para erros do JWT
+            if (err instanceof jwt.TokenExpiredError) {
+                throw new ApiError("Token expirado", ErrorsCode.UNAUTHORIZED);
+            }
+            if (err instanceof jwt.JsonWebTokenError) {
+                throw new ApiError("Token inválido", ErrorsCode.UNAUTHORIZED);
+            }
+            throw new ApiError("Erro ao atualizar senha", ErrorsCode.INTERNAL_ERROR);
         }
         throw new ApiError("Erro ao atualizar senha", ErrorsCode.INTERNAL_ERROR);
     }
@@ -258,8 +262,14 @@ export default {
             throw new ApiError('erro ao encontrar ranking do usuário', ErrorsCode.NOT_FOUND);
         }
     },
+      
     async getUserById(id:string){
         try{
+            //verifica se o id enviado não está errado
+            if(!isValidUUID(id)){
+                throw new ApiError('erro com o id enviado', ErrorsCode.BAD_REQUEST)
+            }
+
             const user = await usersRepository.findById(id)
             if(!user){
                 throw new ApiError('erro ao encontrar usuário: ', ErrorsCode.NOT_FOUND);
@@ -269,7 +279,45 @@ export default {
         }
         catch(error){
             console.error('usersService.ts: '+error);
-            throw new Error('erro ao encontrar usuário por id');
+            throw new Error('erro ao consultar ranking do usuário');
         }
-    }
+   },
+   
+async updateProfile(userId: string, data: UpdateProfileDTO) {
+        const { nome, email } = data;
+        // Garante que o corpo da requisição não está vazio.
+        if (!nome && !email) {
+            throw new ApiError("A requisição deve conter 'nome' ou 'email' para ser atualizado.", ErrorsCode.BAD_REQUEST);
+        }
+
+        // Valida o formato do email, se ele for fornecido.
+        if (email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                throw new ApiError("O formato do email é inválido.", ErrorsCode.BAD_REQUEST);
+            }
+        }
+        
+        const userToUpdate = await usersRepository.findById(userId);
+        if (!userToUpdate) {
+            throw new ApiError("Usuário não encontrado.", ErrorsCode.NOT_FOUND);
+        }
+
+        // Verifica se o novo e-mail já está em uso por outro usuário.
+        if (email && email !== userToUpdate.email) {
+            const userWithSameEmail = await usersRepository.findByEmail(email);
+            if (userWithSameEmail && userWithSameEmail.id !== userId) {
+                throw new ApiError("Este e-mail já está em uso.", ErrorsCode.BAD_REQUEST);
+            }
+        }
+
+        
+        const updatedUser = await usersRepository.update(userId, { nome, email });
+
+        // Remove a senha do retorno por segurança.
+        const { senha: _, ...userResult } = updatedUser;
+
+        return userResult;
+    },
+  
 }

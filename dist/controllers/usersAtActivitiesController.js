@@ -37,17 +37,20 @@ exports.default = {
     },
     create(request, response) {
         return __awaiter(this, void 0, void 0, function* () {
-            var _a;
-            // 1. Pega o ID da atividade do corpo da requisição
-            const { activityId } = request.body;
-            // ADICIONE ESTE LOG AQUI
-            console.log('Conteúdo de request.user:', request.user);
-            // 2. Pega o ID do usuário
-            const userId = (_a = request.user) === null || _a === void 0 ? void 0 : _a.id;
+            // modifiquei pois estava dando varios problemas com o id, id undefined, etc
+            const userId = request.user.id;
             if (!userId) {
-                throw new Error('Usuário não autenticado ou não encontrado na requisição.');
+                return response.status(401).json({ error: "Usuário não autenticado" });
             }
-            const data = yield usersAtActivitiesService_1.default.create({ userId, activityId });
+            const { activityId, presente, inscricaoPrevia, listaEspera } = request.body;
+            const data = yield usersAtActivitiesService_1.default.create({
+                userId,
+                activityId,
+                presente,
+                inscricaoPrevia,
+                listaEspera,
+            });
+          
             response.status(201).json(data);
         });
     },

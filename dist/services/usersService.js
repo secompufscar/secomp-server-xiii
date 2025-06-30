@@ -90,6 +90,12 @@ function loadTemplate(templateName, data) {
         return html;
     });
 }
+
+function isValidUUID(uuid) {
+    const regex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    return regex.test(uuid);
+}
+
 exports.default = {
     login(_a) {
         return __awaiter(this, arguments, void 0, function* ({ email, senha }) {
@@ -198,9 +204,8 @@ exports.default = {
                 }
                 const emailToken = jwt.sign({ user: lodash_1.default.pick(user, 'id') }, process.env.JWT_RESET_SECRET || "default_secret", { expiresIn: '1h' });
                 // Link com protocolo personalizado que é interpretado pelo app mobile
-                const url = process.env.NODE_ENV === "development" ?
-                    `https://secompapp.com/SetNewPassword?token=${emailToken}` :
-                    `secompapp://SetNewPassword?token=${emailToken}`;
+                const url = `https://secompapp.com/SetNewPassword?token=${emailToken}`;
+
                 const html = yield loadTemplate('email-passwordreset.html', {
                     url
                 });
@@ -273,6 +278,10 @@ exports.default = {
     getUserById(id) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                //verifica se o id enviado não está errado
+                if (!isValidUUID(id)) {
+                    throw new api_errors_1.ApiError('erro com o id enviado', api_errors_1.ErrorsCode.BAD_REQUEST);
+                }
                 const user = yield usersRepository_1.default.findById(id);
                 if (!user) {
                     throw new api_errors_1.ApiError('erro ao encontrar usuário: ', api_errors_1.ErrorsCode.NOT_FOUND);
@@ -284,5 +293,36 @@ exports.default = {
                 throw new Error('erro ao encontrar usuário por id');
             }
         });
-    }
+    },
+    updateProfile(userId, data) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { nome, email } = data;
+            // Garante que o corpo da requisição não está vazio.
+            if (!nome && !email) {
+                throw new api_errors_1.ApiError("A requisição deve conter 'nome' ou 'email' para ser atualizado.", api_errors_1.ErrorsCode.BAD_REQUEST);
+            }
+            // Valida o formato do email, se ele for fornecido.
+            if (email) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    throw new api_errors_1.ApiError("O formato do email é inválido.", api_errors_1.ErrorsCode.BAD_REQUEST);
+                }
+            }
+            const userToUpdate = yield usersRepository_1.default.findById(userId);
+            if (!userToUpdate) {
+                throw new api_errors_1.ApiError("Usuário não encontrado.", api_errors_1.ErrorsCode.NOT_FOUND);
+            }
+            // Verifica se o novo e-mail já está em uso por outro usuário.
+            if (email && email !== userToUpdate.email) {
+                const userWithSameEmail = yield usersRepository_1.default.findByEmail(email);
+                if (userWithSameEmail && userWithSameEmail.id !== userId) {
+                    throw new api_errors_1.ApiError("Este e-mail já está em uso.", api_errors_1.ErrorsCode.BAD_REQUEST);
+                }
+            }
+            const updatedUser = yield usersRepository_1.default.update(userId, { nome, email });
+            // Remove a senha do retorno por segurança.
+            const { senha: _ } = updatedUser, userResult = __rest(updatedUser, ["senha"]);
+            return userResult;
+        });
+    },
 };

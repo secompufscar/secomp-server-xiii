@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const checkInRepository_1 = __importDefault(require("../repositories/checkInRepository"));
 const usersRepository_1 = __importDefault(require("../repositories/usersRepository"));
 const activitiesRepository_1 = __importDefault(require("../repositories/activitiesRepository"));
+const eventService_1 = __importDefault(require("./eventService"));
 exports.default = {
     checkIn(userId, activityId) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -24,6 +25,7 @@ exports.default = {
                 console.log(userAtActivity);
                 throw new Error('Usuário não está cadastrado na atividade.');
             }
+
             const activity = yield activitiesRepository_1.default.findById(activityId);
             if (!activity) {
                 throw new Error("Atividade não encontrada.");
@@ -31,6 +33,13 @@ exports.default = {
             const pointsToAdd = activity.points; // Acessa o novo campo 'points' da Activity
             // Adicionar pontos ao usuário
             yield usersRepository_1.default.addPoints(userId, pointsToAdd);
+
+            // verifica se usuário esta inscrito no evento (nova verificação)
+            const registration = yield eventService_1.default.getUserRegistration(userId);
+            if (!registration || registration.status !== 1) {
+                throw new Error("Usuário não está inscrito neste evento");
+            }
+          
             // Marcar como presente
             return yield checkInRepository_1.default.markAsPresent(userAtActivity.id);
         });

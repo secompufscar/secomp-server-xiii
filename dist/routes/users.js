@@ -207,6 +207,103 @@ routes.patch('/updatePassword/:token', usersController_1.default.updateForgotten
  *         description: Internal server error
  */
 routes.post('/sendForgotPasswordEmail', usersController_1.default.sendForgotPasswordEmail);
+
+/**
+ * @swagger
+ * /getUserPoints/{id}:
+ *   get:
+ *     summary: Retorna os pontos de um usuário
+ *     description: Retorna a quantidade total de pontos do usuário com base no ID fornecido.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID do usuário
+ *     responses:
+ *       200:
+ *         description: Pontos do usuário recuperados com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 pontos:
+ *                   type: integer
+ *                   example: 1200
+ *       404:
+ *         description: Usuário não encontrado
+ *       500:
+ *         description: Erro interno do servidor
+ */
 routes.get('/getUserPoints/:id', usersController_1.default.getUserPoints);
+
+/**
+ * @swagger
+ * /getUserRanking/{id}:
+ *   get:
+ *     summary: Retorna o ranking de um usuário
+ *     description: Retorna informações de ranking do usuário com base no ID fornecido.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID do usuário
+ *     responses:
+ *       200:
+ *         description: Ranking do usuário recuperado com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 ranking:
+ *                   type: integer
+ *                   example: 5
+ *                 pontos:
+ *                   type: integer
+ *                   example: 1200
+ *       404:
+ *         description: Usuário não encontrado
+ *       500:
+ *         description: Erro interno do servidor
+ */
 routes.get('/getUserRanking/:id', usersController_1.default.getUserRanking);
+
+/**
+ * @swagger
+ * /updateProfile:
+ *   patch:
+ *     summary: Update user profile
+ *     description: Update the authenticated user's name and/or email.
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       description: User data to update. Both fields are optional.
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nome:
+ *                 type: string
+ *                 example: "Novo Nome do Usuario"
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: "novoemail@example.com"
+ *     responses:
+ *       '200':
+ *         description: Profile updated successfully
+ *       '400':
+ *         description: Bad request (e.g., invalid email format, email already in use)
+ *       '401':
+ *         description: Unauthorized (invalid or missing token)
+ */
+routes.patch('/updateProfile', authMiddleware_1.authMiddleware, usersController_1.default.updateProfile);
+
 exports.default = routes;

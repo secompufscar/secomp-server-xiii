@@ -81,9 +81,7 @@ exports.default = {
     getUserRanking(request, response) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const { id } = paramsSchema.parse(request.params);
-                const user = yield usersService_1.default.getUserById(id);
-                const ranking = yield usersService_1.default.getUserRanking(id);
+                const ranking = yield usersService_1.default.getUserRanking(request.params.id);
                 response.status(200).json({ rank: ranking });
             }
             catch (error) {
@@ -103,6 +101,21 @@ exports.default = {
                 console.error('Erro usersController.ts - getUserPoints: ' + error);
                 response.status(500).json({ msg: 'Erro ao obter pontuação do usuário' });
             }
+                response.status(500).json({ msg: 'Erro ao consultar ranking do usuario' });
+            }
+        });
+    },
+    updateProfile(request, response) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // Extraímos a propriedade 'id' do request.user.
+            const userId = request.user.id;
+            const updateData = request.body;
+            // Verificação para garantir que o userId não é undefined antes de prosseguir
+            if (!userId) {
+                return response.status(401).json({ message: "Usuário não autenticado corretamente." });
+            }
+            const updatedUser = yield usersService_1.default.updateProfile(userId, updateData);
+            return response.status(200).json(updatedUser);
         });
     }
 };

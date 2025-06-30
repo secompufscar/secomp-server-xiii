@@ -17,7 +17,13 @@ const qrcode_1 = __importDefault(require("qrcode"));
 function generateQRCode(userId) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const qrCodeImage = yield qrcode_1.default.toDataURL(userId);
+            const qrCodeImage = yield qrcode_1.default.toDataURL(userId, {
+                color: {
+                    dark: '#FFFFFF', // Cor dos quadradinhos do QR (branco)
+                    light: '#00000000' // Fundo transparente (RGBA com alpha 0)
+                },
+                margin: 1 // Opcional: reduz a borda em torno do QR
+            });
             return qrCodeImage;
         }
         catch (err) {
