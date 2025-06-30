@@ -69,15 +69,14 @@ export default {
 
      async getUserPoints(request: Request, response: Response) {
         try {
-            const { id } = paramsSchema.parse(request.params);
-            const data = await usersService.getUserScore(id); 
+            const data = await usersService.getUserScore(request.params.id); 
             response.status(200).json(data); 
         } catch (error) {
             console.error('Erro usersController.ts - getUserPoints: ' + error);
             response.status(500).json({ msg: 'Erro ao obter pontuação do usuário' });
         }
     },
-    
+
     async updateProfile(request: Request, response: Response) {
         // CORREÇÃO AQUI: Extraímos a propriedade 'id' do request.user.
         const userId = request.user.id;
