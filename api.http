@@ -46,19 +46,26 @@ Content-Type: application/json
 
 ### Testando registro de token de push
 POST http://localhost:3333/api/v1/users/registerPushToken
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1YTFkYTQxNS02N2IyLTQzNzAtOTBlNS1jZjg5MTU0N2IwMmEiLCJpYXQiOjE3NTE0OTY0OTUsImV4cCI6MTc1MTUwMDA5NX0.i3b1LCjQ8yP5nbJl529Tdg7PFaqO45HzldmK_OFPZnc
 Content-Type: application/json
 
 {
-    "token": "example-push-token"
+    "token": "ExponentPushToken[exemplo123]"
 }
 
 
-
-### Testando envio de notificação push
+### Enviar notificação push para um usuário
 POST http://localhost:3333/api/v1/notifications/send
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1YTFkYTQxNS02N2IyLTQzNzAtOTBlNS1jZjg5MTU0N2IwMmEiLCJpYXQiOjE3NTE0OTgxOTcsImV4cCI6MTc1MTUwMTc5N30.DU4-Di4yoFJEHoo4gIM4-JEh8976enH4bIXGX0-I0BU
 Content-Type: application/json
 
 {
-    "title": "Título da Notificação",
-    "body": "Corpo da Notificação"
+  "userId": "5a1da415-67b2-4370-90e5-cf891547b02a",
+  "title": "SECOMP UFSCar",
+  "message": "Você acabou de receber uma notificação!",
+  "data": {
+    "tipo": "teste"
+  },
+  "sound": true,
+  "badge": 1
 }

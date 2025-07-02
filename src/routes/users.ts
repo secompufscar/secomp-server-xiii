@@ -223,8 +223,11 @@ routes.post('/sendForgotPasswordEmail', usersController.sendForgotPasswordEmail)
  *             type: object
  *             properties:
  *               token:
- *                 type: string
- *                 example: "example-push-token"
+ *                 type: object
+ *                 properties:
+ *                   token:
+ *                     type: string
+ *                     example: "exemploTokenPush123"
  *     responses:
  *       200:
  *         description: Token de push adicionado com sucesso
@@ -232,6 +235,6 @@ routes.post('/sendForgotPasswordEmail', usersController.sendForgotPasswordEmail)
  *         description: Bad request
  */
 
-routes.post('/registerPushToken', usersController.registerPushToken)
+routes.post('/registerPushToken', authMiddleware,usersController.registerPushToken)
 
 export default routes

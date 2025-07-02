@@ -10,20 +10,20 @@ export default {
         response.status(200).json(data)
     },
 
-    async signup(request: Request, response: Response)  {
+    async signup(request: Request, response: Response) {
         const data = await usersService.signup(request.body)
 
         response.status(200).json(data)
     },
 
-    async getProfile(request: Request, response: Response)  {
+    async getProfile(request: Request, response: Response) {
         return response.json(request.user)
     },
 
     async confirmEmail(request: Request, response: Response) {
         try {
             const data = await usersService.confirmUser(request.params.token);
-    
+
             if (data) {
                 return response.redirect('/email-confirmado');
             } else {
@@ -36,10 +36,10 @@ export default {
 
     async sendForgotPasswordEmail(request: Request, response: Response) {
         try {
-            const { email} = request.body
+            const { email } = request.body
             await usersService.sendForgotPasswordEmail(email)
             response.status(200).json({ message: "Email enviado com sucesso" })
-        } 
+        }
         catch (error) {
             response.status(500).json({ message: "Erro ao enviar email" })
         }
@@ -59,18 +59,38 @@ export default {
 
     // Método para registrar o token de push
     async registerPushToken(req: Request, res: Response) {
-        const userId = req.user?.id;
-        const { token } = req.body;
+        try {
+            const user = req.user as { id: string };
+            const userId = user?.id;
+            const { token } = req.body;
 
-        if (typeof userId !== 'string') {
-            return res.status(400).json({ success: false, message: "User ID is required and must be a string" });
+            if (!userId || typeof userId !== 'string') {
+                return res.status(401).json({
+                    success: false,
+                    message: 'Usuário não autenticado ou ID inválido',
+                });
+            }
+
+            if (!token || typeof token !== 'string') {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Token inválido ou ausente',
+                });
+            }
+
+            const result = await usersService.addPushToken(userId, token);
+
+            return res.status(200).json({
+                success: true,
+                message: 'Token de push registrado com sucesso',
+                user: result.user,
+            });
+        } catch (error) {
+            console.error('Erro ao registrar token de push:', error);
+            return res.status(500).json({
+                success: false,
+                message: 'Erro interno ao registrar o token de push',
+            });
         }
-
-        if (typeof token !== 'string') {
-            return res.status(400).json({ success: false, message: "Token is required and must be a string" });
-        }
-
-        await usersService.addPushToken(userId, token);
-        res.status(200).json({ success: true });
     }
 }

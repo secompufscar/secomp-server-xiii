@@ -18,8 +18,8 @@ const transporter = nodemailer.createTransport({
     port: Number(process.env.SMTP_PORT) || 587,
     secure: process.env.SMTP_PORT === '465', // true for 465 (SSL), false for 587 (TLS)
     auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
     },
 } as nodemailer.TransportOptions);
 
@@ -43,38 +43,38 @@ export default {
         if (!user) {
             throw new ApiError("Email ou senha incorreto!", ErrorsCode.NOT_FOUND)
         }
-    
+
         const verifyPsw = compareSync(senha, user.senha)
-        
+
         if (!verifyPsw) {
             throw new ApiError("Email ou senha incorreto!", ErrorsCode.NOT_FOUND)
         }
 
-        if(!user.confirmed) {
+        if (!user.confirmed) {
             throw new ApiError("Por favor, verifique o seu email e tente novamente!", ErrorsCode.BAD_REQUEST)
         }
-        
+
         const token = jwt.sign(
-            { userId: user.id}, 
+            { userId: user.id },
             auth.secret_token,
             { expiresIn: "1h" }
-        );         
+        );
 
-        const { senha:_, ...userLogin } = user
+        const { senha: _, ...userLogin } = user
 
-        return { 
+        return {
             user: userLogin,
             token: token
         }
     },
 
-    async signup({ nome, email, senha, tipo = 'USER'}: CreateUserDTOS) {
+    async signup({ nome, email, senha, tipo = 'USER' }: CreateUserDTOS) {
         const userExists = await usersRepository.findByEmail(email)
 
         if (userExists) {
             throw new ApiError("Este email já existe na base de dados!", ErrorsCode.BAD_REQUEST)
         }
-        
+
         const user = await usersRepository.create({
             nome,
             email,
@@ -85,14 +85,14 @@ export default {
         // const qrCode = await generateQRCode(user.id);
         // const updatedUser = await usersRepository.updateQRCode(user.id, {qrCode});
         // user.qrCode = qrCode
-        
+
         const token = jwt.sign(
-            { userId: user.id}, 
+            { userId: user.id },
             auth.secret_token,
             { expiresIn: "1h" }
-        );   
+        );
 
-        const { senha:_, ...userLogin } = user
+        const { senha: _, ...userLogin } = user
 
         // Envia email de confirmação
         const emailEnviado = await this.sendConfirmationEmail(user)
@@ -108,10 +108,10 @@ export default {
         };
     },
 
-    async sendConfirmationEmail(user: User): Promise<boolean>  {
+    async sendConfirmationEmail(user: User): Promise<boolean> {
         try {
             const emailToken = jwt.sign(
-                { userId: user.id},
+                { userId: user.id },
                 email.email_secret,
                 { expiresIn: '1d' }
             )
@@ -127,16 +127,16 @@ export default {
                 url
             });
 
-            await transporter.sendMail( {
+            await transporter.sendMail({
                 to: user.email,
                 subject: "SECOMP UFSCar - Confirmação de email",
                 html,
             });
-            
+
             console.log("Email enviado com sucesso")
             return true;
         }
-        catch(err) {
+        catch (err) {
             throw new ApiError(`Erro ao enviar email`, ErrorsCode.INTERNAL_ERROR)
         }
     },
@@ -145,11 +145,11 @@ export default {
         try {
             const decoded = jwt.verify(token, email.email_secret) as jwt.JwtPayload
 
-            if(typeof decoded !== 'string' && decoded.userId) {
+            if (typeof decoded !== 'string' && decoded.userId) {
                 const id = decoded.userId;
 
                 const user = await usersRepository.update(id, { confirmed: true })
-                const {senha:_, ...confirmedUser} = user
+                const { senha: _, ...confirmedUser } = user
 
                 return {
                     user: confirmedUser
@@ -158,7 +158,7 @@ export default {
 
             throw new Error("Token de confirmação inválido!")
         }
-        catch(err) {
+        catch (err) {
             if (err instanceof jwt.TokenExpiredError) {
                 throw new ApiError("Token expirado. Solicite um novo.", ErrorsCode.UNAUTHORIZED);
             }
@@ -178,26 +178,26 @@ export default {
                 process.env.JWT_RESET_SECRET || "default_secret",
                 { expiresIn: '1h' }
             )
-            
+
             // Link com protocolo personalizado que é interpretado pelo app mobile
-            const url = process.env.NODE_ENV === "development" ? 
+            const url = process.env.NODE_ENV === "development" ?
                 `https://secompapp.com/SetNewPassword?token=${emailToken}` :
                 `secompapp://SetNewPassword?token=${emailToken}`;
 
             const html = await loadTemplate('email-passwordreset.html', {
                 url
             });
-            
-            await transporter.sendMail( {
+
+            await transporter.sendMail({
                 to: user.email,
                 subject: "SECOMP UFSCar - Solicitação de alteração de senha",
                 html,
             });
         }
-        catch(err) {
+        catch (err) {
             console.log("Erro no serviço de recuperação de senha", err)
             throw new ApiError(
-                "Erro ao enviar email de recuperação de senha!", 
+                "Erro ao enviar email de recuperação de senha!",
                 ErrorsCode.INTERNAL_ERROR
             )
         }
@@ -208,7 +208,7 @@ export default {
             // Verifica o token com a mesma chave usada na geração
             const decoded = jwt.verify(
                 token,
-                process.env.JWT_RESET_SECRET || "default_secret" 
+                process.env.JWT_RESET_SECRET || "default_secret"
             ) as { userId: string };
 
             // Busca o usuário pelo ID do token
@@ -241,16 +241,16 @@ export default {
         const user = await usersRepository.findById(userId);
 
         if (!user) {
-            throw new ApiError("Usuário não encontrado", ErrorsCode.NOT_FOUND);
+            throw new ApiError('Usuário não encontrado', ErrorsCode.NOT_FOUND);
         }
 
-        user.pushToken = token;
         const updatedUser = await usersRepository.update(userId, {
-            pushToken: token
+            pushToken: token,
         });
+
         return {
-            message: "Token de push adicionado com sucesso",
-            user: _.omit(updatedUser, ['senha'])
+            message: 'Token de push adicionado com sucesso',
+            user: _.omit(updatedUser, ['senha']),
         };
     }
 }
