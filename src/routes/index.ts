@@ -1,4 +1,7 @@
 import { Router } from "express"
+import multer from "multer";
+
+const upload = multer
 
 import usersRoutes from "./users"
 import activitiesRoutes from "./activities"
@@ -9,7 +12,7 @@ import categoriesRoutes from "./categories"
 import checkInRoutes from "./checkIn"
 import eventRoutes from "./event"
 import userEventRoutes from "./userEvent"
-
+import activityImageRoutes from "./activityImage"
 const routes = Router()
 
 routes.use('/activities', activitiesRoutes)
@@ -21,4 +24,5 @@ routes.use('/admin', adminRoutes)
 routes.use('/checkIn', checkInRoutes)
 routes.use('/event', eventRoutes)
 routes.use('/userEvent', userEventRoutes)
+routes.use('/activityImage',activityImageRoutes)
 export default routes
