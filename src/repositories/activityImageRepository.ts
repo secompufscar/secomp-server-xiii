@@ -15,4 +15,48 @@ export default{
         })
         return response;
     }
+,
+    async list(): Promise <ActivityImageDTOS[]>{
+
+        const response = await client.activityImage.findMany();
+        return response;
+    }
+,
+    async update(data: UpdateActivityImageDTOS, id:string): Promise<UpdateActivityImageDTOS>{
+
+        const response = await client.activityImage.update({
+            data,
+            where:{
+                id
+            }
+        }
+        )
+        return response;
+    }
+,
+    async findByActivityId (activityId:string): Promise <ActivityImageDTOS[]>{
+        const response = await client.activityImage.findMany({
+            where:{
+                activityId
+            }
+        })
+        return response;
+    }
+,
+    async findById(id:string): Promise <ActivityImageDTOS|null>{
+        const response = await client.activityImage.findUnique({
+            where:{
+                id
+            }
+        })
+        return response;
+    }
+,
+    async deleteById(id:string): Promise <void>{
+        await client.activityImage.delete({
+            where:{
+                id
+            }
+        })
+    }
 }
