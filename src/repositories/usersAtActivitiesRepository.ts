@@ -98,5 +98,16 @@ export default {
                 id
             }
         })
+    },
+    async countByUserId(userId: string): Promise<number> {
+        const count = await client.userAtActivity.count({
+            where: {
+                userId: userId,
+                // Opcional: usar essa linha se quiser contar apenas inscrições
+                // que não sejam em lista de espera.
+                // listaEspera: false 
+            },
+        });
+        return count;
     }
 }

@@ -2,6 +2,7 @@ import * as jwt from "jsonwebtoken"
 import * as nodemailer from "nodemailer"
 import _ from "lodash"
 import usersRepository from '../repositories/usersRepository';
+import usersAtActivitiesRepository from '../repositories/usersAtActivitiesRepository';
 import { compareSync, hashSync, hash } from 'bcrypt';
 import { auth } from '../config/auth';
 import { email } from '../config/sendEmail';
@@ -318,5 +319,19 @@ export default {
         const { senha: _, ...userResult } = updatedUser;
 
         return userResult;
+    },
+       async countUserActivities(userId: string): Promise<number> {
+        try {
+            const user = await usersRepository.findById(userId);
+            if (!user) {
+                throw new Error("Usuário não encontrado.");
+            }
+            
+            const totalActivities = await usersAtActivitiesRepository.countByUserId(userId);
+            return totalActivities;
+
+        } catch (error) {
+            throw new Error('Erro ao contar as atividades do usuário');
+        }
     },
 }
