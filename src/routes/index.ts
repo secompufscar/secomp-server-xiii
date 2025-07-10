@@ -9,6 +9,8 @@ import categoriesRoutes from "./categories"
 import checkInRoutes from "./checkIn"
 import eventRoutes from "./event"
 import userEventRoutes from "./userEvent"
+import sponsorRoutes from "./sponsor" 
+import tagRoutes from "./tag"
 
 const routes = Router()
 
@@ -21,4 +23,6 @@ routes.use('/admin', adminRoutes)
 routes.use('/checkIn', checkInRoutes)
 routes.use('/event', eventRoutes)
 routes.use('/userEvent', userEventRoutes)
+routes.use('/sponsors', sponsorRoutes) 
+routes.use('/tags', tagRoutes)
 export default routes
