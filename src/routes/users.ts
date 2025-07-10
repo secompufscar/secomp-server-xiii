@@ -306,4 +306,38 @@ routes.get('/getUserRanking/:id', usersController.getUserRanking)
  */
 routes.patch('/updateProfile', authMiddleware, usersController.updateProfile)
 
+
+/**
+ * @swagger
+ * /users/{id}/activities/count:
+ *   get:
+ *     summary: Retorna a quantidade de atividades de um usuário
+ *     description: Retorna a quantidade total de atividades em que um usuário específico está inscrito.
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID do usuário
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       '200':
+ *         description: Contagem de atividades recuperada com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 totalActivities:
+ *                   type: integer
+ *                   example: 5
+ *       '404':
+ *         description: Usuário não encontrado
+ *       '500':
+ *         description: Erro interno do servidor
+ */
+routes.get('/:id/activities/count', usersController.getUserActivitiesCount);
+
 export default routes

@@ -91,5 +91,11 @@ export default {
         const updatedUser = await usersService.updateProfile(userId, updateData);
 
         return response.status(200).json(updatedUser);
-    }
+    },
+      async getUserActivitiesCount(request: Request, response: Response) {
+        const { id } = request.params;
+        const count = await usersService.countUserActivities(id);
+        
+        return response.status(200).json({ totalActivities: count });
+    },
 }
