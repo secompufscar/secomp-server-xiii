@@ -1,6 +1,6 @@
 // src/controllers/eventController.ts
-import { Request, Response } from 'express';
-import eventService from '../services/eventService';
+import { Request, Response } from "express";
+import eventService from "../services/eventService";
 
 export default {
   async findById(request: Request, response: Response) {
@@ -51,5 +51,5 @@ export default {
     await eventService.delete(id);
 
     response.status(200).send();
-  }
+  },
 };

@@ -1,5 +1,5 @@
-import { Request, Response } from 'express';
-import sponsorsOnTagsService from '../services/sponsorOnTagsService';
+import { Request, Response } from "express";
+import sponsorsOnTagsService from "../services/sponsorOnTagsService";
 
 export default {
   async link(request: Request, response: Response) {

@@ -1,152 +1,163 @@
 import { PrismaClient } from "@prisma/client";
-import { User, RegistrationStatus } from "../entities/User"; 
-import { CreateUserDTOS, UpdateQrCodeUsersDTOS, UpdateUserDTOS } from "../dtos/usersDtos";7
-import { Prisma } from "@prisma/client"
+import { User, RegistrationStatus } from "../entities/User";
+import { CreateUserDTOS, UpdateQrCodeUsersDTOS, UpdateUserDTOS } from "../dtos/usersDtos";
+7;
+import { Prisma } from "@prisma/client";
 
 const client = new PrismaClient();
 
 export default {
-    async list(): Promise<User[]> {
-        const response = await client.user.findMany();
-        
-        // Mapeia a resposta e faz a asserção de tipo em cada item
-        return response.map(user => ({
-            ...user,
-            registrationStatus: user.registrationStatus as RegistrationStatus 
-        }));
-    },
-  
-    async findById(id: string): Promise<User | null> {
-        const response = await client.user.findFirst({
-            where: { id }
-        });
+  async list(): Promise<User[]> {
+    const response = await client.user.findMany();
 
-        if (!response) {
-            return null;
-        }
-        // Faz a asserção de tipo antes de retornar
-        return { ...response, registrationStatus: response.registrationStatus as RegistrationStatus };
-    },
-      
-    async setRegistrationStatusForAllEligibleUsers(newStatus: number): Promise<void> {
-        try {
-            console.log(`[userRepository.setRegistrationStatusForAllEligibleUsers] Tentando atualizar registrationStatus para ${newStatus} para usuários elegíveis.`);
-            const updateResult = await client.user.updateMany({
-                where: {
-                    registrationStatus: { not: newStatus } 
-                },
-                data: {
-                    registrationStatus: newStatus
-                }
-            });
-            console.log(`[userRepository.setRegistrationStatusForAllEligibleUsers] Status de registro atualizado para ${newStatus}. Usuários afetados: ${updateResult.count}`);
-        } catch (error) {
-            console.error(`[userRepository.setRegistrationStatusForAllEligibleUsers] Erro ao atualizar registrationStatus dos usuários elegíveis:`, error);
-            throw error;
-        }
-    },
-    async updateUserEventStatus(userId: string, registrationStatusInput: number, currentEdition: number): Promise<User> { // CORRIGIDO: Retorno é Promise<User>
-        const response = await client.user.update({
-            where: { id: userId },
-            data: {
-                registrationStatus: registrationStatusInput, // Prisma aceita number aqui para a escrita
-                currentEdition: currentEdition.toString()
-            }
-        });
+    // Mapeia a resposta e faz a asserção de tipo em cada item
+    return response.map((user) => ({
+      ...user,
+      registrationStatus: user.registrationStatus as RegistrationStatus,
+    }));
+  },
 
-        return { ...response, registrationStatus: response.registrationStatus as RegistrationStatus };
-    },
-    async setRegistrationStatusForUsers(userIds: string[], newStatus: number): Promise<void> {
-   
-        if (userIds.length === 0) {
-            return; 
-        }
-        await client.user.updateMany({
-            where: {
-                id: { in: userIds } 
-            },
-            data: {
-                registrationStatus: newStatus 
-            }
-        });
-    },
-  
-    async findByEmail(email: string): Promise<User | null> {
-        const response = await client.user.findFirst({
-            where: { email }
-        });
+  async findById(id: string): Promise<User | null> {
+    const response = await client.user.findFirst({
+      where: { id },
+    });
 
-        // Se não encontrar o usuário, retorna nulo.
-        if (!response) {
-            return null;
-        }
+    if (!response) {
+      return null;
+    }
+    // Faz a asserção de tipo antes de retornar
+    return { ...response, registrationStatus: response.registrationStatus as RegistrationStatus };
+  },
 
-        // Faz a asserção de tipo antes de retornar o usuário.
-        return {
-            ...response,
-            registrationStatus: response.registrationStatus as RegistrationStatus
-        };
-    },
+  async setRegistrationStatusForAllEligibleUsers(newStatus: number): Promise<void> {
+    try {
+      console.log(
+        `[userRepository.setRegistrationStatusForAllEligibleUsers] Tentando atualizar registrationStatus para ${newStatus} para usuários elegíveis.`,
+      );
+      const updateResult = await client.user.updateMany({
+        where: {
+          registrationStatus: { not: newStatus },
+        },
+        data: {
+          registrationStatus: newStatus,
+        },
+      });
+      console.log(
+        `[userRepository.setRegistrationStatusForAllEligibleUsers] Status de registro atualizado para ${newStatus}. Usuários afetados: ${updateResult.count}`,
+      );
+    } catch (error) {
+      console.error(
+        `[userRepository.setRegistrationStatusForAllEligibleUsers] Erro ao atualizar registrationStatus dos usuários elegíveis:`,
+        error,
+      );
+      throw error;
+    }
+  },
+  async updateUserEventStatus(
+    userId: string,
+    registrationStatusInput: number,
+    currentEdition: number,
+  ): Promise<User> {
+    // CORRIGIDO: Retorno é Promise<User>
+    const response = await client.user.update({
+      where: { id: userId },
+      data: {
+        registrationStatus: registrationStatusInput, // Prisma aceita number aqui para a escrita
+        currentEdition: currentEdition.toString(),
+      },
+    });
 
+    return { ...response, registrationStatus: response.registrationStatus as RegistrationStatus };
+  },
+  async setRegistrationStatusForUsers(userIds: string[], newStatus: number): Promise<void> {
+    if (userIds.length === 0) {
+      return;
+    }
+    await client.user.updateMany({
+      where: {
+        id: { in: userIds },
+      },
+      data: {
+        registrationStatus: newStatus,
+      },
+    });
+  },
 
-    async create(data: CreateUserDTOS): Promise<User> {
-        const response = await client.user.create({ data });
-        return { ...response, registrationStatus: response.registrationStatus as RegistrationStatus };
-    },
+  async findByEmail(email: string): Promise<User | null> {
+    const response = await client.user.findFirst({
+      where: { email },
+    });
 
-    async update(id: string, data: UpdateUserDTOS): Promise<User> {
-        const response = await client.user.update({
-            data,
-            where: { id }
-        });
-        return { ...response, registrationStatus: response.registrationStatus as RegistrationStatus };
-    },
+    // Se não encontrar o usuário, retorna nulo.
+    if (!response) {
+      return null;
+    }
 
-    async delete(id: string): Promise<void> {
-        await client.user.delete({ where: { id } });
-    },
+    // Faz a asserção de tipo antes de retornar o usuário.
+    return {
+      ...response,
+      registrationStatus: response.registrationStatus as RegistrationStatus,
+    };
+  },
 
-    async updateQRCode(id: string, data: UpdateQrCodeUsersDTOS): Promise<User> { 
-        const response = await client.user.update({
-            data, // UpdateQrCodeUsersDTOS deve ser compatível com os campos que User.update aceita para 'data'
-            where: { id }
-        });
-        // Faz a asserção de tipo
-        return { ...response, registrationStatus: response.registrationStatus as RegistrationStatus };
-    },
+  async create(data: CreateUserDTOS): Promise<User> {
+    const response = await client.user.create({ data });
+    return { ...response, registrationStatus: response.registrationStatus as RegistrationStatus };
+  },
 
-    async addPoints(userId: string, points: number): Promise<User> {
-        try {
-            const updatedUser = await client.user.update({
-                where: { id: userId },
-                data: {
-                    points: {
-                        increment: points,
-                    },
-                },
-            });
-    
-            return {
-                ...updatedUser,
-                registrationStatus: updatedUser.registrationStatus as RegistrationStatus
-            };
-        } catch (error) {
-            console.error(`Erro ao adicionar pontos ao usuário ${userId}:`, error);
-            throw new Error("Não foi possível adicionar pontos ao usuário.");
-        }
-    },
-    
-    async getUserPoints(id: string): Promise<{ points: number } | null> {
-        const response = await client.user.findUnique({
-            where: { id },
-            select: { points: true }
-        });
-        return response;
-    },
+  async update(id: string, data: UpdateUserDTOS): Promise<User> {
+    const response = await client.user.update({
+      data,
+      where: { id },
+    });
+    return { ...response, registrationStatus: response.registrationStatus as RegistrationStatus };
+  },
 
-    async getUserRanking(id: string): Promise<number> {
-        const result = await client.$queryRaw<{ rank: number }[]>(
-            Prisma.sql`
+  async delete(id: string): Promise<void> {
+    await client.user.delete({ where: { id } });
+  },
+
+  async updateQRCode(id: string, data: UpdateQrCodeUsersDTOS): Promise<User> {
+    const response = await client.user.update({
+      data, // UpdateQrCodeUsersDTOS deve ser compatível com os campos que User.update aceita para 'data'
+      where: { id },
+    });
+    // Faz a asserção de tipo
+    return { ...response, registrationStatus: response.registrationStatus as RegistrationStatus };
+  },
+
+  async addPoints(userId: string, points: number): Promise<User> {
+    try {
+      const updatedUser = await client.user.update({
+        where: { id: userId },
+        data: {
+          points: {
+            increment: points,
+          },
+        },
+      });
+
+      return {
+        ...updatedUser,
+        registrationStatus: updatedUser.registrationStatus as RegistrationStatus,
+      };
+    } catch (error) {
+      console.error(`Erro ao adicionar pontos ao usuário ${userId}:`, error);
+      throw new Error("Não foi possível adicionar pontos ao usuário.");
+    }
+  },
+
+  async getUserPoints(id: string): Promise<{ points: number } | null> {
+    const response = await client.user.findUnique({
+      where: { id },
+      select: { points: true },
+    });
+    return response;
+  },
+
+  async getUserRanking(id: string): Promise<number> {
+    const result = await client.$queryRaw<{ rank: number }[]>(
+      Prisma.sql`
               SELECT COUNT(*) + 1 AS \`rank\`
               FROM (
                 SELECT
@@ -181,13 +192,12 @@ export default {
                   )
                 )
               );
-            `
-          );
-          
+            `,
+    );
 
-          if(result.length===0){
-            throw new Error('Não foi possivel recuperar o ranking')
-          }
-          return Number( result[0].rank);
+    if (result.length === 0) {
+      throw new Error("Não foi possivel recuperar o ranking");
     }
+    return Number(result[0].rank);
+  },
 };

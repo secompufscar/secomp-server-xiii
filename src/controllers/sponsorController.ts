@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Request, Response } from "express";
 import sponsorsService from "../services/sponsorService";
 
 export default {

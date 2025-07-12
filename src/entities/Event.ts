@@ -1,4 +1,4 @@
-export interface Event{
+export interface Event {
   id: string;
   year: string; // "2024"
   startDate: Date;

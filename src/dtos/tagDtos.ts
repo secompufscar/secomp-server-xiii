@@ -7,5 +7,5 @@ export interface TagDTO {
   name: string;
 }
 export interface UpdateTagDTO {
-  name?: string; 
+  name?: string;
 }

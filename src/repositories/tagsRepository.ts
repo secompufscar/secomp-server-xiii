@@ -9,7 +9,7 @@ export default {
   async listAll(): Promise<Tag[]> {
     return client.tag.findMany({
       orderBy: {
-        name: 'asc',
+        name: "asc",
       },
     });
   },

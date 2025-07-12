@@ -1,23 +1,26 @@
 # Server da SECOMP UFSCar
+
 Backend desenvolvido pela equipe de TI da SECOMP UFSCar especialmente para o evento. Tem como objetivo automatizar a gestão da SECOMP garantindo:
 
 - Cadastro e organização de eventos (palestras, minicursos, atividades e etc.)
-- Inscrição e controle de participantes 
+- Inscrição e controle de participantes
 - Check-in eficiente via QR code
 - Gestão de vagas e lista de espera
 
 <br>
 
 ## 📋 Requisitos
+
 Antes de mais nada, certifique-se de ter os seguintes programas instalados:
 
-[![git][git-logo]][git-url] 
+[![git][git-logo]][git-url]
 [![node][node-logo]][node-url]
 [![MySQL][mysql-logo]][mysql-url]
 
 <br>
 
 ## **🛠️ Tecnologias**
+
 Tecnologias utilizadas no backend do aplicativo: Node.js, Express, TypeScript, MySQL e Prisma.
 
 ![Skills](https://skills.syvixor.com/api/icons?i=nodejs,express,ts,mysql,prisma)
@@ -26,7 +29,7 @@ Tecnologias utilizadas no backend do aplicativo: Node.js, Express, TypeScript, M
 
 ## 🪛 Configurações Iniciais
 
-Clone o repositório 
+Clone o repositório
 
 ```
 git clone https://github.com/secompufscar/secomp-server-xiii.git
@@ -45,13 +48,13 @@ npm install
 
 **Configuração do Banco de Dados**
 
-1. Crie um banco de dados MySQL (ex: `secomp_db`).  
+1. Crie um banco de dados MySQL (ex: `secomp_db`).
 
-2. Crie o arquivo *.env* e faça a cópia do conteúdo de .env.example.
+2. Crie o arquivo _.env_ e faça a cópia do conteúdo de .env.example.
 
-3. Edite o *.env* com suas credenciais do MySQL (usuário, senha):    
+3. Edite o _.env_ com suas credenciais do MySQL (usuário, senha):
 
-4. Executar migrações do Prisma 
+4. Executar migrações do Prisma
    ```bash
    npx prisma migrate dev --name init
    npx prisma generate
@@ -61,14 +64,13 @@ npm install
 
 **Configuração do envio de e-mail**
 
-Edite o *.env* com as credenciais do e-mail responsável por enviar as mensagens de confirmação e redefinição de senha. Este e-mail deve possuir verificação em duas etapas e a senha em SMTP_PASS deve ser um app password.
-
+Edite o _.env_ com as credenciais do e-mail responsável por enviar as mensagens de confirmação e redefinição de senha. Este e-mail deve possuir verificação em duas etapas e a senha em SMTP_PASS deve ser um app password.
 
 <br>
 
 ## ⚙️ Compilação
 
-Compilar o projeto (TypeScript → JavaScript) 
+Compilar o projeto (TypeScript → JavaScript)
 
 ```
 npm run build
@@ -78,13 +80,16 @@ npm run build
 
 ## 📡 Iniciar o servidor
 
-Modo desenvolvimento (com hot-reload via nodemon):  
+Modo desenvolvimento (com hot-reload via nodemon):
+
 ```
 npm run dev
 ```
+
 <br>
 
-Modo produção:  
+Modo produção:
+
 ```
 npm start
 ```

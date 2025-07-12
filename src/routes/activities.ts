@@ -1,8 +1,12 @@
-import { Router } from 'express';
-import activitiesController from '../controllers/activitiesController';
-import { createActivitySchema, activityIdSchema, updateActivitySchema } from '../schemas/activitySchema';
-import { authMiddleware } from '../middlewares/authMiddleware';
-import validate from '../middlewares/validate';
+import { Router } from "express";
+import activitiesController from "../controllers/activitiesController";
+import {
+  createActivitySchema,
+  activityIdSchema,
+  updateActivitySchema,
+} from "../schemas/activitySchema";
+import { authMiddleware } from "../middlewares/authMiddleware";
+import validate from "../middlewares/validate";
 
 const routes = Router();
 
@@ -11,7 +15,7 @@ const routes = Router();
  * /activities:
  *   get:
  *     summary: Obtém uma lista de todas as atividades.
- *     tags: 
+ *     tags:
  *       - Activities
  *     responses:
  *       200:
@@ -46,14 +50,14 @@ const routes = Router();
  *                     format: date-time
  */
 //routes.get('/', authMiddleware, activitiesController.list);
-routes.get('/', activitiesController.list);
+routes.get("/", activitiesController.list);
 
 /**
  * @swagger
  * /activities/{id}:
  *   get:
  *     summary: Obtém uma atividade específica pelo ID.
- *     tags: 
+ *     tags:
  *       - Activities
  *     parameters:
  *       - in: path
@@ -94,14 +98,14 @@ routes.get('/', activitiesController.list);
  *       404:
  *         description: Atividade não encontrada.
  */
-routes.get('/:id', activitiesController.findById);
+routes.get("/:id", activitiesController.findById);
 
 /**
  * @swagger
  * /activities:
  *   post:
  *     summary: Cria uma nova atividade.
- *     tags: 
+ *     tags:
  *       - Activities
  *     requestBody:
  *       required: true
@@ -128,14 +132,14 @@ routes.get('/:id', activitiesController.findById);
  *         description: Atividade criada com sucesso.
  */
 //routes.post('/', authMiddleware, validate(createActivitySchema), activitiesController.create);
-routes.post('/',  activitiesController.create);
+routes.post("/", activitiesController.create);
 
 /**
  * @swagger
  * /activities/{id}:
  *   put:
  *     summary: Atualiza uma atividade existente pelo ID.
- *     tags: 
+ *     tags:
  *       - Activities
  *     parameters:
  *       - in: path
@@ -170,14 +174,14 @@ routes.post('/',  activitiesController.create);
  *       404:
  *         description: Atividade não encontrada.
  */
-routes.put('/:id', validate(updateActivitySchema, activityIdSchema), activitiesController.update);
+routes.put("/:id", validate(updateActivitySchema, activityIdSchema), activitiesController.update);
 
 /**
  * @swagger
  * /activities/{id}:
  *   delete:
  *     summary: Deleta uma atividade pelo ID.
- *     tags: 
+ *     tags:
  *       - Activities
  *     parameters:
  *       - in: path
@@ -192,6 +196,6 @@ routes.put('/:id', validate(updateActivitySchema, activityIdSchema), activitiesC
  *       404:
  *         description: Atividade não encontrada.
  */
-routes.delete('/:id', validate(undefined, activityIdSchema), activitiesController.delete);
+routes.delete("/:id", validate(undefined, activityIdSchema), activitiesController.delete);
 
 export default routes;

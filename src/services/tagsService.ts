@@ -10,7 +10,7 @@ export default {
 
   async create(data: CreateTagDTO): Promise<TagDTO> {
     const { name } = data;
-    if (!name || name.trim() === '') {
+    if (!name || name.trim() === "") {
       throw new ApiError("O nome da tag é obrigatório.", ErrorsCode.BAD_REQUEST);
     }
     // Usar upsert previne a criação de tags duplicadas

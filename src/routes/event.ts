@@ -1,12 +1,8 @@
 import { Router } from "express";
-import eventController from '../controllers/eventController';
-import { 
-  createEventSchema, 
-  eventIdSchema, 
-  updateEventSchema 
-} from '../schemas/eventSchema';
-import validate from '../middlewares/validate';
-import { authMiddleware } from '../middlewares/authMiddleware';
+import eventController from "../controllers/eventController";
+import { createEventSchema, eventIdSchema, updateEventSchema } from "../schemas/eventSchema";
+import validate from "../middlewares/validate";
+import { authMiddleware } from "../middlewares/authMiddleware";
 
 const routes = Router();
 
@@ -33,7 +29,7 @@ const routes = Router();
  *               items:
  *                 $ref: '#/components/schemas/Event'
  */
-routes.get('/', eventController.list);
+routes.get("/", eventController.list);
 
 /**
  * @swagger
@@ -51,7 +47,7 @@ routes.get('/', eventController.list);
  *       404:
  *         description: Nenhum evento ativo encontrado
  */
-routes.get('/current', eventController.findCurrent);
+routes.get("/current", eventController.findCurrent);
 
 /**
  * @swagger
@@ -75,7 +71,7 @@ routes.get('/current', eventController.findCurrent);
  *       404:
  *         description: Evento não encontrado
  */
-routes.get('/:id', validate(undefined, eventIdSchema), eventController.findById);
+routes.get("/:id", validate(undefined, eventIdSchema), eventController.findById);
 
 /**
  * @swagger
@@ -99,7 +95,7 @@ routes.get('/:id', validate(undefined, eventIdSchema), eventController.findById)
  *       400:
  *         description: Dados inválidos
  */
-routes.post('/', validate(createEventSchema), eventController.create);
+routes.post("/", validate(createEventSchema), eventController.create);
 
 /**
  * @swagger
@@ -125,7 +121,7 @@ routes.post('/', validate(createEventSchema), eventController.create);
  *       404:
  *         description: Evento não encontrado
  */
-routes.put('/:id', validate(updateEventSchema, eventIdSchema), eventController.update);
+routes.put("/:id", validate(updateEventSchema, eventIdSchema), eventController.update);
 
 /**
  * @swagger
@@ -145,6 +141,6 @@ routes.put('/:id', validate(updateEventSchema, eventIdSchema), eventController.u
  *       404:
  *         description: Evento não encontrado
  */
-routes.delete('/:id', validate(undefined, eventIdSchema), eventController.delete);
+routes.delete("/:id", validate(undefined, eventIdSchema), eventController.delete);
 
 export default routes;

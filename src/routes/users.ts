@@ -1,8 +1,8 @@
-import { Router } from 'express'
-import usersController from '../controllers/usersController'
-import { authMiddleware } from '../middlewares/authMiddleware'
+import { Router } from "express";
+import usersController from "../controllers/usersController";
+import { authMiddleware } from "../middlewares/authMiddleware";
 
-const routes = Router()
+const routes = Router();
 
 /**
  * @swagger
@@ -33,7 +33,7 @@ const routes = Router()
  *       400:
  *         description: Bad request
  */
-routes.post('/signup', usersController.signup)
+routes.post("/signup", usersController.signup);
 /**
  * @swagger
  * /login:
@@ -60,7 +60,7 @@ routes.post('/signup', usersController.signup)
  *       401:
  *         description: Unauthorized
  */
-routes.post('/login', usersController.login)
+routes.post("/login", usersController.login);
 /**
  * @swagger
  * /getProfile:
@@ -90,7 +90,7 @@ routes.post('/login', usersController.login)
  *       401:
  *         description: Unauthorized
  */
-routes.get('/getProfile', authMiddleware, usersController.getProfile)
+routes.get("/getProfile", authMiddleware, usersController.getProfile);
 
 /**
  * @swagger
@@ -107,7 +107,7 @@ routes.get('/getProfile', authMiddleware, usersController.getProfile)
  *     responses:
  *       200:
  *         description: Usuário com email confirmado corretamente
-  *         content:
+ *         content:
  *           application/json:
  *             schema:
  *               type: object
@@ -131,7 +131,7 @@ routes.get('/getProfile', authMiddleware, usersController.getProfile)
  *       500:
  *         description: Internal server error
  */
-routes.get('/confirmation/:token', usersController.confirmEmail)
+routes.get("/confirmation/:token", usersController.confirmEmail);
 
 /**
  * @swagger
@@ -182,7 +182,7 @@ routes.get('/confirmation/:token', usersController.confirmEmail)
  *       500:
  *         description: Internal server error
  */
-routes.patch('/updatePassword/:token', usersController.updateForgottenPassword)
+routes.patch("/updatePassword/:token", usersController.updateForgottenPassword);
 
 /**
  * @swagger
@@ -190,7 +190,7 @@ routes.patch('/updatePassword/:token', usersController.updateForgottenPassword)
  *   post:
  *     summary: Envia um email para um usuário que esqueceu sua senha.
  *     requestBody:
- *       required: true 
+ *       required: true
  *       content:
  *         application/json:
  *           schema:
@@ -202,11 +202,11 @@ routes.patch('/updatePassword/:token', usersController.updateForgottenPassword)
  *                 example: "usuario@example.com"
  *     responses:
  *       200:
- *         description: Email de alteração de senha enviado 
+ *         description: Email de alteração de senha enviado
  *       500:
  *         description: Internal server error
  */
-routes.post('/sendForgotPasswordEmail', usersController.sendForgotPasswordEmail)
+routes.post("/sendForgotPasswordEmail", usersController.sendForgotPasswordEmail);
 
 /**
  * @swagger
@@ -237,7 +237,7 @@ routes.post('/sendForgotPasswordEmail', usersController.sendForgotPasswordEmail)
  *       500:
  *         description: Erro interno do servidor
  */
-routes.get('/getUserPoints/:id', usersController.getUserPoints);
+routes.get("/getUserPoints/:id", usersController.getUserPoints);
 
 /**
  * @swagger
@@ -271,7 +271,7 @@ routes.get('/getUserPoints/:id', usersController.getUserPoints);
  *       500:
  *         description: Erro interno do servidor
  */
-routes.get('/getUserRanking/:id', usersController.getUserRanking)
+routes.get("/getUserRanking/:id", usersController.getUserRanking);
 
 /**
  * @swagger
@@ -304,8 +304,7 @@ routes.get('/getUserRanking/:id', usersController.getUserRanking)
  *       '401':
  *         description: Unauthorized (invalid or missing token)
  */
-routes.patch('/updateProfile', authMiddleware, usersController.updateProfile)
-
+routes.patch("/updateProfile", authMiddleware, usersController.updateProfile);
 
 /**
  * @swagger
@@ -338,6 +337,6 @@ routes.patch('/updateProfile', authMiddleware, usersController.updateProfile)
  *       '500':
  *         description: Erro interno do servidor
  */
-routes.get('/:id/activities/count', usersController.getUserActivitiesCount);
+routes.get("/:id/activities/count", usersController.getUserActivitiesCount);
 
-export default routes
+export default routes;

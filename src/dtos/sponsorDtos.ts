@@ -5,7 +5,7 @@ export interface SponsorDTO {
   description: string;
   starColor: string;
   link: string;
-  tags: string[]; 
+  tags: string[];
 }
 
 export interface CreateSponsorDTO {

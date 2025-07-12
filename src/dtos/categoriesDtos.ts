@@ -1,16 +1,12 @@
 export interface CreateCategoryrDTOS {
-    nome: string
-
+  nome: string;
 }
 
 export interface UpdateCategoryrDTOS {
-    nome: string
-
+  nome: string;
 }
 
 export interface CategoryrDTOS {
-    nome: string
-    id: string
-
+  nome: string;
+  id: string;
 }
-

@@ -1,20 +1,23 @@
-import { Router } from 'express'
+import { Router } from "express";
 
-import usersAtActivitiesController from '../controllers/usersAtActivitiesController'
+import usersAtActivitiesController from "../controllers/usersAtActivitiesController";
 
-import { authMiddleware } from '../middlewares/authMiddleware'
+import { authMiddleware } from "../middlewares/authMiddleware";
 
-const routes = Router()
+const routes = Router();
 
 //Fazer o swagger
-routes.get('/user-activity/:userId/:activityId', usersAtActivitiesController.findByUserIdActivityId)
+routes.get(
+  "/user-activity/:userId/:activityId",
+  usersAtActivitiesController.findByUserIdActivityId,
+);
 
 /**
  * @swagger
  * /userAtActivities/{activityId}:
  *   get:
  *     summary: Obtém todas as inscrições de usuários para uma atividade específica.
- *     tags: 
+ *     tags:
  *       - UserAtActivities
  *     parameters:
  *       - in: path
@@ -54,13 +57,13 @@ routes.get('/user-activity/:userId/:activityId', usersAtActivitiesController.fin
  *       404:
  *         description: Atividade não encontrada.
  */
-routes.get('/:activityId', authMiddleware, usersAtActivitiesController.findById)
+routes.get("/:activityId", authMiddleware, usersAtActivitiesController.findById);
 /**
  * @swagger
  * /userAtActivities/all-activities/{userId}:
  *   get:
  *     summary: Obtém todas as atividades de um usuário.
- *     tags: 
+ *     tags:
  *       - UserAtActivities
  *     parameters:
  *       - in: path
@@ -73,13 +76,13 @@ routes.get('/:activityId', authMiddleware, usersAtActivitiesController.findById)
  *       200:
  *         description: Lista de atividades retornada com sucesso.
  */
-routes.get('/all-activities/:userId', authMiddleware, usersAtActivitiesController.findByUserId);
+routes.get("/all-activities/:userId", authMiddleware, usersAtActivitiesController.findByUserId);
 /**
  * @swagger
  * /userAtActivities:
  *   post:
  *     summary: Cria uma nova inscrição para o usuário em uma atividade.
- *     tags: 
+ *     tags:
  *       - UserAtActivities
  *     requestBody:
  *       required: true
@@ -96,14 +99,14 @@ routes.get('/all-activities/:userId', authMiddleware, usersAtActivitiesControlle
  *       201:
  *         description: Inscrição criada com sucesso.
  */
-routes.post('/', authMiddleware, usersAtActivitiesController.create);
+routes.post("/", authMiddleware, usersAtActivitiesController.create);
 
 /**
  * @swagger
  * /userAtActivities/{id}:
  *   put:
  *     summary: Atualiza uma inscrição de um usuário em uma atividade.
- *     tags: 
+ *     tags:
  *       - UserAtActivities
  *     parameters:
  *       - in: path
@@ -135,13 +138,13 @@ routes.post('/', authMiddleware, usersAtActivitiesController.create);
  *       200:
  *         description: Inscrição atualizada com sucesso.
  */
-routes.put('/:id', authMiddleware, usersAtActivitiesController.update);
+routes.put("/:id", authMiddleware, usersAtActivitiesController.update);
 /**
  * @swagger
  * /userAtActivities/{id}:
  *   delete:
  *     summary: Deleta uma inscrição de um usuário em uma atividade.
- *     tags: 
+ *     tags:
  *       - UserAtActivities
  *     parameters:
  *       - in: path
@@ -156,6 +159,6 @@ routes.put('/:id', authMiddleware, usersAtActivitiesController.update);
  *       404:
  *         description: Registro não encontrado.
  */
-routes.delete('/:userId/:activityId', usersAtActivitiesController.delete);
+routes.delete("/:userId/:activityId", usersAtActivitiesController.delete);
 
 export default routes;

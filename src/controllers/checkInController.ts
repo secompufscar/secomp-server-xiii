@@ -1,25 +1,21 @@
-import { Request, Response } from 'express';
-import checkInService from '../services/checkInService';
-import checkInRepository from '../repositories/checkInRepository';
+import { Request, Response } from "express";
+import checkInService from "../services/checkInService";
+import checkInRepository from "../repositories/checkInRepository";
 
 export default {
-    async checkIn(request: Request, response: Response) {
-        const { userId, activityId } = request.params;
+  async checkIn(request: Request, response: Response) {
+    const { userId, activityId } = request.params;
 
-        console.log("checkin controller: ",userId, activityId)
-   
-        const data = await checkInService.checkIn(userId, activityId);
+    console.log("checkin controller: ", userId, activityId);
 
-        response.status(200).json(data);
- 
-    },
-    async listParticipants(request: Request, response: Response) {
-        const { activityId } = request.params;
+    const data = await checkInService.checkIn(userId, activityId);
 
-        const participants = await checkInRepository.findParticipantsByActivity(activityId);
-        response.status(200).json(participants);
-   
-    }
+    response.status(200).json(data);
+  },
+  async listParticipants(request: Request, response: Response) {
+    const { activityId } = request.params;
 
-   
+    const participants = await checkInRepository.findParticipantsByActivity(activityId);
+    response.status(200).json(participants);
+  },
 };

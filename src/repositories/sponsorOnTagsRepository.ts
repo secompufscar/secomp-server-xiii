@@ -25,7 +25,8 @@ export default {
   async unlink(sponsorId: string, tagId: string): Promise<SponsorsOnTags> {
     return client.sponsorsOnTags.delete({
       where: {
-        sponsorId_tagId: { // Utiliza a chave primária composta
+        sponsorId_tagId: {
+          // Utiliza a chave primária composta
           sponsorId,
           tagId,
         },

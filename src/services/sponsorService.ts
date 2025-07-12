@@ -8,21 +8,21 @@ export default {
     const sponsorsFromDb = await sponsorsRepository.listAll();
 
     // Transforma o resultado do banco para o formato do DTO
-    const sponsorsDTO = sponsorsFromDb.map(sponsor => ({
+    const sponsorsDTO = sponsorsFromDb.map((sponsor) => ({
       id: sponsor.id,
       name: sponsor.name,
       logoUrl: sponsor.logoUrl,
       description: sponsor.description,
       starColor: sponsor.starColor,
       link: sponsor.link,
-      tags: sponsor.tags.map(sponsorTag => sponsorTag.tag.name),
+      tags: sponsor.tags.map((sponsorTag) => sponsorTag.tag.name),
     }));
 
     return sponsorsDTO;
   },
   async create(data: CreateSponsorDTO) {
     const { tagIds, ...sponsorData } = data;
-    
+
     // 1. Cria o patrocinador
     const newSponsor = await sponsorsRepository.create(sponsorData);
 

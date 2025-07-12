@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Request, Response } from "express";
 import tagsService from "../services/tagsService";
 
 export default {
@@ -11,7 +11,7 @@ export default {
     const newTag = await tagsService.create(request.body);
     return response.status(201).json(newTag);
   },
-   async update(request: Request, response: Response) {
+  async update(request: Request, response: Response) {
     const { id } = request.params;
     const updatedTag = await tagsService.update(id, request.body);
     return response.json(updatedTag);

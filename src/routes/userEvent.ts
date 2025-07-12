@@ -1,6 +1,6 @@
 import { Router } from "express";
-import userEventController from '../controllers/userEventController';
-import { authMiddleware } from '../middlewares/authMiddleware';
+import userEventController from "../controllers/userEventController";
+import { authMiddleware } from "../middlewares/authMiddleware";
 
 const routes = Router();
 
@@ -33,7 +33,7 @@ const routes = Router();
  *               items:
  *                 $ref: '#/components/schemas/UserEventDTO'
  */
-routes.get('/event/:eventId', userEventController.findByEventId);
+routes.get("/event/:eventId", userEventController.findByEventId);
 
 /**
  * @swagger
@@ -55,7 +55,7 @@ routes.get('/event/:eventId', userEventController.findByEventId);
  *       401:
  *         description: Não autorizado
  */
-routes.get('/user/:userId', authMiddleware, userEventController.findByUserId);
+routes.get("/user/:userId", authMiddleware, userEventController.findByUserId);
 
 /**
  * @swagger
@@ -82,7 +82,7 @@ routes.get('/user/:userId', authMiddleware, userEventController.findByUserId);
  *       401:
  *         description: Não autorizado
  */
-routes.post('/', authMiddleware, userEventController.create);
+routes.post("/", authMiddleware, userEventController.create);
 
 /**
  * @swagger
@@ -106,6 +106,6 @@ routes.post('/', authMiddleware, userEventController.create);
  *       401:
  *         description: Não autorizado
  */
-routes.delete('/:id', authMiddleware, userEventController.delete);
+routes.delete("/:id", authMiddleware, userEventController.delete);
 
 export default routes;

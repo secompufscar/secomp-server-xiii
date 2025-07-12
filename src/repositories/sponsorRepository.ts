@@ -13,12 +13,12 @@ export default {
         },
       },
       orderBy: {
-        createdAt: 'asc',
-      }
+        createdAt: "asc",
+      },
     });
     return sponsors;
   },
-  
+
   async findById(id: string) {
     return client.sponsor.findUnique({ where: { id } });
   },
