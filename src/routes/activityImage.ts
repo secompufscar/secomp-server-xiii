@@ -14,9 +14,9 @@ routes.get('/:id',activityImageController.findById);
 
 routes.put('/:id',upload.single("image"),activityImageController.updateById);
 
-routes.post('/upload',upload.single("image"),activityImageController.create);
+routes.post('/',upload.single("image"),activityImageController.create);
 
-routes.delete('/delete/:id',activityImageController.delete);
+routes.delete('/:id',activityImageController.delete);
 
 
 export default routes;
