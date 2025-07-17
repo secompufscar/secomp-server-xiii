@@ -111,6 +111,43 @@ model UserEvent {
   @@unique([userId, eventId])
   @@map("userEvent")
 }
+model Sponsor {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  logoUrl     String   @db.Text
+  description String   @db.Text
+  starColor   String   // Ex: "#FFD700"
+  link        String   @db.Text
+  createdAt   DateTime @default(now())
+
+  // Relação muitos-para-muitos com Tag
+  tags SponsorsOnTags[]
+
+  @@map("sponsors")
+}
+
+model Tag {
+  id   String @id @default(uuid())
+  name String @unique
+
+  // Relação muitos-para-muitos com Sponsor
+  sponsors SponsorsOnTags[]
+
+  @@map("tags")
+}
+
+// Tabela de junção explícita para Sponsor e Tag
+model SponsorsOnTags {
+  sponsor    Sponsor  @relation(fields: [sponsorId], references: [id])
+  sponsorId  String
+  tag        Tag      @relation(fields: [tagId], references: [id])
+  tagId      String
+  assignedAt DateTime @default(now())
+  assignedBy String   @default("system")
+
+  @@id([sponsorId, tagId])
+  @@map("sponsors_on_tags")
+}
 
 //tabela de relacionamento imagem-atividade
 //typeOfImage se refere ao tipo de imagem que esta tabela pode assumir

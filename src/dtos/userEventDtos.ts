@@ -1,21 +1,19 @@
 //dtos/userEventDtos    novo arquivo
-import { UserEventStatus } from '../entities/UserEvent';
+import { UserEventStatus } from "../entities/UserEvent";
 export interface CreateUserEventDTOS {
-    userId: string
-    eventId: string
-    status:  UserEventStatus
+  userId: string;
+  eventId: string;
+  status: UserEventStatus;
 }
 
 export interface UpdateUserEventDTOS {
-    status?:  UserEventStatus
+  status?: UserEventStatus;
 }
 
 export interface UserEventDTOS {
-    id: string
-    userId: string
-    eventId: string
-    status:  UserEventStatus
-    createdAt: Date
+  id: string;
+  userId: string;
+  eventId: string;
+  status: UserEventStatus;
+  createdAt: Date;
 }
-
-

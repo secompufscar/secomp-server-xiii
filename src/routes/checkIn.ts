@@ -1,6 +1,6 @@
-import { Router } from 'express';
-import checkInController from '../controllers/checkInController';
-import { authMiddleware } from '../middlewares/authMiddleware';
+import { Router } from "express";
+import checkInController from "../controllers/checkInController";
+import { authMiddleware } from "../middlewares/authMiddleware";
 
 const router = Router();
 
@@ -32,7 +32,7 @@ const router = Router();
  *       400:
  *         description: Solicitação inválida, como check-in já realizado ou atividade inexistente.
  */
-router.post('/:userId/:activityId', authMiddleware, checkInController.checkIn);
+router.post("/:userId/:activityId", authMiddleware, checkInController.checkIn);
 
 /**
  * @swagger
@@ -65,6 +65,6 @@ router.post('/:userId/:activityId', authMiddleware, checkInController.checkIn);
  *       404:
  *         description: Atividade não encontrada ou sem participantes.
  */
-router.get('/participants/:activityId', authMiddleware, checkInController.listParticipants);
+router.get("/participants/:activityId", authMiddleware, checkInController.listParticipants);
 
 export default router;

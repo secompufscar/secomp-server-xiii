@@ -1,5 +1,5 @@
 // src/schemas/categorySchema.ts
-import { z } from 'zod';
+import { z } from "zod";
 
 export const createCategorySchema = z.object({
   nome: z.string().min(1, "Nome é obrigatório"),

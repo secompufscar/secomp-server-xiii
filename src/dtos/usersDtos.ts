@@ -1,22 +1,21 @@
 export interface CreateUserDTOS {
-    nome: string
-    email: string
-    senha: string
-    tipo: string
+  nome: string;
+  email: string;
+  senha: string;
+  tipo: string;
 }
 
 export interface UpdateUserDTOS {
-    nome?: string 
-    email?: string
-    senha?: string
-    confirmed?: boolean
+  nome?: string;
+  email?: string;
+  senha?: string;
+  confirmed?: boolean;
 }
 
 export interface UpdateQrCodeUsersDTOS {
-    qrCode: string | null
-
+  qrCode: string | null;
 }
 export interface UpdateProfileDTO {
-    nome?: string;
-    email?: string;
+  nome?: string;
+  email?: string;
 }
