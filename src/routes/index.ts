@@ -9,6 +9,9 @@ import categoriesRoutes from "./categories";
 import checkInRoutes from "./checkIn"
 import eventRoutes from "./event"
 import userEventRoutes from "./userEvent"
+import sponsorRoutes from "./sponsor"
+import tagRoutes from "./tag"
+import activityImageRoutes from "./activityImage"
 
 const routes = Router()
 
@@ -18,7 +21,10 @@ routes.use("/categories", categoriesRoutes);
 routes.use("/userAtActivities", usersAtActivitiesRoutes);
 routes.use("/admin", adminRoutes);
 //routes.use('/diretorias', diretoriasRoutes)
-routes.use('/checkIn', checkInRoutes)
-routes.use('/event', eventRoutes)
-routes.use('/userEvent', userEventRoutes)
-export default routes
+routes.use("/checkIn", checkInRoutes);
+routes.use("/event", eventRoutes);
+routes.use("/userEvent", userEventRoutes);
+routes.use("/sponsors", sponsorRoutes);
+routes.use("/tags", tagRoutes);
+routes.use('/activityImage',activityImageRoutes)
+export default routes;

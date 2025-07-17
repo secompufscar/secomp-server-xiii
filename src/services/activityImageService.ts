@@ -3,22 +3,28 @@ import { ActivityImage } from "@entities/ActivityImage";
 
 import { ApiError, ErrorsCode } from "../utils/api-errors";
 
-import { UpdateActivityImageDTOS, CreateActivityImageDTOS, ActivityImageDTOS } from "../dtos/activityImageDtos";
+import { UpdateActivityImageDTOS, CreateActivityImageDTOS, ActivityImageDTOS, ActivityImageSummaryDTOS, CreateActivityImageSummaryDTOS, UpdateActivityImageSummaryDTOS, ActivityImageBufferDTOS } from "../dtos/activityImageDtos";
 
 export default{
 
-    async create({activityId, typeOfImage, imageUrl}:CreateActivityImageDTOS): Promise<CreateActivityImageDTOS>{
+    async create({activityId, typeOfImage, image, mimeType}:CreateActivityImageDTOS): Promise<CreateActivityImageSummaryDTOS>{
         
         const newData = await activityImageRepository.create({
             activityId,
             typeOfImage,
-            imageUrl
+            image,
+            mimeType
         })
 
-        return newData;
+        return({
+            id: newData.id,
+            activityId:newData.activityId,
+            typeOfImage:newData.typeOfImage,
+            mimeType: newData.mimeType
+        })
     },
 
-    async updateById({activityId,typeOfImage,imageUrl}:UpdateActivityImageDTOS, id:string): Promise<UpdateActivityImageDTOS>{
+    async updateById({activityId,typeOfImage,image,mimeType}:UpdateActivityImageDTOS, id:string): Promise<UpdateActivityImageSummaryDTOS>{
 
         const existingImage = await activityImageRepository.findById(id);
         
@@ -29,19 +35,20 @@ export default{
         const newData= await activityImageRepository.update({
             activityId,
             typeOfImage,
-            imageUrl
+            image,
+            mimeType
         },id)
 
         return newData;
     },
-    async findByActivityId(activityId:string): Promise<ActivityImageDTOS[]>{
+    async findByActivityId(activityId:string): Promise<ActivityImageSummaryDTOS[]>{
         const newData = await activityImageRepository.findByActivityId(activityId);
         return newData;
     },
-    async list(): Promise<ActivityImageDTOS[]>{
+    async list(): Promise<ActivityImageSummaryDTOS[]>{
         return await activityImageRepository.list();
     },
-    async findById(id:string): Promise<ActivityImageDTOS>{
+    async findById(id:string): Promise<ActivityImageBufferDTOS>{
         const newData = await activityImageRepository.findById(id);
         if(!newData){
             throw new ApiError("ActivityImage not found",ErrorsCode.NOT_FOUND);
