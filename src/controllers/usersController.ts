@@ -96,4 +96,12 @@ export default {
 
     return response.status(200).json({ totalActivities: count });
   },
+  async getUserDetails(request: Request, response: Response) {
+        // O controller apenas extrai o ID e chama o service.
+        // Qualquer erro lançado pelo service será capturado pelo middleware de erro global.
+        const userId = request.params.id;
+        const userDetails = await usersService.getUserDetails(userId);
+        
+        response.status(200).json(userDetails);
+    },
 };
