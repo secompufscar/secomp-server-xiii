@@ -324,4 +324,29 @@ export default {
       throw new Error("Erro ao contar as atividades do usuário");
     }
   },
+  async getUserDetails(id: string): Promise<Omit<User, 'senha' | 'qrCode'>> {
+        try {
+            if (!isValidUUID(id)) {
+                throw new ApiError("ID de usuário inválido.", ErrorsCode.BAD_REQUEST);
+            }
+
+            const user = await usersRepository.findById(id);
+
+            if (!user) {
+                throw new ApiError("Usuário não encontrado.", ErrorsCode.NOT_FOUND);
+            }
+
+            // Usamos a desestruturação e o operador rest para remover 'senha' e 'qrCode'
+            const { senha, qrCode, ...userDetails } = user;
+
+            // O tipo de retorno é Promise<Omit<User, 'senha' | 'qrCode'>> para garantir a tipagem
+            return userDetails;
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error; // Propaga ApiError para o controlador
+            }
+            console.error("Erro usersService.ts - getUserDetails: " + error);
+            throw new ApiError("Erro interno ao buscar detalhes do usuário.", ErrorsCode.INTERNAL_ERROR);
+        }
+    },
 };

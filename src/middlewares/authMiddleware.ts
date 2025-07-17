@@ -54,4 +54,16 @@ export async function authMiddleware(req: Request, res: Response, next: NextFunc
 
     return res.status(500).json({ message: "Erro interno no servidor" });
   }
+
+}
+export async function isAdmin(req: Request, res: Response, next: NextFunction) {
+  // Assuming `authMiddleware` has already run and attached `req.user`
+  const user = (req as any).user as Omit<User, 'senha'>; // Cast to the expected type
+
+  if (user && user.tipo && user.tipo.toUpperCase() === 'ADMIN') { // Check if 'tipo' exists and is 'ADMIN'
+    next(); // User is an ADMIN, allow access
+  } else {
+    // If user is not an ADMIN, send a 403 Forbidden response
+    return res.status(403).json({ message: "Acesso negado: Somente administradores podem acessar este recurso." });
+  }
 }
