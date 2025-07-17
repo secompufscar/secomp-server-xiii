@@ -27,8 +27,13 @@ model User {
   confirmed       Boolean       @default(false)
   userAtActivity  UserAtActivity[]
   points           Int          @default(0)
-  
 
+  // Relação com notificações enviadas
+  sentNotifications NotificationHistory[] @relation("NotificationSender")
+  
+  // Relação com notificações recebidas
+  receivedNotifications NotificationHistory[] @relation("NotificationRecipients")
+  
   @@map("users")
 }
 
@@ -79,6 +84,26 @@ model UserAtActivity {
   activity    Activity  @relation(fields: [activityId], references: [id])
 
   @@map("userAtActivity")
+}
+
+model NotificationHistory {
+  id          String   @id @default(uuid())
+  title       String
+  message     String
+  data        Json?     // Para armazenar objeto data opcional
+  status      String    // "sent", "failed"
+  error       String?   // Mensagem de erro (se falhou)
+  sentAt      DateTime  @default(now())
+  createdBy   String?   // ID do usuário que disparou
+
+  // Relação com usuário que enviou
+  sender      User?     @relation("NotificationSender", fields: [createdBy], references: [id])
+
+  // Relação muitos-para-muitos com recipients
+  recipients  User[]    @relation("NotificationRecipients")
+  
+  @@index([sentAt])
+  @@index([status])
 }
 
 
