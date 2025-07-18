@@ -22,7 +22,7 @@ export default {
             const newCreateActivityImage = {
                 activityId,
                 typeOfImage,
-                image: Buffer.from(file.buffer),
+                image: file.buffer,
                 mimeType:mimeType
             }
           
@@ -46,7 +46,6 @@ export default {
 
             return response.status(200).json({ msg: "activityImage deleted successfully" });
         } catch (error) {
-            console.error("erro ao deletar imagem do Cloudinary:", error);
             return response.status(500).json({ msg: "deleting activityImage failed" });
         }
     },
@@ -102,7 +101,7 @@ export default {
                 const newData = {
                     activityId: activityId ,
                     typeOfImage: typeOfImage,
-                    image: Buffer.from(file.buffer),
+                    image: file.buffer,
                     mimeType:mimeType
 
                 };
