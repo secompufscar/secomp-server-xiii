@@ -94,7 +94,6 @@ export default {
         try {
             const { activityId } = request.params;
             const data = await activityImageService.findByActivityId(activityId);
-
             if (!data) return response.status(404).json({ msg: "images not found" });
 
             return response.status(200).json(data);

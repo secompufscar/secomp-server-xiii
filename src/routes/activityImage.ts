@@ -8,7 +8,7 @@ const routes = Router();
 
 routes.get('/list/',activityImageController.list);
 
-routes.get('/activityId/:id',activityImageController.findByActivityId)
+routes.get('/activityId/:activityId',activityImageController.findByActivityId)
 
 routes.get('/:id',activityImageController.findById);
 

@@ -111,12 +111,13 @@ model UserEvent {
   @@unique([userId, eventId])
   @@map("userEvent")
 }
+
 model Sponsor {
   id          String   @id @default(uuid())
   name        String   @unique
   logoUrl     String   @db.Text
   description String   @db.Text
-  starColor   String   // Ex: "#FFD700"
+  starColor   String // Ex: "#FFD700"
   link        String   @db.Text
   createdAt   DateTime @default(now())
 
@@ -158,5 +159,5 @@ model activityImage {
   typeOfImage String
   imageUrl    String
 
-  atividade Activity @relation(fields: [activityId], references: [id])
+  atividade Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
 }

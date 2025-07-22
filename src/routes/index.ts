@@ -9,10 +9,12 @@ import categoriesRoutes from "./categories";
 import checkInRoutes from "./checkIn"
 import eventRoutes from "./event"
 import userEventRoutes from "./userEvent"
+import activityImageRoutes from "./activityImage"
 
 const routes = Router()
 
 routes.use("/activities", activitiesRoutes);
+routes.use("/activityImages",activityImageRoutes)
 routes.use("/users", usersRoutes);
 routes.use("/categories", categoriesRoutes);
 routes.use("/userAtActivities", usersAtActivitiesRoutes);

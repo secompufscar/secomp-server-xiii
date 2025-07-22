@@ -27,7 +27,7 @@ export default{
         const response = await client.activityImage.update({
             data,
             where:{
-                id
+                id:id
             }
         }
         )
@@ -36,8 +36,11 @@ export default{
 ,
     async findByActivityId (activityId:string): Promise <ActivityImageDTOS[]>{
         const response = await client.activityImage.findMany({
+            
             where:{
-                activityId
+                activityId:{
+                    equals:activityId
+                }
             }
         })
         return response;
@@ -46,7 +49,7 @@ export default{
     async findById(id:string): Promise <ActivityImageDTOS|null>{
         const response = await client.activityImage.findUnique({
             where:{
-                id
+                id:id
             }
         })
         return response;
@@ -55,7 +58,7 @@ export default{
     async deleteById(id:string): Promise <void>{
         await client.activityImage.delete({
             where:{
-                id
+                id:id
             }
         })
     }
