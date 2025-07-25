@@ -1,6 +1,6 @@
 import { Router } from "express";
 import usersController from "../controllers/usersController";
-import { authMiddleware } from "../middlewares/authMiddleware";
+import { authMiddleware, isAdmin } from "../middlewares/authMiddleware";
 
 const routes = Router();
 
@@ -306,9 +306,9 @@ routes.get("/getUserRanking/:id", usersController.getUserRanking);
  */
 routes.patch("/updateProfile", authMiddleware, usersController.updateProfile);
 
-/**
- * @swagger
- * /users/{id}/activities/count:
+  /**
+    * @swagger
+    * /users/{id}/activities/count:
  *   get:
  *     summary: Retorna a quantidade de atividades de um usuário
  *     description: Retorna a quantidade total de atividades em que um usuário específico está inscrito.
@@ -338,5 +338,59 @@ routes.patch("/updateProfile", authMiddleware, usersController.updateProfile);
  *         description: Erro interno do servidor
  */
 routes.get("/:id/activities/count", usersController.getUserActivitiesCount);
+
+/**
+ * @swagger
+ * /users/details/{id}:
+ *   get:
+ *     summary: Retorna informações detalhadas de um usuário (Admin apenas)
+ *     description: Obtém os detalhes de um usuário específico pelo ID. Requer autenticação e permissão de ADMIN.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID do usuário
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       '200':
+ *         description: Informações do usuário recuperadas com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                   example: "some-uuid-123"
+ *                 nome:
+ *                   type: string
+ *                   example: "Fulano de Tal"
+ *                 email:
+ *                   type: string
+ *                   example: "fulano@example.com"
+ *                 tipo:
+ *                   type: string
+ *                   example: "USUARIO"
+ *                 confirmed:
+ *                   type: boolean
+ *                   example: true
+ *                 points:
+ *                   type: number
+ *                   example: 150
+ *                etc
+ *       '401':
+ *         description: Não autorizado (token inválido ou ausente)
+ *       '403':
+ *         description: Proibido (usuário não tem permissão de ADMIN)
+ *       '404':
+ *         description: Usuário não encontrado
+ *       '500':
+ *         description: Erro interno do servidor
+ */
+routes.get("/:id", authMiddleware, isAdmin, usersController.getUserDetails);
 
 export default routes;
