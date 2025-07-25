@@ -4,6 +4,18 @@ import activityImageService from "../services/activityImageService";
 import streamifier from "streamifier";
 
 import { v2 as cloudinary } from 'cloudinary';
+
+/*
+
+CÓDIGO PARA USAR NA PRODUÇÃO
+
+->CRIAR UM ARMAZENAMENTO DE ASSET NOVO NO CLOUDINARY
+    ASSIM QUE ACABAR A FASE DE TESTE DAS IMAGENS
+
+pfv nn esquecer disso
+
+
+
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -13,8 +25,13 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET!,
 });
 
+*/
 
-dotenv.config();
+cloudinary.config({
+    cloud_name: "dd6y32sgm",
+    api_key: "152814994224731",
+    api_secret: "IWIw6_LlyLltsNd-YZ1MusEngyU"
+})
 
 function uploadToCloudinary(buffer: Buffer, folder: string): Promise<any> {
     return new Promise((resolve, reject) => {
