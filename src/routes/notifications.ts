@@ -12,4 +12,10 @@ router.post('/send',
   notificationsController.sendNotification
 );
 
+// Rota para envar notificações para todos os usuários
+router.post('/send-to-all',
+  authMiddleware, 
+  adminMiddleware, // Somente admins podem enviar notificações
+  notificationsController.sendNotificationToAll
+);
 export default router;

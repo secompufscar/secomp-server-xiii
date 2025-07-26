@@ -44,5 +44,35 @@ export default {
     }
   },
 
-  // Adicionar outros métodos de controller...
+  // Enviar notificações para todos os usuários
+  async sendNotificationToAll(req: Request, res: Response) {
+    try {
+      const createdBy = req.user?.id;
+      const { title, message, data, sound, badge } = req.body;
+
+      // Buscar todos os usuários
+      const users = await usersRepository.findAll();
+
+      // Preparar DTO
+      const recipientIds = users.map(user => user.id);
+      const notificationDto: CreateNotificationDTO = {
+        title,
+        message,
+        recipientIds,
+        data,
+        sound: sound ?? true,
+        badge,
+        createdBy
+      };
+
+      // Enviar notificação
+      await notificationService.sendPushNotification(notificationDto);
+
+      res.status(200).json({ success: true });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to send notification to all';
+      console.error('Notification error:', errorMessage);
+      res.status(500).json({ error: errorMessage });
+    }
+  }
 };

@@ -56,15 +56,30 @@ Content-Type: application/json
 
 ### Enviar notificação push para um usuário
 POST http://localhost:3333/api/v1/notifications/send
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1YTFkYTQxNS02N2IyLTQzNzAtOTBlNS1jZjg5MTU0N2IwMmEiLCJpYXQiOjE3NTE0OTgxOTcsImV4cCI6MTc1MTUwMTc5N30.DU4-Di4yoFJEHoo4gIM4-JEh8976enH4bIXGX0-I0BU
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1YTFkYTQxNS02N2IyLTQzNzAtOTBlNS1jZjg5MTU0N2IwMmEiLCJpYXQiOjE3NTI3OTQxMTAsImV4cCI6MTc1Mjc5NzcxMH0.lj5HrauSaqW6nJuqrET63M6XGiu_AU5YAEn3IwG2eTc
 Content-Type: application/json
 
 {
-  "userId": "5a1da415-67b2-4370-90e5-cf891547b02a",
+  "recipientIds": ["5a1da415-67b2-4370-90e5-cf891547b02a"],
   "title": "SECOMP UFSCar",
   "message": "Você acabou de receber uma notificação!",
   "data": {
     "tipo": "teste"
+  },
+  "sound": true,
+  "badge": 1
+}
+
+### Enviar notificação push para todos os usuários
+POST http://localhost:3333/api/v1/notifications/send-to-all
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1YTFkYTQxNS02N2IyLTQzNzAtOTBlNS1jZjg5MTU0N2IwMmEiLCJpYXQiOjE3NTM1Mzk4MjksImV4cCI6MTc1MzU0MzQyOX0.6RwwiArHpwrd2NDT42Zz5c5lSc63rQqw-S26XKa4bUE
+Content-Type: application/json
+
+{
+  "title": "SECOMP UFSCar",
+  "message": "Esta é uma notificação enviada para todos os usuários!",
+  "data": {
+    "tipo": "geral"
   },
   "sound": true,
   "badge": 1

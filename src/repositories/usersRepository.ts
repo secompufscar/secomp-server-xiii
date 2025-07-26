@@ -33,6 +33,10 @@ export default {
         return response
     },
 
+    async findAll(): Promise<User[]> {
+        return client.user.findMany()
+    },
+
     async create(data: CreateUserDTOS): Promise<User> {
         const response = await client.user.create({
             data
