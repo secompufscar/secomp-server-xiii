@@ -20,7 +20,14 @@ export default {
   },
 
   async findById(id: string) {
-    return client.sponsor.findUnique({ where: { id } });
+    return client.sponsor.findUnique({
+      where: { id },
+      include: {
+        tags: {
+          include: { tag: true }
+        }
+      }
+    });
   },
 
   async create(data: Prisma.SponsorCreateInput) {

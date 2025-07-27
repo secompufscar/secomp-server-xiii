@@ -7,6 +7,8 @@ const routes = Router();
 // Rota principal para listar todos os patrocinadores
 routes.get("/", sponsorsController.list);
 
+routes.get("/:id", sponsorsController.getOne);
+
 // Rotas para gerenciar a relação entre um patrocinador e suas tags
 routes.post("/:sponsorId/tags", sponsorsOnTagsController.link);
 routes.delete("/:sponsorId/tags/:tagId", sponsorsOnTagsController.unlink);
