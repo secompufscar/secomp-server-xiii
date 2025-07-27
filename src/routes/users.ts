@@ -381,7 +381,6 @@ routes.get("/:id/activities/count", usersController.getUserActivitiesCount);
  *                 points:
  *                   type: number
  *                   example: 150
- *                etc
  *       '401':
  *         description: Não autorizado (token inválido ou ausente)
  *       '403':
@@ -391,6 +390,7 @@ routes.get("/:id/activities/count", usersController.getUserActivitiesCount);
  *       '500':
  *         description: Erro interno do servidor
  */
+
 routes.get("/:id", authMiddleware, isAdmin, usersController.getUserDetails);
 
 export default routes;
