@@ -1,7 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { User, RegistrationStatus } from "../entities/User";
 import { CreateUserDTOS, UpdateQrCodeUsersDTOS, UpdateUserDTOS } from "../dtos/usersDtos";
-7;
 import { Prisma } from "@prisma/client";
 
 const client = new PrismaClient();
@@ -53,6 +52,7 @@ export default {
       throw error;
     }
   },
+
   async updateUserEventStatus(
     userId: string,
     registrationStatusInput: number,

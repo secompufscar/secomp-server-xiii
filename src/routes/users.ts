@@ -1,6 +1,6 @@
 import { Router } from "express";
 import usersController from "../controllers/usersController";
-import { authMiddleware } from "../middlewares/authMiddleware";
+import { authMiddleware, isAdmin } from "../middlewares/authMiddleware";
 
 const routes = Router();
 
@@ -206,7 +206,7 @@ routes.patch("/updatePassword/:token", usersController.updateForgottenPassword);
  *       500:
  *         description: Internal server error
  */
-routes.post("/sendForgotPasswordEmail", usersController.sendForgotPasswordEmail);
+routes.post('/sendForgotPasswordEmail', usersController.sendForgotPasswordEmail)
 
 /**
  * @swagger
@@ -338,5 +338,82 @@ routes.patch("/updateProfile", authMiddleware, usersController.updateProfile);
  *         description: Erro interno do servidor
  */
 routes.get("/:id/activities/count", usersController.getUserActivitiesCount);
+
+/**
+ * @swagger
+ * /users/details/{id}:
+ *   get:
+ *     summary: Retorna informações detalhadas de um usuário (Admin apenas)
+ *     description: Obtém os detalhes de um usuário específico pelo ID. Requer autenticação e permissão de ADMIN.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID do usuário
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       '200':
+ *         description: Informações do usuário recuperadas com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                   example: "some-uuid-123"
+ *                 nome:
+ *                   type: string
+ *                   example: "Fulano de Tal"
+ *                 email:
+ *                   type: string
+ *                   example: "fulano@example.com"
+ *                 tipo:
+ *                   type: string
+ *                   example: "USUARIO"
+ *                 confirmed:
+ *                   type: boolean
+ *                   example: true
+ *                 points:
+ *                   type: number
+ *                   example: 150
+ *       '401':
+ *         description: Não autorizado (token inválido ou ausente)
+ *       '403':
+ *         description: Proibido (usuário não tem permissão de ADMIN)
+ *       '404':
+ *         description: Usuário não encontrado
+ *       '500':
+ *         description: Erro interno do servidor
+ */
+
+routes.get("/:id", authMiddleware, isAdmin, usersController.getUserDetails);
+
+/**
+ * @swagger
+ * /registerPushToken:
+ *   post:
+ *     summary: Registra um token de push para notificações.
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *               token:
+ *                 type: object
+ *                 properties:
+ *                   token:
+ *                     type: string
+ *                     example: "exemploTokenPush123"
+ *     responses:
+ *       200:
+ *         description: Token de push adicionado com sucesso
+ *       400:
+ *         description: Bad request
+ */
+
+routes.post('/registerPushToken', authMiddleware,usersController.registerPushToken)
 
 export default routes;

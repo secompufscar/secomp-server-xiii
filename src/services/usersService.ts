@@ -228,7 +228,6 @@ export default {
       }
       throw new ApiError("Erro ao atualizar senha", ErrorsCode.INTERNAL_ERROR);
     }
-    throw new ApiError("Erro ao atualizar senha", ErrorsCode.INTERNAL_ERROR);
   },
 
   async getUserScore(id: string): Promise<{ points: number } | null> {
@@ -311,6 +310,7 @@ export default {
 
     return userResult;
   },
+
   async countUserActivities(userId: string): Promise<number> {
     try {
       const user = await usersRepository.findById(userId);
@@ -324,4 +324,48 @@ export default {
       throw new Error("Erro ao contar as atividades do usuário");
     }
   },
+
+  async getUserDetails(id: string): Promise<Omit<User, 'senha' | 'qrCode'>> {
+    try {
+      if (!isValidUUID(id)) {
+          throw new ApiError("ID de usuário inválido.", ErrorsCode.BAD_REQUEST);
+      }
+
+      const user = await usersRepository.findById(id);
+
+      if (!user) {
+          throw new ApiError("Usuário não encontrado.", ErrorsCode.NOT_FOUND);
+      }
+
+      // Usamos a desestruturação e o operador rest para remover 'senha' e 'qrCode'
+      const { senha, qrCode, ...userDetails } = user;
+
+      // O tipo de retorno é Promise<Omit<User, 'senha' | 'qrCode'>> para garantir a tipagem
+      return userDetails;
+    } catch (error) {
+      if (error instanceof ApiError) {
+          throw error; // Propaga ApiError para o controlador
+      }
+      console.error("Erro usersService.ts - getUserDetails: " + error);
+      throw new ApiError("Erro interno ao buscar detalhes do usuário.", ErrorsCode.INTERNAL_ERROR);
+    }
+  },
+
+  // Método para adicionar um token de push ao usuário
+    async addPushToken(userId: string, token: string) {
+        const user = await usersRepository.findById(userId);
+
+        if (!user) {
+            throw new ApiError('Usuário não encontrado', ErrorsCode.NOT_FOUND);
+        }
+
+        const updatedUser = await usersRepository.update(userId, {
+            pushToken: token,
+        });
+
+        return {
+            message: 'Token de push adicionado com sucesso',
+            user: _.omit(updatedUser, ['senha']),
+        };
+    }
 };

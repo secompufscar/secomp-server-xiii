@@ -1,20 +1,20 @@
 ## Testando criação de usuário
-POST http://localhost:3000/api/auth/signup
+POST http://localhost:3333/api/v1/users/signup
 Content-Type: application/json
 
 {
     "email": "teste@teste.com",
     "nome": "teste jr",
-    "senha": "senha"
+    "senha": "senha1"
 }
 
 ### Testando login de usuário já cadastrado
-POST http://localhost:3000/api/auth/login
+POST http://localhost:3333/api/v1/users/login
 Content-Type: application/json
 
 {
     "email": "teste@teste.com",
-    "senha": "senha"
+    "senha": "senha1"
 }
 
 ### Testando login de usuário não cadastrado
@@ -41,5 +41,46 @@ Content-Type: application/json
 
 {
     "email": "teste@teste.com",
-    "senha": "senha"
+    "senha": "senha1"
+}
+
+### Testando registro de token de push
+POST http://localhost:3333/api/v1/users/registerPushToken
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1YTFkYTQxNS02N2IyLTQzNzAtOTBlNS1jZjg5MTU0N2IwMmEiLCJpYXQiOjE3NTE0OTY0OTUsImV4cCI6MTc1MTUwMDA5NX0.i3b1LCjQ8yP5nbJl529Tdg7PFaqO45HzldmK_OFPZnc
+Content-Type: application/json
+
+{
+    "token": "ExponentPushToken[exemplo123]"
+}
+
+
+### Enviar notificação push para um usuário
+POST http://localhost:3333/api/v1/notifications/send
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1YTFkYTQxNS02N2IyLTQzNzAtOTBlNS1jZjg5MTU0N2IwMmEiLCJpYXQiOjE3NTI3OTQxMTAsImV4cCI6MTc1Mjc5NzcxMH0.lj5HrauSaqW6nJuqrET63M6XGiu_AU5YAEn3IwG2eTc
+Content-Type: application/json
+
+{
+  "recipientIds": ["5a1da415-67b2-4370-90e5-cf891547b02a"],
+  "title": "SECOMP UFSCar",
+  "message": "Você acabou de receber uma notificação!",
+  "data": {
+    "tipo": "teste"
+  },
+  "sound": true,
+  "badge": 1
+}
+
+### Enviar notificação push para todos os usuários
+POST http://localhost:3333/api/v1/notifications/send-to-all
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1YTFkYTQxNS02N2IyLTQzNzAtOTBlNS1jZjg5MTU0N2IwMmEiLCJpYXQiOjE3NTM1Mzk4MjksImV4cCI6MTc1MzU0MzQyOX0.6RwwiArHpwrd2NDT42Zz5c5lSc63rQqw-S26XKa4bUE
+Content-Type: application/json
+
+{
+  "title": "SECOMP UFSCar",
+  "message": "Esta é uma notificação enviada para todos os usuários!",
+  "data": {
+    "tipo": "geral"
+  },
+  "sound": true,
+  "badge": 1
 }
