@@ -1,4 +1,4 @@
 export interface Diretoria {
-    id: number
-    nome: string
+  id: number;
+  nome: string;
 }

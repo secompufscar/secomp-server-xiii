@@ -1,8 +1,8 @@
-import { Router } from 'express'
-import usersController from '../controllers/usersController'
-import { authMiddleware } from '../middlewares/authMiddleware'
+import { Router } from "express";
+import usersController from "../controllers/usersController";
+import { authMiddleware, isAdmin } from "../middlewares/authMiddleware";
 
-const routes = Router()
+const routes = Router();
 
 /**
  * @swagger
@@ -33,7 +33,7 @@ const routes = Router()
  *       400:
  *         description: Bad request
  */
-routes.post('/signup', usersController.signup)
+routes.post("/signup", usersController.signup);
 /**
  * @swagger
  * /login:
@@ -60,7 +60,7 @@ routes.post('/signup', usersController.signup)
  *       401:
  *         description: Unauthorized
  */
-routes.post('/login', usersController.login)
+routes.post("/login", usersController.login);
 /**
  * @swagger
  * /getProfile:
@@ -90,7 +90,7 @@ routes.post('/login', usersController.login)
  *       401:
  *         description: Unauthorized
  */
-routes.get('/getProfile', authMiddleware, usersController.getProfile)
+routes.get("/getProfile", authMiddleware, usersController.getProfile);
 
 /**
  * @swagger
@@ -107,7 +107,7 @@ routes.get('/getProfile', authMiddleware, usersController.getProfile)
  *     responses:
  *       200:
  *         description: Usuário com email confirmado corretamente
-  *         content:
+ *         content:
  *           application/json:
  *             schema:
  *               type: object
@@ -131,7 +131,7 @@ routes.get('/getProfile', authMiddleware, usersController.getProfile)
  *       500:
  *         description: Internal server error
  */
-routes.get('/confirmation/:token', usersController.confirmEmail)
+routes.get("/confirmation/:token", usersController.confirmEmail);
 
 /**
  * @swagger
@@ -182,7 +182,7 @@ routes.get('/confirmation/:token', usersController.confirmEmail)
  *       500:
  *         description: Internal server error
  */
-routes.patch('/updatePassword/:token', usersController.updateForgottenPassword)
+routes.patch("/updatePassword/:token", usersController.updateForgottenPassword);
 
 /**
  * @swagger
@@ -190,7 +190,7 @@ routes.patch('/updatePassword/:token', usersController.updateForgottenPassword)
  *   post:
  *     summary: Envia um email para um usuário que esqueceu sua senha.
  *     requestBody:
- *       required: true 
+ *       required: true
  *       content:
  *         application/json:
  *           schema:
@@ -202,11 +202,196 @@ routes.patch('/updatePassword/:token', usersController.updateForgottenPassword)
  *                 example: "usuario@example.com"
  *     responses:
  *       200:
- *         description: Email de alteração de senha enviado 
+ *         description: Email de alteração de senha enviado
  *       500:
  *         description: Internal server error
  */
 routes.post('/sendForgotPasswordEmail', usersController.sendForgotPasswordEmail)
+
+/**
+ * @swagger
+ * /getUserPoints/{id}:
+ *   get:
+ *     summary: Retorna os pontos de um usuário
+ *     description: Retorna a quantidade total de pontos do usuário com base no ID fornecido.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID do usuário
+ *     responses:
+ *       200:
+ *         description: Pontos do usuário recuperados com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 pontos:
+ *                   type: integer
+ *                   example: 1200
+ *       404:
+ *         description: Usuário não encontrado
+ *       500:
+ *         description: Erro interno do servidor
+ */
+routes.get("/getUserPoints/:id", usersController.getUserPoints);
+
+/**
+ * @swagger
+ * /getUserRanking/{id}:
+ *   get:
+ *     summary: Retorna o ranking de um usuário
+ *     description: Retorna informações de ranking do usuário com base no ID fornecido.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID do usuário
+ *     responses:
+ *       200:
+ *         description: Ranking do usuário recuperado com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 ranking:
+ *                   type: integer
+ *                   example: 5
+ *                 pontos:
+ *                   type: integer
+ *                   example: 1200
+ *       404:
+ *         description: Usuário não encontrado
+ *       500:
+ *         description: Erro interno do servidor
+ */
+routes.get("/getUserRanking/:id", usersController.getUserRanking);
+
+/**
+ * @swagger
+ * /updateProfile:
+ *   patch:
+ *     summary: Update user profile
+ *     description: Update the authenticated user's name and/or email.
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       description: User data to update. Both fields are optional.
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nome:
+ *                 type: string
+ *                 example: "Novo Nome do Usuario"
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: "novoemail@example.com"
+ *     responses:
+ *       '200':
+ *         description: Profile updated successfully
+ *       '400':
+ *         description: Bad request (e.g., invalid email format, email already in use)
+ *       '401':
+ *         description: Unauthorized (invalid or missing token)
+ */
+routes.patch("/updateProfile", authMiddleware, usersController.updateProfile);
+
+/**
+ * @swagger
+ * /users/{id}/activities/count:
+ *   get:
+ *     summary: Retorna a quantidade de atividades de um usuário
+ *     description: Retorna a quantidade total de atividades em que um usuário específico está inscrito.
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID do usuário
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       '200':
+ *         description: Contagem de atividades recuperada com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 totalActivities:
+ *                   type: integer
+ *                   example: 5
+ *       '404':
+ *         description: Usuário não encontrado
+ *       '500':
+ *         description: Erro interno do servidor
+ */
+routes.get("/:id/activities/count", usersController.getUserActivitiesCount);
+
+/**
+ * @swagger
+ * /users/details/{id}:
+ *   get:
+ *     summary: Retorna informações detalhadas de um usuário (Admin apenas)
+ *     description: Obtém os detalhes de um usuário específico pelo ID. Requer autenticação e permissão de ADMIN.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID do usuário
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       '200':
+ *         description: Informações do usuário recuperadas com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                   example: "some-uuid-123"
+ *                 nome:
+ *                   type: string
+ *                   example: "Fulano de Tal"
+ *                 email:
+ *                   type: string
+ *                   example: "fulano@example.com"
+ *                 tipo:
+ *                   type: string
+ *                   example: "USUARIO"
+ *                 confirmed:
+ *                   type: boolean
+ *                   example: true
+ *                 points:
+ *                   type: number
+ *                   example: 150
+ *       '401':
+ *         description: Não autorizado (token inválido ou ausente)
+ *       '403':
+ *         description: Proibido (usuário não tem permissão de ADMIN)
+ *       '404':
+ *         description: Usuário não encontrado
+ *       '500':
+ *         description: Erro interno do servidor
+ */
+
+routes.get("/:id", authMiddleware, isAdmin, usersController.getUserDetails);
 
 /**
  * @swagger
@@ -216,12 +401,6 @@ routes.post('/sendForgotPasswordEmail', usersController.sendForgotPasswordEmail)
  *     security:
  *       - bearerAuth: []
  *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
  *               token:
  *                 type: object
  *                 properties:
@@ -237,4 +416,4 @@ routes.post('/sendForgotPasswordEmail', usersController.sendForgotPasswordEmail)
 
 routes.post('/registerPushToken', authMiddleware,usersController.registerPushToken)
 
-export default routes
+export default routes;

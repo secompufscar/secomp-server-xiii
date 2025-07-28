@@ -11,7 +11,6 @@ generator client {
 datasource db {
   provider            = "mysql"
   url                 = env("DATABASE_URL")
-
 }
 
 model User {
@@ -27,6 +26,10 @@ model User {
   confirmed       Boolean       @default(false)
   userAtActivity  UserAtActivity[]
   points           Int          @default(0)
+  registrationStatus Int     @default(0)  //  0 nao inscrito, 1 inscrito, 2 evento fechado 
+  currentEdition     String?             // ano da ediçao
+  
+  userEvents      UserEvent[]    // Relação com eventos
 
   // Relação com notificações enviadas
   sentNotifications NotificationHistory[] @relation("NotificationSender")
@@ -37,6 +40,21 @@ model User {
   @@map("users")
 }
 
+// Nova tabela para evento
+model Event {
+  id          String   @id @default(uuid())
+  year        Int   @unique // Ex: "2024"
+  startDate   DateTime // Data de início do evento
+  endDate     DateTime // Data de término do evento
+  isCurrent   Boolean  @default(true) // Indica se é a edição atual
+  createdAt   DateTime      @default(now()) @db.DateTime(6)
+  
+
+  // Relações
+  userEvents  UserEvent[]
+  
+  @@map("events")
+}
 
 model Category {
   id           String     @id @default(uuid())
@@ -47,7 +65,6 @@ model Category {
 
   @@map("category")
 }
-
 
 model Activity {
   id                String     @id @default(uuid())
@@ -61,6 +78,7 @@ model Activity {
   updatedAt         DateTime   @updatedAt @db.Timestamp
   local             String     @db.VarChar(255)
   participantes     UserAtActivity[]
+  points            Int              @default(0) 
 
   @@map("atividades")
   
@@ -106,4 +124,55 @@ model NotificationHistory {
   @@index([status])
 }
 
+// Tabela de relacionamento usuário-edicao (para controle de inscrição no evento)
+model UserEvent {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  eventId   String
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  status      Int       @default(0) // 0 = pendente, 1 = confirmado, 2 = cancelado
+  createdAt   DateTime @default(now())
+  @@unique([userId, eventId]) 
+
+  @@map("userEvent")
+
+}
+model Sponsor {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  logoUrl     String   @db.Text
+  description String   @db.Text
+  starColor   String   // Ex: "#FFD700"
+  link        String   @db.Text
+  createdAt   DateTime @default(now())
+
+  // Relação muitos-para-muitos com Tag
+  tags SponsorsOnTags[]
+
+  @@map("sponsors")
+}
+
+model Tag {
+  id   String @id @default(uuid())
+  name String @unique
+
+  // Relação muitos-para-muitos com Sponsor
+  sponsors SponsorsOnTags[]
+
+  @@map("tags")
+}
+
+// Tabela de junção explícita para Sponsor e Tag
+model SponsorsOnTags {
+  sponsor    Sponsor  @relation(fields: [sponsorId], references: [id])
+  sponsorId  String
+  tag        Tag      @relation(fields: [tagId], references: [id])
+  tagId      String
+  assignedAt DateTime @default(now())
+  assignedBy String   @default("system")
+
+  @@id([sponsorId, tagId])
+  @@map("sponsors_on_tags")
+}
 

@@ -1,8 +1,12 @@
-import { Router } from 'express';
-import categoriesController from '../controllers/categoriesController';
-import { createCategorySchema, updateCategorySchema, categoryIdSchema } from '../schemas/categorySchema';
-import { authMiddleware } from '../middlewares/authMiddleware';
-import validate from '../middlewares/validate';
+import { Router } from "express";
+import categoriesController from "../controllers/categoriesController";
+import {
+  createCategorySchema,
+  updateCategorySchema,
+  categoryIdSchema,
+} from "../schemas/categorySchema";
+import { authMiddleware } from "../middlewares/authMiddleware";
+import validate from "../middlewares/validate";
 
 const routes = Router();
 
@@ -35,7 +39,7 @@ const routes = Router();
  *                     format: date-time
  */
 //routes.get('/', authMiddleware, categoriesController.list);
-routes.get('/', categoriesController.list);
+routes.get("/", categoriesController.list);
 
 /**
  * @swagger
@@ -73,7 +77,7 @@ routes.get('/', categoriesController.list);
  *         description: Categoria não encontrada.
  */
 //routes.get('/:id', authMiddleware, validate(undefined, categoryIdSchema), categoriesController.findById);
-routes.get('/:id', categoriesController.findById);
+routes.get("/:id", categoriesController.findById);
 
 /**
  * @swagger
@@ -96,7 +100,7 @@ routes.get('/:id', categoriesController.findById);
  *         description: Categoria criada com sucesso.
  */
 //routes.post('/', authMiddleware, validate(createCategorySchema), categoriesController.create);
-routes.post('/', categoriesController.create);
+routes.post("/", categoriesController.create);
 
 /**
  * @swagger
@@ -127,7 +131,12 @@ routes.post('/', categoriesController.create);
  *       404:
  *         description: Categoria não encontrada.
  */
-routes.put('/:id', authMiddleware, validate(updateCategorySchema, categoryIdSchema), categoriesController.update);
+routes.put(
+  "/:id",
+  authMiddleware,
+  validate(updateCategorySchema, categoryIdSchema),
+  categoriesController.update,
+);
 
 /**
  * @swagger
@@ -149,6 +158,11 @@ routes.put('/:id', authMiddleware, validate(updateCategorySchema, categoryIdSche
  *       404:
  *         description: Categoria não encontrada.
  */
-routes.delete('/:id', authMiddleware, validate(undefined, categoryIdSchema), categoriesController.delete);
+routes.delete(
+  "/:id",
+  authMiddleware,
+  validate(undefined, categoryIdSchema),
+  categoriesController.delete,
+);
 
 export default routes;

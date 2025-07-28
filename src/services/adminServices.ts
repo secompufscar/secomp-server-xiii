@@ -1,5 +1,5 @@
-import { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { Request, Response } from "express";
+import { PrismaClient } from "@prisma/client";
 
 // import { createActivitySchema, activityIdSchema, updateActivitySchema } from '../../schemas/activitySchema';
 

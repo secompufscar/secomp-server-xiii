@@ -26,11 +26,13 @@
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.6",
     "nodemon": "^3.1.10",
+    "prettier": "^3.6.2",
+    "prisma": "^6.8.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.5"
   },
   "dependencies": {
-    "@prisma/client": "^5.14.0",
+    "@prisma/client": "^6.8.2",
     "@types/bull": "^3.15.9",
     "bcrypt": "^5.1.1",
     "bull": "^4.16.5",
@@ -44,7 +46,6 @@
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
     "nodemailer": "^6.9.14",
-    "prisma": "^5.14.0",
     "qrcode": "^1.5.3",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",

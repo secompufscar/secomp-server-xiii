@@ -1,74 +1,112 @@
-# **SECOMP-SERVER-API**
+# Server da SECOMP UFSCar
 
-### **Visão Geral do Projeto**
-#### **Objetivo**
-Ser uma plataforma backend para automatizar a gestão de eventos da SECOMP garantindo:
+Backend desenvolvido pela equipe de TI da SECOMP UFSCar especialmente para o evento. Tem como objetivo automatizar a gestão da SECOMP garantindo:
+
 - Cadastro e organização de eventos (palestras, minicursos, atividades e etc.)
-- Inscrição e controle de participantes 
+- Inscrição e controle de participantes
 - Check-in eficiente via QR code
 - Gestão de vagas e lista de espera
-#### **Tecnologias**
-**Backend**: Node.js + TypeScript
-**Banco de Dados**: MySQL (gerenciado via Prisma, pasta prima/)
-**Autenticação**: QR code integrado à lógica de check-in (não-funcional).
 
----
+<br>
 
-### **Configuração Inicial**
+## 📋 Requisitos
 
-#### **Pré-requisitos**
-- Node.js (versão 18.x ou superior)
-- npm (gerenciador de pacotes integrado ao Node.js)
-- MySQL (versão 8.x ou superior)
-- Git (para clonar o repositório)
+Antes de mais nada, certifique-se de ter os seguintes programas instalados:
 
-#### **Passo a Passo**
+[![git][git-logo]][git-url]
+[![node][node-logo]][node-url]
+[![MySQL][mysql-logo]][mysql-url]
 
-1. **Clonar o repositório**  
-   ```bash
-   git clone https://github.com/seu-usuario/SECOMP-SERVER-XII-MAIN.git
-   cd SECOMP-SERVER-XII-MAIN
-   ```
+<br>
 
-2. **Instalar dependências**  
-   ```bash
-   npm install
-   ```
+## **🛠️ Tecnologias**
 
-3. **Configurar Banco de Dados**  
-   - Crie um banco de dados MySQL (ex: `secomp_db`).  
-   - Copie o arquivo `env.example` para `.env`:  
-     ```bash
-     cp env.example .env
-     ```
-   - Edite o `.env` com suas credenciais do MySQL (usuário, senha, e escolha uma porta para projeto, de preferência a porta 3333 pois o swagger já está configurado para usar ela):    
-     ```env
-     DATABASE_URL="mysql://USUARIO:SENHA@localhost:3306/secomp_db"
-     ```
-     OBS: não adianta mudar só as variáveis, precisa inserir as credenciais e a porta diretamente na URL, pois o prisma não consegue pegar os dados pelas variáveis.
+Tecnologias utilizadas no backend do aplicativo: Node.js, Express, TypeScript, MySQL e Prisma.
 
-4. **Executar migrações do Prisma**  
+![Skills](https://skills.syvixor.com/api/icons?i=nodejs,express,ts,mysql,prisma)
+
+<br>
+
+## 🪛 Configurações Iniciais
+
+Clone o repositório
+
+```
+git clone https://github.com/secompufscar/secomp-server-xiii.git
+cd secomp-server-xiii
+```
+
+<br>
+
+Instale as dependências
+
+```
+npm install
+```
+
+<br>
+
+**Configuração do Banco de Dados**
+
+1. Crie um banco de dados MySQL (ex: `secomp_db`).
+
+2. Crie o arquivo _.env_ e faça a cópia do conteúdo de .env.example.
+
+3. Edite o _.env_ com suas credenciais do MySQL (usuário, senha):
+
+4. Executar migrações do Prisma
    ```bash
    npx prisma migrate dev --name init
    npx prisma generate
    ```
 
-5. **Compilar o projeto (TypeScript → JavaScript)**  
-   ```bash
-   npm run build
-   ```
+<br>
 
-6. **Iniciar o servidor**  
-   - Modo desenvolvimento (com hot-reload via nodemon):  
-     ```bash
-     npm run dev
-     ```
-   - Modo produção:  
-     ```bash
-     npm start
-     ```
+**Configuração do envio de e-mail**
 
----
+Edite o _.env_ com as credenciais do e-mail responsável por enviar as mensagens de confirmação e redefinição de senha. Este e-mail deve possuir verificação em duas etapas e a senha em SMTP_PASS deve ser um app password.
 
+<br>
 
+## ⚙️ Compilação
 
+Compilar o projeto (TypeScript → JavaScript)
+
+```
+npm run build
+```
+
+<br>
+
+## 📡 Iniciar o servidor
+
+Modo desenvolvimento (com hot-reload via nodemon):
+
+```
+npm run dev
+```
+
+<br>
+
+Modo produção:
+
+```
+npm start
+```
+
+<div align="center">
+  <br/>
+    <div>
+      <sub>Copyright © 2024 - <a href="https://github.com/secompufscar">secompufscar</sub></a>
+    </div>
+</div>
+
+[git-url]: https://git-scm.com/
+[git-logo]: https://img.shields.io/badge/Git-f14e32?style=for-the-badge&logo=git&logoColor=white
+[expo-url]: https://docs.expo.dev/
+[expo-logo]: https://img.shields.io/badge/Expo-3ddc84?style=for-the-badge&logo=expo&logoColor=white
+[node-url]: https://nodejs.org/en
+[node-logo]: https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white
+[mysql-url]: https://www.mysql.com/
+[mysql-logo]: https://img.shields.io/badge/MySQL-00758F?style=for-the-badge&logo=mysql&logoColor=white
+[demo]: assets/images/demo.gif
