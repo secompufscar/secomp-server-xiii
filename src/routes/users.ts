@@ -206,7 +206,7 @@ routes.patch("/updatePassword/:token", usersController.updateForgottenPassword);
  *       500:
  *         description: Internal server error
  */
-routes.post("/sendForgotPasswordEmail", usersController.sendForgotPasswordEmail);
+routes.post('/sendForgotPasswordEmail', usersController.sendForgotPasswordEmail)
 
 /**
  * @swagger
@@ -306,9 +306,9 @@ routes.get("/getUserRanking/:id", usersController.getUserRanking);
  */
 routes.patch("/updateProfile", authMiddleware, usersController.updateProfile);
 
-  /**
-    * @swagger
-    * /users/{id}/activities/count:
+/**
+ * @swagger
+ * /users/{id}/activities/count:
  *   get:
  *     summary: Retorna a quantidade de atividades de um usuário
  *     description: Retorna a quantidade total de atividades em que um usuário específico está inscrito.
@@ -392,5 +392,28 @@ routes.get("/:id/activities/count", usersController.getUserActivitiesCount);
  */
 
 routes.get("/:id", authMiddleware, isAdmin, usersController.getUserDetails);
+
+/**
+ * @swagger
+ * /registerPushToken:
+ *   post:
+ *     summary: Registra um token de push para notificações.
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *               token:
+ *                 type: object
+ *                 properties:
+ *                   token:
+ *                     type: string
+ *                     example: "exemploTokenPush123"
+ *     responses:
+ *       200:
+ *         description: Token de push adicionado com sucesso
+ *       400:
+ *         description: Bad request
+ */
+
+routes.post('/registerPushToken', authMiddleware,usersController.registerPushToken)
 
 export default routes;

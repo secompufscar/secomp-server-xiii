@@ -10,6 +10,7 @@ export interface UpdateUserDTOS {
   email?: string;
   senha?: string;
   confirmed?: boolean;
+  pushToken?: string;
 }
 
 export interface UpdateQrCodeUsersDTOS {

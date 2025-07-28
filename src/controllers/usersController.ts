@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-
 import usersService from "../services/usersService";
 import { UpdateProfileDTO } from "../dtos/usersDtos";
 
@@ -104,4 +103,41 @@ export default {
         
         response.status(200).json(userDetails);
     },
+
+  // Método para registrar o token de push
+  async registerPushToken(req: Request, res: Response) {
+    try {
+      const user = req.user as { id: string };
+      const userId = user?.id;
+      const { token } = req.body;
+
+      if (!userId || typeof userId !== 'string') {
+        return res.status(401).json({
+            success: false,
+            message: 'Usuário não autenticado ou ID inválido',
+        });
+      }
+
+      if (!token || typeof token !== 'string') {
+        return res.status(400).json({
+            success: false,
+            message: 'Token inválido ou ausente',
+        });
+      }
+
+      const result = await usersService.addPushToken(userId, token);
+
+      return res.status(200).json({
+        success: true,
+        message: 'Token de push registrado com sucesso',
+        user: result.user,
+      });
+    } catch (error) {
+      console.error('Erro ao registrar token de push:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Erro interno ao registrar o token de push',
+      });
+    }
+  }
 };
