@@ -1,3 +1,4 @@
+// src/controllers/notificationsController.ts
 import { Request, Response } from 'express';
 import notificationService from '../services/notificationService';
 import usersRepository from '../repositories/usersRepository';
@@ -51,7 +52,7 @@ export default {
       const { title, message, data, sound, badge } = req.body;
 
       // Buscar todos os usuários
-      const users = await usersRepository.findAll();
+      const users = await usersRepository.list();
 
       // Preparar DTO
       const recipientIds = users.map(user => user.id);
