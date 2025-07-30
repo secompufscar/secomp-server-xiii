@@ -28,6 +28,21 @@ export default {
     return { ...response, registrationStatus: response.registrationStatus as RegistrationStatus };
   },
 
+  
+  async findManyByIds(ids: string[]): Promise<User[]> {
+    const response = await client.user.findMany({
+      where: {
+        id: {
+          in: ids,
+        },
+      },
+    });
+    return response.map((user) => ({
+      ...user,
+      registrationStatus: user.registrationStatus as RegistrationStatus,
+    }));
+  },
+
   async setRegistrationStatusForAllEligibleUsers(newStatus: number): Promise<void> {
     try {
       console.log(
