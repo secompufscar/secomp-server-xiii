@@ -200,4 +200,20 @@ export default {
     }
     return Number(result[0].rank);
   },
+
+  async findManyByIds(ids: string[]) {
+        return client.user.findMany({
+            where: {
+                id: { in: ids }
+            }
+        });
+    },
+
+    async findAll(): Promise<User[]> {
+        const response = await client.user.findMany();
+        return response.map((user) => ({
+            ...user,
+            registrationStatus: user.registrationStatus as RegistrationStatus,
+        }));
+    },
 };
