@@ -84,3 +84,12 @@ Content-Type: application/json
   "sound": true,
   "badge": 1
 }
+
+### Obter histórico de notificações por usuário
+GET http://localhost:3333/api/v1/notifications/history
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhN2ZhMTIwOS1lYjUzLTQwNTMtODc5Ni0zZTdiZjQ2ODkzZmUiLCJpYXQiOjE3NTM5MjMwMzYsImV4cCI6MTc1MzkyNjYzNn0.MQ_tTFWWjdV88rv9zaonDlxGJSFoCVBGn7dCrmofGso
+Content-Type: application/json
+
+{
+  "userId": "a7fa1209-eb53-4053-8796-3e7bf46893fe"
+}

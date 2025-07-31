@@ -18,4 +18,10 @@ router.post('/send-to-all',
   adminMiddleware, // Somente admins podem enviar notificações
   notificationsController.sendNotificationToAll
 );
+
+// Rota para obter histórico de notificações por usuário
+router.get('/history',
+  authMiddleware, 
+  notificationsController.getNotificationHistory
+);
 export default router;

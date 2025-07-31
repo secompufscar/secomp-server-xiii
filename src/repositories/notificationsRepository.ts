@@ -43,5 +43,19 @@ export default {
         recipients: true
       }
     }) as unknown as Notification[];
-  }
+  },
+
+  async findByUserId(userId: string): Promise<Notification[]> {
+    return prisma.notificationHistory.findMany({
+      where: {
+        recipients: {
+          some: { id: userId }
+        }
+      },
+      include: {
+        sender: true,
+        recipients: true
+      }
+    }) as unknown as Notification[];
+  },
 };

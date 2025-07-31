@@ -74,5 +74,22 @@ export default {
       console.error('Notification error:', errorMessage);
       res.status(500).json({ error: errorMessage });
     }
-  }
+  },
+
+  // Obter histórico de notificações do usuário
+  async getNotificationHistory(req: Request, res: Response) {
+    try {
+      const userId = req.user?.id;
+      if (!userId) {
+        return res.status(401).json({ error: 'Usuário não autenticado' });
+      }
+
+      const notifications = await notificationService.getNotificationHistoryByUserId(userId);
+      res.status(200).json(notifications);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to retrieve notification history';
+      console.error('Notification history error:', errorMessage);
+      res.status(500).json({ error: errorMessage });
+    }
+  },
 };

@@ -57,5 +57,9 @@ export default {
 
       throw new Error(errorMessage);
     }
-  }
+  },
+
+  async getNotificationHistoryByUserId(userId: string): Promise<Notification[]> {
+    return notificationsRepository.findByUserId(userId);
+  },
 };
