@@ -9,27 +9,34 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider            = "mysql"
+  url                 = env("DATABASE_URL")
 }
 
 model User {
-  id                 String           @id @default(uuid())
-  nome               String
-  email              String           @unique
-  senha              String
-  tipo               String           @default("USER")
-  qrCode             String?          @db.Text
-  createdAt          DateTime         @default(now()) @db.DateTime(6)
-  updatedAt          DateTime?        @updatedAt @db.Timestamp
-  confirmed          Boolean          @default(false)
-  userAtActivity     UserAtActivity[]
-  points             Int              @default(0)
-  registrationStatus Int              @default(0) //  0 nao inscrito, 1 inscrito, 2 evento fechado 
-  currentEdition     String? // ano da ediçao
+  id              String        @id @default(uuid())
+  nome            String
+  email           String        @unique
+  senha           String 
+  tipo            String        @default("USER")
+  qrCode          String?       @db.Text
+  pushToken       String?
+  createdAt       DateTime      @default(now()) @db.DateTime(6)
+  updatedAt       DateTime?     @updatedAt @db.Timestamp
+  confirmed       Boolean       @default(false)
+  userAtActivity  UserAtActivity[]
+  points           Int          @default(0)
+  registrationStatus Int     @default(0)  //  0 nao inscrito, 1 inscrito, 2 evento fechado 
+  currentEdition     String?             // ano da ediçao
+  
+  userEvents      UserEvent[]    // Relação com eventos
 
-  userEvents UserEvent[] // Relação com eventos
-
+  // Relação com notificações enviadas
+  sentNotifications NotificationHistory[] @relation("NotificationSender")
+  
+  // Relação com notificações recebidas
+  receivedNotifications NotificationHistory[] @relation("NotificationRecipients")
+  
   @@map("users")
 }
 
@@ -97,7 +104,26 @@ model UserAtActivity {
   @@map("userAtActivity")
 }
 
-// nova tabela
+model NotificationHistory {
+  id          String   @id @default(uuid())
+  title       String
+  message     String
+  data        Json?     // Para armazenar objeto data opcional
+  status      String    // "sent", "failed"
+  error       String?   // Mensagem de erro (se falhou)
+  sentAt      DateTime  @default(now())
+  createdBy   String?   // ID do usuário que disparou
+
+  // Relação com usuário que enviou
+  sender      User?     @relation("NotificationSender", fields: [createdBy], references: [id])
+
+  // Relação muitos-para-muitos com recipients
+  recipients  User[]    @relation("NotificationRecipients")
+  
+  @@index([sentAt])
+  @@index([status])
+}
+
 // Tabela de relacionamento usuário-edicao (para controle de inscrição no evento)
 model UserEvent {
   id        String   @id @default(uuid())

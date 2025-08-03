@@ -1,7 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { User, RegistrationStatus } from "../entities/User";
 import { CreateUserDTOS, UpdateQrCodeUsersDTOS, UpdateUserDTOS } from "../dtos/usersDtos";
-7;
 import { Prisma } from "@prisma/client";
 
 const client = new PrismaClient();
@@ -53,6 +52,7 @@ export default {
       throw error;
     }
   },
+
   async updateUserEventStatus(
     userId: string,
     registrationStatusInput: number,
@@ -200,4 +200,20 @@ export default {
     }
     return Number(result[0].rank);
   },
+
+  async findManyByIds(ids: string[]) {
+        return client.user.findMany({
+            where: {
+                id: { in: ids }
+            }
+        });
+    },
+
+    async findAll(): Promise<User[]> {
+        const response = await client.user.findMany();
+        return response.map((user) => ({
+            ...user,
+            registrationStatus: user.registrationStatus as RegistrationStatus,
+        }));
+    },
 };

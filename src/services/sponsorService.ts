@@ -20,6 +20,23 @@ export default {
 
     return sponsorsDTO;
   },
+    async getOne(id: string): Promise<SponsorDTO> {
+    const sponsor = await sponsorsRepository.findById(id);
+    if (!sponsor) {
+      throw new Error("Patrocinador não encontrado");
+    }
+    // mapeia o formato do Prisma para o DTO
+    return {
+      id: sponsor.id,
+      name: sponsor.name,
+      logoUrl: sponsor.logoUrl,
+      description: sponsor.description,
+      starColor: sponsor.starColor,
+      link: sponsor.link,
+      tags: sponsor.tags.map((st) => st.tag.id),
+      };
+  },
+  
   async create(data: CreateSponsorDTO) {
     const { tagIds, ...sponsorData } = data;
 

@@ -22,7 +22,10 @@ export default {
     if (!tagExists) {
       throw new ApiError("Tag não encontrada.", ErrorsCode.NOT_FOUND);
     }
-    return tagsRepository.update(id, data);
+    if (!data.name || data.name.trim() === "") {
+      throw new ApiError("O nome da tag é obrigatório.", ErrorsCode.BAD_REQUEST);
+    }
+    return tagsRepository.update(id, { name: data.name });
   },
 
   async delete(id: string) {
