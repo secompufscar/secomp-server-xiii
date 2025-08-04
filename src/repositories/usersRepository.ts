@@ -215,4 +215,12 @@ export default {
     }
     return Number(result[0].rank);
   },
+
+  async findAll(): Promise<User[]> {
+    const response = await client.user.findMany();
+    return response.map((user) => ({
+      ...user,
+      registrationStatus: user.registrationStatus as RegistrationStatus,
+    }));
+  },
 };

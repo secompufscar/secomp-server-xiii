@@ -56,11 +56,11 @@ Content-Type: application/json
 
 ### Enviar notificação push para um usuário
 POST http://localhost:3333/api/v1/notifications/send
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1YTFkYTQxNS02N2IyLTQzNzAtOTBlNS1jZjg5MTU0N2IwMmEiLCJpYXQiOjE3NTI3OTQxMTAsImV4cCI6MTc1Mjc5NzcxMH0.lj5HrauSaqW6nJuqrET63M6XGiu_AU5YAEn3IwG2eTc
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhN2ZhMTIwOS1lYjUzLTQwNTMtODc5Ni0zZTdiZjQ2ODkzZmUiLCJpYXQiOjE3NTM5MDg4MDcsImV4cCI6MTc1MzkxMjQwN30.cNLogeg6zuffZksSczMinSx_CP2zE0c-TmCPkr-shbU
 Content-Type: application/json
 
 {
-  "recipientIds": ["5a1da415-67b2-4370-90e5-cf891547b02a"],
+  "recipientIds": ["a7fa1209-eb53-4053-8796-3e7bf46893fe"],
   "title": "SECOMP UFSCar",
   "message": "Você acabou de receber uma notificação!",
   "data": {
@@ -72,7 +72,7 @@ Content-Type: application/json
 
 ### Enviar notificação push para todos os usuários
 POST http://localhost:3333/api/v1/notifications/send-to-all
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1YTFkYTQxNS02N2IyLTQzNzAtOTBlNS1jZjg5MTU0N2IwMmEiLCJpYXQiOjE3NTM1Mzk4MjksImV4cCI6MTc1MzU0MzQyOX0.6RwwiArHpwrd2NDT42Zz5c5lSc63rQqw-S26XKa4bUE
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhN2ZhMTIwOS1lYjUzLTQwNTMtODc5Ni0zZTdiZjQ2ODkzZmUiLCJpYXQiOjE3NTM5MDg4MDcsImV4cCI6MTc1MzkxMjQwN30.cNLogeg6zuffZksSczMinSx_CP2zE0c-TmCPkr-shbU
 Content-Type: application/json
 
 {
@@ -83,4 +83,13 @@ Content-Type: application/json
   },
   "sound": true,
   "badge": 1
+}
+
+### Obter histórico de notificações por usuário
+GET http://localhost:3333/api/v1/notifications/history
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhN2ZhMTIwOS1lYjUzLTQwNTMtODc5Ni0zZTdiZjQ2ODkzZmUiLCJpYXQiOjE3NTM5MjMwMzYsImV4cCI6MTc1MzkyNjYzNn0.MQ_tTFWWjdV88rv9zaonDlxGJSFoCVBGn7dCrmofGso
+Content-Type: application/json
+
+{
+  "userId": "a7fa1209-eb53-4053-8796-3e7bf46893fe"
 }
