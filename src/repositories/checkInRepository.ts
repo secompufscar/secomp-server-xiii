@@ -1,5 +1,4 @@
-import { PrismaClient } from "@prisma/client";
-import { UserAtActivity } from "../entities/UserAtActivity";
+import { UserAtActivity, PrismaClient } from "@prisma/client";
 
 const client = new PrismaClient();
 
@@ -19,6 +18,7 @@ export default {
       data: { presente: true },
     });
   },
+  
   // async createWaitlistEntry(userId: string, activityId: string): Promise<UserAtActivity> {
   //     return await client.userAtActivity.create({
   //         data: {

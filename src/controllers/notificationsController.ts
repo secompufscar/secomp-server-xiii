@@ -52,7 +52,7 @@ export default {
       const { title, message, data, sound, badge } = req.body;
 
       // Buscar todos os usuários
-      const users = await usersRepository.list();
+      const users = await usersRepository.findAll();
 
       // Preparar DTO
       const recipientIds = users.map(user => user.id);
