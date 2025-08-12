@@ -78,16 +78,17 @@ export default {
       status: status ?? existing.status, // Mantém o atual se não fornecido
     });
   },
-  async delete(userId: string, eventId: string): Promise<void> {
-    const registration = await userEventRepository.findByUserAndEvent(userId, eventId);
+  async delete(id: string, userId: string): Promise<void> {
+    // Buscar a inscrição pelo id e userId para garantir que o usuário tem permissão
+    const registration = await userEventRepository.findByIdAndUser(id, userId);
     if (!registration) {
-      throw new Error("Inscrição não encontrada");
+      throw new Error("Inscrição não encontrada ou não autorizada");
     }
-
-    await userEventRepository.delete(registration.id);
-
+    
+    await userEventRepository.delete(id);
+    
     // Atualiza próximo da lista de espera
-    const nextInLine = await userEventRepository.findFirstWaitlist(eventId);
+    const nextInLine = await userEventRepository.findFirstWaitlist(registration.eventId);
     if (nextInLine) {
       await userEventRepository.update(nextInLine.id, { status: 1 });
     }

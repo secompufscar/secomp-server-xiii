@@ -20,6 +20,15 @@ export default {
     return { ...response, status: response.status as UserEventStatus };
   },
 
+  async findByIdAndUser(id: string, userId: string): Promise<UserEventDTOS | null> {
+    const response = await client.userEvent.findFirst({
+      where: { id, userId },
+    });
+    if (!response) return null;
+    
+    return { ...response, status: response.status as UserEventStatus };
+  },
+
   async getUserRegistration(userId: string, eventId: string): Promise<UserEventDTOS | null> {
     console.log(
       `[userEventRepository.getUserRegistration] Recebido - userId: ${userId}, eventId: ${eventId}`,

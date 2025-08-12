@@ -52,8 +52,9 @@ export default {
   },
 
   async delete(request: Request, response: Response) {
-    const { userId, eventId } = request.params;
-    await userEventService.delete(userId, eventId);
+    const { id } = request.params;
+    const userId = (request as any).user?.id;
+    await userEventService.delete(id, userId);
     response.status(200).send();
   },
 
