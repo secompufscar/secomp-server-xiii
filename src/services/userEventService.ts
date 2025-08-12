@@ -19,13 +19,9 @@ export default {
     return allRegistrations.filter((registration) => registration.status === 1);
   },
 
-  async findByUserAndEvent(userId: string, eventId: string): Promise<UserEventDTOS> {
+  async findByUserAndEvent(userId: string, eventId: string): Promise<UserEventDTOS | null> {
     const registration = await userEventRepository.findByUserAndEvent(userId, eventId);
-    if (!registration) {
-      throw new Error("Inscrição não encontrada");
-    }
-
-    return registration;
+    return registration; // null se não achar
   },
 
   async create(inputData: CreateUserEventDTOS): Promise<UserEventDTOS> {
