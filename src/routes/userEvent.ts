@@ -6,13 +6,6 @@ const routes = Router();
 
 /**
  * @swagger
- * tags:
- *   name: UserEvents
- *   description: Inscrições de usuários em eventos
- */
-
-/**
- * @swagger
  * /user-events/event/{eventId}:
  *   get:
  *     tags: [UserEvents]
@@ -56,6 +49,39 @@ routes.get("/event/:eventId", userEventController.findByEventId);
  *         description: Não autorizado
  */
 routes.get("/user/:userId", authMiddleware, userEventController.findByUserId);
+
+/**
+ * @swagger
+ * /user-events/user/{userId}/event/{eventId}:
+ *   get:
+ *     tags: [UserEvents]
+ *     summary: Busca inscrição de um usuário em um evento específico
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: path
+ *         name: eventId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Inscrição encontrada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UserEventDTO'
+ *       401:
+ *         description: Não autorizado
+ *       404:
+ *         description: Inscrição não encontrada
+ */
+routes.get("/user/:userId/event/:eventId", authMiddleware, userEventController.findByUserIdEventId);
 
 /**
  * @swagger
