@@ -6,7 +6,7 @@ const routes = Router();
 
 /**
  * @swagger
- * /user-events/event/{eventId}:
+ * /userEvent/event/{eventId}:
  *   get:
  *     tags: [UserEvents]
  *     summary: Lista inscrições de um evento
@@ -30,7 +30,7 @@ routes.get("/event/:eventId", userEventController.findByEventId);
 
 /**
  * @swagger
- * /user-events/user/{userId}:
+ * /userEvent/user/{userId}:
  *   get:
  *     tags: [UserEvents]
  *     summary: Lista eventos de um usuário
@@ -52,7 +52,7 @@ routes.get("/user/:userId", authMiddleware, userEventController.findByUserId);
 
 /**
  * @swagger
- * /user-events/user/{userId}/event/{eventId}:
+ * /userEvent/user/{userId}/event/{eventId}:
  *   get:
  *     tags: [UserEvents]
  *     summary: Busca inscrição de um usuário em um evento específico
@@ -85,7 +85,7 @@ routes.get("/user/:userId/event/:eventId", authMiddleware, userEventController.f
 
 /**
  * @swagger
- * /user-events:
+ * /userEvent:
  *   post:
  *     tags: [UserEvents]
  *     summary: Inscreve usuário no evento atual
@@ -112,7 +112,7 @@ routes.post("/", authMiddleware, userEventController.create);
 
 /**
  * @swagger
- * /user-events/{id}:
+ * /userEvent/{id}:
  *   delete:
  *     tags: [UserEvents]
  *     summary: Remove inscrição de usuário
