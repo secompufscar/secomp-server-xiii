@@ -1,47 +1,40 @@
-import { PrismaClient, Tag } from "@prisma/client";
-
-const client = new PrismaClient();
+import { prisma } from "../lib/prisma";
+import { Tag } from "@prisma/client";
 
 export default {
-  /**
-   * Lista todas as tags disponíveis no sistema.
-   */
   async listAll(): Promise<Tag[]> {
-    return client.tag.findMany({
+    const tags = await prisma.tag.findMany({
       orderBy: {
         name: "asc",
       },
     });
+    return tags;
   },
 
-  /**
-   * Encontra uma tag pelo seu ID.
-   * @param id O ID da tag.
-   */
   async findById(id: string): Promise<Tag | null> {
-    return client.tag.findUnique({
+    const tag = await prisma.tag.findUnique({
       where: { id },
     });
+    return tag;
   },
 
-  /**
-   * Cria uma nova tag se ela não existir, ou retorna a existente.
-   * Útil para garantir que não haja tags duplicadas.
-   * @param tagName O nome da tag.
-   */
   async upsert(tagName: string): Promise<Tag> {
-    return client.tag.upsert({
+    const tag = await prisma.tag.upsert({
       where: { name: tagName },
-      update: {},
+      update: {}, 
       create: { name: tagName },
     });
+    return tag;
   },
-  async update(id: string, data: { name: string }) {
-    return client.tag.update({ where: { id }, data });
+  
+  async update(id: string, data: { name: string }): Promise<Tag> {
+    const tag = await prisma.tag.update({ where: { id }, data });
+    return tag;
   },
 
-  async delete(id: string) {
-    await client.sponsorsOnTags.deleteMany({ where: { tagId: id } });
-    return client.tag.delete({ where: { id } });
+  async delete(id: string): Promise<Tag> {
+    await prisma.sponsorsOnTags.deleteMany({ where: { tagId: id } });
+    const deletedTag = await prisma.tag.delete({ where: { id } });
+    return deletedTag;
   },
 };

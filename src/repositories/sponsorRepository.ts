@@ -1,10 +1,9 @@
-import { PrismaClient, Prisma } from "@prisma/client";
-
-const client = new PrismaClient();
+import { prisma } from "../lib/prisma";
+import { Prisma } from "@prisma/client";
 
 export default {
   async listAll() {
-    const sponsors = await client.sponsor.findMany({
+    const sponsors = await prisma.sponsor.findMany({
       include: {
         tags: {
           include: {
@@ -20,7 +19,7 @@ export default {
   },
 
   async findById(id: string) {
-    return client.sponsor.findUnique({
+    const sponsor = await prisma.sponsor.findUnique({
       where: { id },
       include: {
         tags: {
@@ -28,19 +27,23 @@ export default {
         }
       }
     });
+    return sponsor;
   },
 
   async create(data: Prisma.SponsorCreateInput) {
-    return client.sponsor.create({ data });
+    const sponsor = await prisma.sponsor.create({ data });
+    return sponsor;
   },
 
   async update(id: string, data: Prisma.SponsorUpdateInput) {
-    return client.sponsor.update({ where: { id }, data });
+    const sponsor = await prisma.sponsor.update({ where: { id }, data });
+    return sponsor;
   },
 
   async delete(id: string) {
-    // É importante deletar as relações na tabela de junção antes
-    await client.sponsorsOnTags.deleteMany({ where: { sponsorId: id } });
-    return client.sponsor.delete({ where: { id } });
+    await prisma.sponsorsOnTags.deleteMany({ where: { sponsorId: id } });
+    const deletedSponsor = await prisma.sponsor.delete({ where: { id } });
+    
+    return deletedSponsor;
   },
 };

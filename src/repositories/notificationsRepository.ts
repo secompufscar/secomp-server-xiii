@@ -1,9 +1,7 @@
-import { JsonValue } from '@prisma/client/runtime/library'; 
-import { Prisma, PrismaClient } from '@prisma/client';
-import { CreateNotificationDTO, UpdateNotificationDTO } from "../dtos/notificationsDtos";
+import { Prisma } from '@prisma/client';
+import { prisma } from "../lib/prisma";
+import { CreateNotificationDTO } from "../dtos/notificationsDtos";
 import { Notification } from "../entities/Notification";
-
-const prisma = new PrismaClient();
 
 export default {
   async create(data: CreateNotificationDTO): Promise<Notification> {
@@ -11,9 +9,9 @@ export default {
       data: {
         title: data.title,
         message: data.message,
-        data: data.data as Prisma.InputJsonValue, // Converta para JsonValue
+        data: data.data as Prisma.InputJsonValue, 
         status: 'PENDING',
-        createdBy: data.createdBy || null, // Trate undefined como null
+        createdBy: data.createdBy || null, 
         recipients: {
           connect: data.recipientIds.map(id => ({ id }))
         }
@@ -22,7 +20,7 @@ export default {
         sender: true,
         recipients: true
       }
-    }) as unknown as Notification; // Forçar tipagem
+    }) as unknown as Notification; 
   },
 
   async findById(id: string): Promise<Notification | null> {

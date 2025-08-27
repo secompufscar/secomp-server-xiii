@@ -1,51 +1,35 @@
-import { PrismaClient } from "@prisma/client";
-
-import { Category } from "../entities/Category";
-
+import { prisma } from "../lib/prisma";
 import { CreateCategoryrDTOS, UpdateCategoryrDTOS, CategoryrDTOS } from "../dtos/categoriesDtos";
-
-const client = new PrismaClient();
 
 export default {
   async list(): Promise<CategoryrDTOS[]> {
-    const response = await client.category.findMany();
+    const response = await prisma.category.findMany();
     return response;
   },
 
   async findById(id: string): Promise<CategoryrDTOS | null> {
-    const response = await client.category.findFirst({
-      where: {
-        id,
-      },
+    const response = await prisma.category.findUnique({
+      where: { id },
     });
-
     return response;
   },
 
   async create(data: CreateCategoryrDTOS): Promise<CreateCategoryrDTOS> {
-    const response = await client.category.create({
-      data,
-    });
-
+    const response = await prisma.category.create({ data });
     return response;
   },
 
   async update(id: string, data: UpdateCategoryrDTOS): Promise<UpdateCategoryrDTOS> {
-    const response = await client.category.update({
+    const response = await prisma.category.update({
+      where: { id },
       data,
-      where: {
-        id,
-      },
     });
-
     return response;
   },
 
   async delete(id: string): Promise<void> {
-    await client.category.delete({
-      where: {
-        id,
-      },
+    await prisma.category.delete({
+      where: { id },
     });
   },
 };

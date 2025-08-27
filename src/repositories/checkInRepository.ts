@@ -1,38 +1,40 @@
-import { UserAtActivity, PrismaClient } from "@prisma/client";
-
-const client = new PrismaClient();
+import { UserAtActivity } from "@prisma/client";
+import { prisma } from "../lib/prisma";
 
 export default {
   async findUserAtActivity(userId: string, activityId: string): Promise<UserAtActivity | null> {
-    return await client.userAtActivity.findFirst({
+    const response = await prisma.userAtActivity.findFirst({
       where: {
         userId,
         activityId,
       },
     });
+    return response;
   },
 
   async markAsPresent(userAtActivityId: string): Promise<UserAtActivity> {
-    return await client.userAtActivity.update({
+    const response = await prisma.userAtActivity.update({
       where: { id: userAtActivityId },
       data: { presente: true },
     });
+    return response;
   },
   
-  // async createWaitlistEntry(userId: string, activityId: string): Promise<UserAtActivity> {
-  //     return await client.userAtActivity.create({
-  //         data: {
-  //             userId,
-  //             activityId,
-  //             inscricaoPrevia: false,
-  //             listaEspera: true,
-  //             presente: false
-  //         }
-  //     });
-  // },
+  async createWaitlistEntry(userId: string, activityId: string): Promise<UserAtActivity> {
+    const response = await prisma.userAtActivity.create({
+      data: {
+        userId,
+        activityId,
+        inscricaoPrevia: false,
+        listaEspera: true,
+        presente: false,
+      },
+    });
+    return response;
+  },
 
   async findParticipantsByActivity(activityId: string): Promise<UserAtActivity[]> {
-    return await client.userAtActivity.findMany({
+    const response = await prisma.userAtActivity.findMany({
       where: {
         activityId,
       },
@@ -40,5 +42,6 @@ export default {
         user: true,
       },
     });
+    return response;
   },
 };

@@ -1,36 +1,26 @@
-import { PrismaClient, SponsorsOnTags } from "@prisma/client";
-
-const client = new PrismaClient();
+import { SponsorsOnTags } from "@prisma/client";
+import { prisma } from "../lib/prisma";
 
 export default {
-  /**
-   * Conecta um patrocinador a uma tag.
-   * @param sponsorId O ID do patrocinador.
-   * @param tagId O ID da tag.
-   */
   async link(sponsorId: string, tagId: string): Promise<SponsorsOnTags> {
-    return client.sponsorsOnTags.create({
+    const response = await prisma.sponsorsOnTags.create({
       data: {
         sponsorId,
         tagId,
       },
     });
+    return response;
   },
 
-  /**
-   * Desconecta um patrocinador de uma tag.
-   * @param sponsorId O ID do patrocinador.
-   * @param tagId O ID da tag.
-   */
   async unlink(sponsorId: string, tagId: string): Promise<SponsorsOnTags> {
-    return client.sponsorsOnTags.delete({
+    const response = await prisma.sponsorsOnTags.delete({
       where: {
         sponsorId_tagId: {
-          // Utiliza a chave primária composta
           sponsorId,
           tagId,
         },
       },
     });
+    return response;
   },
 };

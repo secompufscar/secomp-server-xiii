@@ -1,40 +1,35 @@
-// src/repositories/eventRepository.ts
-
-import { PrismaClient } from "@prisma/client";
-import { Event } from "../entities/Event";
+import { prisma } from "../lib/prisma";
 import { CreateEventDTOS, UpdateEventDTOS, EventDTOS } from "../dtos/eventDtos";
-
-const client = new PrismaClient();
 
 export default {
   async list(): Promise<EventDTOS[]> {
-    const response = await client.event.findMany({
+    const response = await prisma.event.findMany({
       orderBy: { startDate: "desc" },
     });
     return response;
   },
 
   async findById(id: string): Promise<EventDTOS | null> {
-    const response = await client.event.findUnique({
+    const response = await prisma.event.findUnique({
       where: { id },
     });
     return response;
   },
 
   async findCurrent(): Promise<EventDTOS | null> {
-    const response = await client.event.findFirst({
+    const response = await prisma.event.findFirst({
       where: { isCurrent: true },
     });
     return response;
   },
 
   async create(data: CreateEventDTOS): Promise<EventDTOS> {
-    const response = await client.event.create({ data });
+    const response = await prisma.event.create({ data });
     return response;
   },
 
   async update(id: string, data: UpdateEventDTOS): Promise<EventDTOS> {
-    const response = await client.event.update({
+    const response = await prisma.event.update({
       where: { id },
       data,
     });
@@ -42,7 +37,7 @@ export default {
   },
 
   async deactivate(id: string): Promise<EventDTOS> {
-    const response = await client.event.update({
+    const response = await prisma.event.update({
       where: { id },
       data: { endDate: new Date() },
     });
@@ -50,7 +45,7 @@ export default {
   },
 
   async delete(id: string): Promise<void> {
-    await client.event.delete({
+    await prisma.event.delete({
       where: { id },
     });
   },

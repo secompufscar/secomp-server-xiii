@@ -1,49 +1,37 @@
-import { PrismaClient } from "@prisma/client";
-
-import { Activity } from "../entities/Activity";
-
+import { prisma } from "../lib/prisma"; 
 import { UpdateActivityDTOS, CreateActivityDTOS, ActivityDTOS } from "../dtos/activitiesDtos";
-
-const client = new PrismaClient();
 
 export default {
   async list(): Promise<ActivityDTOS[]> {
-    const response = await client.activity.findMany();
-
+    const response = await prisma.activity.findMany();
     return response;
   },
 
   async findById(id: string): Promise<ActivityDTOS | null> {
-    const response = await client.activity.findFirst({
-      where: {
-        id,
-      },
+    const response = await prisma.activity.findUnique({
+      where: { id },
     });
-
     return response;
   },
 
-  async findManyByCategoryId(categoriaId: string): Promise<ActivityDTOS[] | null> {
-    const response = await client.activity.findMany({
-      where: {
-        categoriaId,
-      },
+  async findManyByCategoryId(categoriaId: string): Promise<ActivityDTOS[]> {
+    const response = await prisma.activity.findMany({
+      where: { categoriaId },
     });
-
     return response;
   },
 
   async isActivityFull(activityId: string): Promise<boolean> {
-    const activity = await client.activity.findUnique({
+    const activity = await prisma.activity.findUnique({
       where: { id: activityId },
       select: { vagas: true },
     });
 
-    if (!activity || !activity.vagas) {
+    if (!activity || activity.vagas === null) {
       throw new Error("Atividade não encontrada ou número de vagas não definido.");
     }
 
-    const countUsersAtActivity = await client.userAtActivity.count({
+    const countUsersAtActivity = await prisma.userAtActivity.count({
       where: { activityId },
     });
 
@@ -51,29 +39,21 @@ export default {
   },
 
   async create(data: CreateActivityDTOS): Promise<CreateActivityDTOS> {
-    const response = await client.activity.create({
-      data,
-    });
-
+    const response = await prisma.activity.create({ data });
     return response;
   },
 
   async update(id: string, data: UpdateActivityDTOS): Promise<UpdateActivityDTOS> {
-    const response = await client.activity.update({
+    const response = await prisma.activity.update({
       data,
-      where: {
-        id,
-      },
+      where: { id },
     });
-
     return response;
   },
 
   async delete(id: string): Promise<void> {
-    await client.activity.delete({
-      where: {
-        id,
-      },
+    await prisma.activity.delete({
+      where: { id },
     });
   },
 };

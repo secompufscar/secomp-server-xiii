@@ -1,114 +1,109 @@
-// src/repositories/userEventRepository.ts
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../lib/prisma";
 import { CreateUserEventDTOS, UpdateUserEventDTOS, UserEventDTOS } from "../dtos/userEventDtos";
 
-const client = new PrismaClient();
-
-// Definindo um tipo seguro para reutilização
 type UserEventStatus = 0 | 1 | 2;
+
+function toUserEventDTO<T extends { status: number }>(userEvent: T): T & { status: UserEventStatus } {
+  return {
+    ...userEvent,
+    status: userEvent.status as UserEventStatus,
+  };
+}
 
 export default {
   async list(): Promise<UserEventDTOS[]> {
-    const response = await client.userEvent.findMany();
-    // Mapeia e faz a asserção de tipo
-    return response.map((ue) => ({ ...ue, status: ue.status as UserEventStatus }));
+    const response = await prisma.userEvent.findMany();
+    return response.map(toUserEventDTO);
   },
 
   async findById(id: string): Promise<UserEventDTOS | null> {
-    const response = await client.userEvent.findUnique({ where: { id } });
-    if (!response) return null;
-    return { ...response, status: response.status as UserEventStatus };
+    const response = await prisma.userEvent.findUnique({ where: { id } });
+    return response ? toUserEventDTO(response) : null;
   },
 
   async findByIdAndUser(id: string, userId: string): Promise<UserEventDTOS | null> {
-    const response = await client.userEvent.findFirst({
-      where: { id, userId },
-    });
-    if (!response) return null;
-    
-    return { ...response, status: response.status as UserEventStatus };
+    const response = await prisma.userEvent.findFirst({ where: { id, userId } });
+    return response ? toUserEventDTO(response) : null;
   },
 
   async getUserRegistration(userId: string, eventId: string): Promise<UserEventDTOS | null> {
-    console.log(
-      `[userEventRepository.getUserRegistration] Recebido - userId: ${userId}, eventId: ${eventId}`,
-    );
-    const response = await client.userEvent.findUnique({
+    const response = await prisma.userEvent.findUnique({
       where: { userId_eventId: { userId, eventId } },
     });
-    if (!response) return null;
-    return { ...response, status: response.status as UserEventStatus };
+    return response ? toUserEventDTO(response) : null;
   },
 
   async findByUserAndEvent(userId: string, eventId: string): Promise<UserEventDTOS | null> {
-    const response = await client.userEvent.findUnique({
+    const response = await prisma.userEvent.findUnique({
       where: { userId_eventId: { userId, eventId } },
     });
-    if (!response) return null;
-    return { ...response, status: response.status as UserEventStatus };
+    return response ? toUserEventDTO(response) : null;
   },
 
   async findByUser(userId: string): Promise<UserEventDTOS[]> {
-    const response = await client.userEvent.findMany({
+    const response = await prisma.userEvent.findMany({
       where: { userId },
       include: { event: true },
       orderBy: { event: { startDate: "desc" } },
     });
-    return response.map((ue) => ({ ...ue, status: ue.status as UserEventStatus }));
+    return response.map(toUserEventDTO);
   },
 
   async findByEvent(eventId: string): Promise<UserEventDTOS[]> {
-    const response = await client.userEvent.findMany({
+    const response = await prisma.userEvent.findMany({
       where: { eventId },
       include: { user: true },
     });
-    return response.map((ue) => ({ ...ue, status: ue.status as UserEventStatus }));
+    return response.map(toUserEventDTO);
   },
 
   async findActiveByEvent(eventId: string): Promise<UserEventDTOS[]> {
-    const response = await client.userEvent.findMany({
+    const response = await prisma.userEvent.findMany({
       where: { eventId, status: 1, user: { registrationStatus: 1 } },
       include: { user: true },
     });
-    return response.map((ue) => ({ ...ue, status: ue.status as UserEventStatus }));
+    return response.map(toUserEventDTO);
   },
 
   async findFirstWaitlist(eventId: string): Promise<UserEventDTOS | null> {
-    const response = await client.userEvent.findFirst({
+    const response = await prisma.userEvent.findFirst({
       where: { eventId, status: 0 },
       orderBy: { createdAt: "asc" },
     });
-    if (!response) return null;
-    return { ...response, status: response.status as UserEventStatus };
+    return response ? toUserEventDTO(response) : null;
   },
 
   async create(data: CreateUserEventDTOS): Promise<UserEventDTOS> {
-    const response = await client.userEvent.create({ data });
-    return { ...response, status: response.status as UserEventStatus };
+    const response = await prisma.userEvent.create({ data });
+    return toUserEventDTO(response);
   },
 
   async update(id: string, data: UpdateUserEventDTOS): Promise<UserEventDTOS> {
-    const response = await client.userEvent.update({
+    const response = await prisma.userEvent.update({
       where: { id },
       data,
     });
-    return { ...response, status: response.status as UserEventStatus };
+    return toUserEventDTO(response);
   },
 
   async updateStatusForUsers(userIds: string[], eventId: string, status: number): Promise<void> {
-    await client.userEvent.updateMany({
+    await prisma.userEvent.updateMany({
       where: { userId: { in: userIds }, eventId },
       data: { status },
     });
   },
+
   async delete(id: string): Promise<void> {
-    await client.userEvent.delete({ where: { id } });
+    await prisma.userEvent.delete({ where: { id } });
   },
-  async createForAllUsers(eventId: string): Promise<void> {},
+
+  // async createForAllUsers(eventId: string): Promise<void> {},
+
   async closeAllForEvent(eventId: string): Promise<void> {
-    await client.userEvent.updateMany({ where: { eventId }, data: { status: 2 } });
+    await prisma.userEvent.updateMany({ where: { eventId }, data: { status: 2 } });
   },
+
   async updateAllUsersToStatus(eventId: string, status: number): Promise<void> {
-    await client.userEvent.updateMany({ where: { eventId }, data: { status } });
+    await prisma.userEvent.updateMany({ where: { eventId }, data: { status } });
   },
 };

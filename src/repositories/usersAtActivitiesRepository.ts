@@ -1,114 +1,85 @@
-import { PrismaClient } from "@prisma/client";
-
+// IMPORTANTE: Usar a instância única do Prisma.
+import { prisma } from "../lib/prisma";
 import { UserAtActivity } from "../entities/UserAtActivity";
-
 import { UpdateUserAtActivityDTOS, CreateUserAtActivityDTOS } from "../dtos/userAtActivitiesDtos";
-
-const client = new PrismaClient();
 
 export default {
   async list(): Promise<UserAtActivity[]> {
-    const response = await client.userAtActivity.findMany();
-
+    const response = await prisma.userAtActivity.findMany();
     return response;
   },
 
   async findById(id: string): Promise<UserAtActivity | null> {
-    const response = await client.userAtActivity.findFirst({
-      where: {
-        id,
-      },
+    const response = await prisma.userAtActivity.findUnique({
+      where: { id },
     });
-
     return response;
   },
 
   async findManyByActivityId(activityId: string): Promise<UserAtActivity[]> {
-    const response = await client.userAtActivity.findMany({
-      where: {
-        activityId: activityId,
-      },
-      include: {
-        user: true,
-      },
+    const response = await prisma.userAtActivity.findMany({
+      where: { activityId }, 
+      include: { user: true },
     });
-
     return response;
   },
 
   async findManyByUserId(userId: string): Promise<UserAtActivity[]> {
-    const response = await client.userAtActivity.findMany({
-      where: {
-        userId,
-      },
+    const response = await prisma.userAtActivity.findMany({
+      where: { userId },
       include: {
         user: true,
         activity: true,
       },
     });
-
     return response;
   },
 
   async findByUserIdAndActivityId(
     userId: string,
-    activityId: string,
+    activityId: string
   ): Promise<UserAtActivity | null> {
-    const response = await client.userAtActivity.findFirst({
-      where: {
-        userId,
-        activityId,
-      },
+    const response = await prisma.userAtActivity.findFirst({
+      where: { userId, activityId },
     });
-
     return response;
   },
 
   async create(data: CreateUserAtActivityDTOS): Promise<CreateUserAtActivityDTOS> {
-    const response = await client.userAtActivity.create({
-      data,
-    });
-
+    const response = await prisma.userAtActivity.create({ data });
     return response;
   },
 
   async update(id: string, data: UpdateUserAtActivityDTOS): Promise<UpdateUserAtActivityDTOS> {
-    const response = await client.userAtActivity.update({
+    const response = await prisma.userAtActivity.update({
+      where: { id },
       data,
-      where: {
-        id,
-      },
     });
-
     return response;
   },
+
   async findFirstInWaitlist(activityId: string): Promise<UserAtActivity | null> {
-    return await client.userAtActivity.findFirst({
+    const response = await prisma.userAtActivity.findFirst({
       where: {
-        activityId: activityId,
+        activityId,
         listaEspera: true,
       },
       orderBy: {
-        createdAt: "asc", // Ordena para pegar o primeiro da lista de espera
+        createdAt: "asc",
       },
     });
+    return response;
   },
 
   async delete(id: string): Promise<void> {
-    await client.userAtActivity.delete({
-      where: {
-        id,
-      },
+    await prisma.userAtActivity.delete({
+      where: { id },
     });
   },
+
   async countByUserId(userId: string): Promise<number> {
-    const count = await client.userAtActivity.count({
-      where: {
-        userId: userId,
-        // Opcional: usar essa linha se quiser contar apenas inscrições
-        // que não sejam em lista de espera.
-        // listaEspera: false
-      },
+    const count = await prisma.userAtActivity.count({
+      where: { userId },
     });
     return count;
   },
