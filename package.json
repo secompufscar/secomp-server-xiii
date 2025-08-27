@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "O aplicativo SECOMP tem como objetivo permitir aos organizadores da SECOMP gerenciar o evento, bem como permitir que os participantes e conteudistas tenham acesso facilitado e dinâmico dos seus recursos.",
   "main": "index.js",
+  "type": "module",
   "engines": {
     "node": ">=22.15.0"
   },
