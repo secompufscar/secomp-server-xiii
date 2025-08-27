@@ -4,10 +4,10 @@ export async function generateQRCode(userId: string): Promise<string> {
   try {
     const qrCodeImage = await QRCode.toDataURL(userId, {
       color: {
-        dark: "#FFFFFF", // Cor dos quadradinhos do QR (branco)
-        light: "#00000000", // Fundo transparente (RGBA com alpha 0)
+        dark: "#FFFFFF",
+        light: "#00000000", 
       },
-      margin: 1, // Opcional: reduz a borda em torno do QR
+      margin: 1, 
     });
     return qrCodeImage;
   } catch (err) {

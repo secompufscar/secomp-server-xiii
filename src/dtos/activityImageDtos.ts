@@ -9,6 +9,7 @@ export interface UpdateActivityImageDTOS {
     typeOfImage: string
     imageUrl : string
 }
+
 export interface ActivityImageDTOS {
     id: string
     activityId: string

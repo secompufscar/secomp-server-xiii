@@ -2,7 +2,7 @@ export interface CreateNotificationDTO {
   title: string;
   message: string;
   recipientIds: string[];
-  data?: Record<string, unknown>; // Mantenho para entrada
+  data?: Record<string, unknown>; 
   sound?: boolean;
   badge?: number;
   createdBy?: string;

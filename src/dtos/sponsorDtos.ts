@@ -14,7 +14,7 @@ export interface CreateSponsorDTO {
   description: string;
   starColor: string;
   link: string;
-  tagIds?: string[]; // Opcional: permite linkar tags no momento da criação
+  tagIds?: string[]; 
 }
 
 export interface UpdateSponsorDTO {

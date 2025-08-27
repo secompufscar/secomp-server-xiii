@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-
 import activitiesService from "../services/activitiesService";
 
 export default {

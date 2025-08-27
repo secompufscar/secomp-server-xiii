@@ -16,6 +16,7 @@ export interface UpdateUserDTOS {
 export interface UpdateQrCodeUsersDTOS {
   qrCode: string | null;
 }
+
 export interface UpdateProfileDTO {
   nome?: string;
   email?: string;

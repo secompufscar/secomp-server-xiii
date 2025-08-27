@@ -1,5 +1,3 @@
-// src/dtos/eventDtos.ts
-
 export interface CreateEventDTOS {
   year: number;
   startDate: Date;

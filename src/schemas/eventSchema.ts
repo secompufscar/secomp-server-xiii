@@ -1,44 +1,25 @@
-// src/schemas/eventSchema.ts
 import { z } from "zod";
 
-export const eventIdSchema = z.object({
-  id: z.string().uuid("ID deve ser um UUID válido"),
+export const eventParamsSchema = z.object({
+  id: z.string().uuid("ID do evento deve ser um UUID válido"),
 });
 
-export const createEventSchema = z
+const eventBodySchema = z
   .object({
     year: z
-      .number()
+      .number({ required_error: "Ano é obrigatório" })
       .int("Ano deve ser inteiro")
       .min(2000, "Ano mínimo é 2000")
       .max(2100, "Ano máximo é 2100"),
-    startDate: z.string().datetime({ offset: true }),
-    endDate: z.string().datetime({ offset: true }),
+    startDate: z.string({ required_error: "Data de início é obrigatória" })
+      .datetime({ offset: true, message: "Formato da data de início inválido" }),
+    endDate: z.string({ required_error: "Data de término é obrigatória" })
+      .datetime({ offset: true, message: "Formato da data de término inválido" }),
   })
-  .superRefine((data, ctx) => {
-    if (new Date(data.endDate) <= new Date(data.startDate)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Data de término deve ser após a data de início",
-      });
-    }
+  .refine((data) => new Date(data.endDate) > new Date(data.startDate), {
+    message: "Data de término deve ser posterior à data de início",
+    path: ["endDate"],
   });
 
-export const updateEventSchema = z
-  .object({
-    year: z
-      .number()
-      .int("Ano deve ser inteiro")
-      .min(2000, "Ano mínimo é 2000")
-      .max(2100, "Ano máximo é 2100"),
-    startDate: z.string().datetime({ offset: true }),
-    endDate: z.string().datetime({ offset: true }),
-  })
-  .superRefine((data, ctx) => {
-    if (new Date(data.endDate) <= new Date(data.startDate)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Data de término deve ser após a data de início",
-      });
-    }
-  });
+export const createEventSchema = eventBodySchema;
+export const updateEventSchema = eventBodySchema;

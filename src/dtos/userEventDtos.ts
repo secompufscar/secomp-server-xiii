@@ -1,5 +1,5 @@
-//dtos/userEventDtos    novo arquivo
 import { UserEventStatus } from "../entities/UserEvent";
+
 export interface CreateUserEventDTOS {
   userId: string;
   eventId: string;
