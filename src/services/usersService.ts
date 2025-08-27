@@ -11,14 +11,11 @@ import { ApiError, ErrorsCode } from "../utils/api-errors";
 import { generateQRCode } from "../utils/qrCode";
 import {
   CreateUserDTOS,
-  UpdateUserDTOS,
-  UpdateQrCodeUsersDTOS,
   UpdateProfileDTO,
 } from "../dtos/usersDtos";
 import { promises as fs } from "fs";
 import path from "path";
 
-// Edite aqui o transportador de email
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
   port: Number(process.env.SMTP_PORT) || 587,
@@ -100,7 +97,6 @@ export default {
 
     const { senha: _, ...userLogin } = user;
 
-    // Envia email de confirmação
     const emailEnviado = await this.sendConfirmationEmail(user);
 
     if (!emailEnviado) {
@@ -201,12 +197,10 @@ export default {
 
   async updatePassword(token: string, newPassword: string) {
     try {
-      // Verifica o token com a mesma chave usada na geração
       const decoded = jwt.verify(token, process.env.JWT_RESET_SECRET || "default_secret") as {
         userId: string;
       };
 
-      // Busca o usuário pelo ID do token
       const user = await usersRepository.findById(decoded.userId);
       if (!user) {
         throw new ApiError("Usuário não encontrado", ErrorsCode.NOT_FOUND);
@@ -214,12 +208,10 @@ export default {
 
       const hashedPassword = await hash(newPassword, 10);
 
-      // Atualiza a senha no banco
       await usersRepository.update(user.id, { senha: hashedPassword });
 
       return { message: "Senha atualizada com sucesso" };
     } catch (err) {
-      // Tratamento específico para erros do JWT
       if (err instanceof jwt.TokenExpiredError) {
         throw new ApiError("Token expirado", ErrorsCode.UNAUTHORIZED);
       }
@@ -236,7 +228,7 @@ export default {
       if (!userPoints) {
         throw new ApiError("Usuário não encontrado.", ErrorsCode.NOT_FOUND);
       }
-      return userPoints; // Retorna { points: number }
+      return userPoints;
     } catch (error) {
       console.error("Erro em usersService.getUserScore: " + error);
       throw new ApiError("Erro ao obter pontuação do usuário", ErrorsCode.INTERNAL_ERROR);
@@ -255,7 +247,6 @@ export default {
 
   async getUserById(id: string) {
     try {
-      //verifica se o id enviado não está errado
       if (!isValidUUID(id)) {
         throw new ApiError("erro com o id enviado", ErrorsCode.BAD_REQUEST);
       }
@@ -274,7 +265,6 @@ export default {
 
   async updateProfile(userId: string, data: UpdateProfileDTO) {
     const { nome, email } = data;
-    // Garante que o corpo da requisição não está vazio.
     if (!nome && !email) {
       throw new ApiError(
         "A requisição deve conter 'nome' ou 'email' para ser atualizado.",
@@ -282,7 +272,6 @@ export default {
       );
     }
 
-    // Valida o formato do email, se ele for fornecido.
     if (email) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
@@ -295,7 +284,6 @@ export default {
       throw new ApiError("Usuário não encontrado.", ErrorsCode.NOT_FOUND);
     }
 
-    // Verifica se o novo e-mail já está em uso por outro usuário.
     if (email && email !== userToUpdate.email) {
       const userWithSameEmail = await usersRepository.findByEmail(email);
       if (userWithSameEmail && userWithSameEmail.id !== userId) {
@@ -305,7 +293,6 @@ export default {
 
     const updatedUser = await usersRepository.update(userId, { nome, email });
 
-    // Remove a senha do retorno por segurança.
     const { senha: _, ...userResult } = updatedUser;
 
     return userResult;
@@ -337,35 +324,32 @@ export default {
           throw new ApiError("Usuário não encontrado.", ErrorsCode.NOT_FOUND);
       }
 
-      // Usamos a desestruturação e o operador rest para remover 'senha' e 'qrCode'
       const { senha, qrCode, ...userDetails } = user;
 
-      // O tipo de retorno é Promise<Omit<User, 'senha' | 'qrCode'>> para garantir a tipagem
       return userDetails;
     } catch (error) {
       if (error instanceof ApiError) {
-          throw error; // Propaga ApiError para o controlador
+          throw error; 
       }
       console.error("Erro usersService.ts - getUserDetails: " + error);
       throw new ApiError("Erro interno ao buscar detalhes do usuário.", ErrorsCode.INTERNAL_ERROR);
     }
   },
 
-  // Método para adicionar um token de push ao usuário
-    async addPushToken(userId: string, token: string) {
-        const user = await usersRepository.findById(userId);
+  async addPushToken(userId: string, token: string) {
+    const user = await usersRepository.findById(userId);
 
-        if (!user) {
-            throw new ApiError('Usuário não encontrado', ErrorsCode.NOT_FOUND);
-        }
-
-        const updatedUser = await usersRepository.update(userId, {
-            pushToken: token,
-        });
-
-        return {
-            message: 'Token de push adicionado com sucesso',
-            user: _.omit(updatedUser, ['senha']),
-        };
+    if (!user) {
+      throw new ApiError('Usuário não encontrado', ErrorsCode.NOT_FOUND);
     }
+
+    const updatedUser = await usersRepository.update(userId, {
+      pushToken: token,
+    });
+
+    return {
+      message: 'Token de push adicionado com sucesso',
+      user: _.omit(updatedUser, ['senha']),
+    };
+  }
 };

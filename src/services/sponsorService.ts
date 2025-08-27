@@ -1,59 +1,52 @@
 import sponsorsRepository from "../repositories/sponsorRepository";
-import { SponsorDTO } from "../dtos/sponsorDtos";
-import { CreateSponsorDTO, UpdateSponsorDTO } from "../dtos/sponsorDtos";
 import sponsorsOnTagsRepository from "../repositories/sponsorOnTagsRepository";
+import { SponsorDTO, CreateSponsorDTO, UpdateSponsorDTO } from "../dtos/sponsorDtos";
+import { Sponsor } from "@prisma/client"; 
+
+function toSponsorDTO(sponsor: any, tagProperty: "id" | "name"): SponsorDTO {
+  return {
+    id: sponsor.id,
+    name: sponsor.name,
+    logoUrl: sponsor.logoUrl,
+    description: sponsor.description,
+    starColor: sponsor.starColor,
+    link: sponsor.link,
+    tags: sponsor.tags.map((sponsorTag: any) => sponsorTag.tag[tagProperty]),
+  };
+}
 
 export default {
   async listAll(): Promise<SponsorDTO[]> {
     const sponsorsFromDb = await sponsorsRepository.listAll();
 
-    // Transforma o resultado do banco para o formato do DTO
-    const sponsorsDTO = sponsorsFromDb.map((sponsor) => ({
-      id: sponsor.id,
-      name: sponsor.name,
-      logoUrl: sponsor.logoUrl,
-      description: sponsor.description,
-      starColor: sponsor.starColor,
-      link: sponsor.link,
-      tags: sponsor.tags.map((sponsorTag) => sponsorTag.tag.name),
-    }));
-
-    return sponsorsDTO;
+    return sponsorsFromDb.map(sponsor => toSponsorDTO(sponsor, "name"));
   },
-    async getOne(id: string): Promise<SponsorDTO> {
+
+  async getOne(id: string): Promise<SponsorDTO> {
     const sponsor = await sponsorsRepository.findById(id);
     if (!sponsor) {
       throw new Error("Patrocinador não encontrado");
     }
-    // mapeia o formato do Prisma para o DTO
-    return {
-      id: sponsor.id,
-      name: sponsor.name,
-      logoUrl: sponsor.logoUrl,
-      description: sponsor.description,
-      starColor: sponsor.starColor,
-      link: sponsor.link,
-      tags: sponsor.tags.map((st) => st.tag.id),
-      };
+    
+    return toSponsorDTO(sponsor, "id");
   },
   
-  async create(data: CreateSponsorDTO) {
+  async create(data: CreateSponsorDTO): Promise<Sponsor> {
     const { tagIds, ...sponsorData } = data;
 
-    // 1. Cria o patrocinador
     const newSponsor = await sponsorsRepository.create(sponsorData);
 
-    // 2. Se foram enviadas tags, conecta cada uma delas
     if (tagIds && tagIds.length > 0) {
-      for (const tagId of tagIds) {
-        await sponsorsOnTagsRepository.link(newSponsor.id, tagId);
-      }
+      const linkPromises = tagIds.map(tagId =>
+        sponsorsOnTagsRepository.link(newSponsor.id, tagId)
+      );
+      await Promise.all(linkPromises);
     }
 
     return newSponsor;
   },
 
-  async update(id: string, data: UpdateSponsorDTO) {
+  async update(id: string, data: UpdateSponsorDTO): Promise<Sponsor> {
     const sponsorExists = await sponsorsRepository.findById(id);
     if (!sponsorExists) {
       throw new Error("Patrocinador não encontrado.");
@@ -61,7 +54,7 @@ export default {
     return sponsorsRepository.update(id, data);
   },
 
-  async delete(id: string) {
+  async delete(id: string): Promise<Sponsor> { 
     const sponsorExists = await sponsorsRepository.findById(id);
     if (!sponsorExists) {
       throw new Error("Patrocinador não encontrado.");

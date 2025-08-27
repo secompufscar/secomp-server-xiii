@@ -1,19 +1,19 @@
-// services/userEventService.ts
-import { UserEvent } from "../entities/UserEvent";
 import userEventRepository from "../repositories/userEventRepository";
 import eventRepository from "../repositories/eventRepository";
 import userRepository from "../repositories/usersRepository";
-import { ApiError, ErrorsCode } from "../utils/api-errors";
 import { CreateUserEventDTOS, UpdateUserEventDTOS, UserEventDTOS } from "../dtos/userEventDtos";
 
 export default {
   async findByEvent(eventId: string): Promise<UserEventDTOS[]> {
-    return userEventRepository.findByEvent(eventId);
+    const registrations = await userEventRepository.findByEvent(eventId);
+    return registrations;
   },
 
   async findByUser(userId: string): Promise<UserEventDTOS[]> {
-    return userEventRepository.findByUser(userId);
+    const registrations = await userEventRepository.findByUser(userId);
+    return registrations;
   },
+
   async findActiveByEvent(eventId: string): Promise<UserEventDTOS[]> {
     const allRegistrations = await this.findByEvent(eventId);
     return allRegistrations.filter((registration) => registration.status === 1);
@@ -21,37 +21,33 @@ export default {
 
   async findByUserAndEvent(userId: string, eventId: string): Promise<UserEventDTOS | null> {
     const registration = await userEventRepository.findByUserAndEvent(userId, eventId);
-    return registration; // null se não achar
+    return registration;
   },
 
   async create(inputData: CreateUserEventDTOS): Promise<UserEventDTOS> {
     const { userId, eventId } = inputData;
-    const user = await userRepository.findById(userId);
 
+    const user = await userRepository.findById(userId);
     if (!user) {
       throw new Error("Usuário não encontrado");
     }
 
     const event = await eventRepository.findById(eventId);
-
     if (!event) {
       throw new Error("Evento não encontrado, não é possível realizar a inscrição");
     }
 
     const existingRegistration = await userEventRepository.findByUserAndEvent(userId, eventId);
-
     if (existingRegistration) {
       throw new Error("Usuário já está inscrito neste evento");
     }
 
-    // 1. Criar o registro UserEvent
     const newUserEventEntry = await userEventRepository.create({
       userId,
       eventId,
-      status: 1, // Status "inscrito"
+      status: 1,
     });
 
-    // 2. Atualizar User.registrationStatus para 1 e User.currentEdition
     try {
       await userRepository.updateUserEventStatus(userId, 1, event.year);
     } catch (error) {
@@ -61,25 +57,24 @@ export default {
     return newUserEventEntry;
   },
 
-  async update(id: string, { status }: UpdateUserEventDTOS): Promise<UserEvent> {
-    // 1. Verifica existência
+  async update(id: string, { status }: UpdateUserEventDTOS): Promise<UserEventDTOS> { 
     const existing = await userEventRepository.findById(id);
-    if (!existing) throw new Error("Inscrição não encontrada");
+    if (!existing) {
+      throw new Error("Inscrição não encontrada");
+    }
 
-    // 2. Valida transição de status
     if (status !== undefined) {
       if (existing.status === 2 && status !== 2) {
         throw new Error("Inscrições encerradas não podem ser reativadas");
       }
     }
 
-    // 3. Atualiza apenas o status (único campo atualizável)
     return userEventRepository.update(id, {
-      status: status ?? existing.status, // Mantém o atual se não fornecido
+      status: status ?? existing.status,
     });
   },
+
   async delete(id: string, userId: string): Promise<void> {
-    // Buscar a inscrição pelo id e userId para garantir que o usuário tem permissão
     const registration = await userEventRepository.findByIdAndUser(id, userId);
     if (!registration) {
       throw new Error("Inscrição não encontrada ou não autorizada");
@@ -87,7 +82,6 @@ export default {
     
     await userEventRepository.delete(id);
     
-    // Atualiza próximo da lista de espera
     const nextInLine = await userEventRepository.findFirstWaitlist(registration.eventId);
     if (nextInLine) {
       await userEventRepository.update(nextInLine.id, { status: 1 });

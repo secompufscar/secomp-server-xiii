@@ -1,4 +1,3 @@
-import { UserAtActivity } from "../entities/UserAtActivity";
 import usersAtActivitiesRepository from "../repositories/usersAtActivitiesRepository";
 import activitiesRepository from "../repositories/activitiesRepository";
 import checkInRepository from "../repositories/checkInRepository";
@@ -28,7 +27,6 @@ export default {
   },
 
   async create({ userId, activityId }: CreateUserAtActivityDTOS) {
-    // novo check antes de inscrever usuario em atividade
     const currentEvent = await eventRepository.findCurrent();
     if (!currentEvent) {
       throw new Error("Nenhum evento ativo no momento, nao é possivel fazer inscricao.");
@@ -37,7 +35,6 @@ export default {
     if (!user) {
       throw new Error("Usuário não encontrado.");
     }
-    // novo check antes de inscrever usuario em atividade
     const registration = await userEventRepository.getUserRegistration(userId, currentEvent.id);
     if (!registration || registration.status !== 1) {
       throw new Error("Você precisa estar inscrito no evento anual para participar de atividades");
@@ -63,10 +60,8 @@ export default {
       throw new Error("Registro não encontrado.");
     }
     if (presente === true && existingUserAtActivity.presente === false) {
-      // Busca a atividade para saber quantos pontos ela vale.
       const activity = await activitiesRepository.findById(existingUserAtActivity.activityId);
 
-      // Verifica se a atividade concede pontos
       if (activity && activity.points && activity.points > 0) {
         await userRepository.addPoints(existingUserAtActivity.userId, activity.points);
       }
@@ -83,22 +78,17 @@ export default {
   async delete(userId: string, activityId: string) {
     const userAtActivity = await checkInRepository.findUserAtActivity(userId, activityId);
 
-    //const existingUserAtActivity = await usersAtActivitiesRepository.findById(id);
-
     if (!userAtActivity) {
       throw new Error("Registro não encontrado.");
     }
 
-    // Deleta a inscrição do usuário
     await usersAtActivitiesRepository.delete(userAtActivity.id);
 
-    // Verifica se há usuários na lista de espera
     const nextInLine = await usersAtActivitiesRepository.findFirstInWaitlist(
       userAtActivity.activityId,
     );
 
     if (nextInLine) {
-      // Atualiza o status do próximo na lista de espera para um participante ativo
       await usersAtActivitiesRepository.update(nextInLine.id, {
         listaEspera: false,
         inscricaoPrevia: true,

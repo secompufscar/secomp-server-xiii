@@ -97,7 +97,9 @@ export default {
     await prisma.userEvent.delete({ where: { id } });
   },
 
-  // async createForAllUsers(eventId: string): Promise<void> {},
+  async createForAllUsers(eventId: string): Promise<void> {
+    
+  },
 
   async closeAllForEvent(eventId: string): Promise<void> {
     await prisma.userEvent.updateMany({ where: { eventId }, data: { status: 2 } });

@@ -1,8 +1,5 @@
-import { Category } from "../entities/Category";
-
 import categoriesRepository from "../repositories/categoriesRepository";
 import activitiesRepository from "../repositories/activitiesRepository";
-
 import { CreateCategoryrDTOS, UpdateCategoryrDTOS } from "../dtos/categoriesDtos";
 
 export default {
@@ -18,7 +15,6 @@ export default {
 
   async list() {
     const categories = await categoriesRepository.list();
-
     return categories;
   },
 
@@ -26,7 +22,6 @@ export default {
     const category = await categoriesRepository.create({
       nome,
     });
-
     return category;
   },
 
@@ -34,7 +29,6 @@ export default {
     const updatedCategory = await categoriesRepository.update(id, {
       nome,
     });
-
     return updatedCategory;
   },
 
@@ -43,12 +37,11 @@ export default {
 
     if (existingActivities == null) {
       throw new Error(
-        "Esta categoria não pode ser excluída porque ainda existem atividades vinculadas a ela.",
+        "Esta categoria não pode ser excluída porque ainda existem atividades vinculadas a ela."
       );
     }
 
     const deletedCategory = await categoriesRepository.delete(id);
-
     return deletedCategory;
   },
 };

@@ -1,38 +1,46 @@
 import tagsRepository from "../repositories/tagsRepository";
-import { CreateTagDTO, TagDTO } from "../dtos/tagDtos";
+import { CreateTagDTO, TagDTO, UpdateTagDTO } from "../dtos/tagDtos";
 import { ApiError, ErrorsCode } from "../utils/api-errors";
-import { UpdateTagDTO } from "../dtos/tagDtos";
 
 export default {
   async listAll(): Promise<TagDTO[]> {
-    return tagsRepository.listAll();
+    const tags = await tagsRepository.listAll();
+    return tags;
   },
 
   async create(data: CreateTagDTO): Promise<TagDTO> {
     const { name } = data;
+
     if (!name || name.trim() === "") {
       throw new ApiError("O nome da tag é obrigatório.", ErrorsCode.BAD_REQUEST);
     }
-    // Usar upsert previne a criação de tags duplicadas
+
     const newTag = await tagsRepository.upsert(name);
     return newTag;
   },
-  async update(id: string, data: UpdateTagDTO) {
+
+  async update(id: string, data: UpdateTagDTO): Promise<TagDTO> {
+    const { name } = data;
+
+    if (!name || name.trim() === "") {
+      throw new ApiError("O nome da tag para atualização é obrigatório.", ErrorsCode.BAD_REQUEST);
+    }
+    
     const tagExists = await tagsRepository.findById(id);
     if (!tagExists) {
-      throw new ApiError("Tag não encontrada.", ErrorsCode.NOT_FOUND);
+      throw new ApiError("Tag não encontrada para atualização.", ErrorsCode.NOT_FOUND);
     }
-    if (!data.name || data.name.trim() === "") {
-      throw new ApiError("O nome da tag é obrigatório.", ErrorsCode.BAD_REQUEST);
-    }
-    return tagsRepository.update(id, { name: data.name });
+
+    const updatedTag = await tagsRepository.update(id, { name });
+    return updatedTag;
   },
 
-  async delete(id: string) {
+  async delete(id: string): Promise<void> { 
     const tagExists = await tagsRepository.findById(id);
     if (!tagExists) {
-      throw new ApiError("Tag não encontrada.", ErrorsCode.NOT_FOUND);
+      throw new ApiError("Tag não encontrada para exclusão.", ErrorsCode.NOT_FOUND);
     }
-    return tagsRepository.delete(id);
+
+    await tagsRepository.delete(id);
   },
 };

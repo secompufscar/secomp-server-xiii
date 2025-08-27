@@ -1,10 +1,6 @@
 import activitiesRepository from "../repositories/activitiesRepository";
 import usersAtActivitiesRepository from "../repositories/usersAtActivitiesRepository";
-
-import { Activity } from "../entities/Activity";
-
 import { ApiError, ErrorsCode } from "../utils/api-errors";
-
 import { UpdateActivityDTOS, CreateActivityDTOS, ActivityDTOS } from "../dtos/activitiesDtos";
 
 export default {
@@ -20,7 +16,6 @@ export default {
 
   async list(): Promise<ActivityDTOS[]> {
     const activities = await activitiesRepository.list();
-
     return activities;
   },
 
@@ -38,7 +33,7 @@ export default {
 
     const newAtividade = await activitiesRepository.create({
       nome,
-      data: newData,
+      data: newData, 
       palestranteNome,
       categoriaId,
       vagas,
@@ -52,7 +47,7 @@ export default {
 
   async update(
     id: string,
-    { nome, data, palestranteNome, categoriaId, detalhes, local, points }: UpdateActivityDTOS,
+    { nome, data, palestranteNome, categoriaId, detalhes, local, points }: UpdateActivityDTOS
   ): Promise<UpdateActivityDTOS> {
     const existingAtividade = await activitiesRepository.findById(id);
 
@@ -67,23 +62,22 @@ export default {
       categoriaId,
       detalhes,
       local,
-      points, // Adicione aqui também
+      points,
     });
 
     return updatedAtividade;
   },
+
   async delete(id: string): Promise<void> {
     const userAtActivities = await usersAtActivitiesRepository.findManyByActivityId(id);
 
     if (userAtActivities.length > 0) {
       throw new ApiError(
         "Não é possível excluir esta atividade pois já possui associações de usuários.",
-        ErrorsCode.BAD_REQUEST,
+        ErrorsCode.BAD_REQUEST
       );
     }
-
-    const deletedActivity = await activitiesRepository.delete(id);
-
-    return deletedActivity;
+    
+    await activitiesRepository.delete(id);
   },
 };

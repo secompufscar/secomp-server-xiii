@@ -1,62 +1,51 @@
-import { Expo } from 'expo-server-sdk';
-import notificationsRepository from '../repositories/notificationsRepository';
-import usersRepository from '../repositories/usersRepository';
-import { CreateNotificationDTO } from '../dtos/notificationsDtos';
-import { Notification } from '../entities/Notification';
-import { User } from '@prisma/client';
+import { Expo, ExpoPushMessage } from "expo-server-sdk";
+import notificationsRepository from "../repositories/notificationsRepository";
+import usersRepository from "../repositories/usersRepository";
+import { CreateNotificationDTO } from "../dtos/notificationsDtos";
+import { Notification } from "../entities/Notification";
 
 export default {
-  async sendPushNotification(notificationData: CreateNotificationDTO): Promise<any> {
-    const expo = new Expo();
-    const { title, message, recipientIds, createdBy, ...rest } = notificationData;
+  async sendPushNotification(notificationData: CreateNotificationDTO) {
+    const { title, message, recipientIds, ...rest } = notificationData;
 
-    // Buscar usuários destinatários
-    const users = await usersRepository.findManyByIds(recipientIds);
+    const [users, historyRecord] = await Promise.all([
+      usersRepository.findManyByIds(recipientIds),
+      notificationsRepository.create(notificationData),
+    ]);
     
-    // Coletar tokens válidos
     const validTokens = users
-      .map((user: User) => user.pushToken)
-      .filter(token => token && Expo.isExpoPushToken(token)) as string[];
+      .map(user => user.pushToken)
+      .filter((token): token is string => token !== null && Expo.isExpoPushToken(token));
 
     if (validTokens.length === 0) {
-      console.warn('No valid push tokens found for recipients:', recipientIds);
+      console.warn(`[NotificationService] No valid push tokens found for notification ID: ${historyRecord.id}`);
       return [];
     }
 
-    // Criar registro histórico
-    const historyRecord = await notificationsRepository.create(notificationData);
+    const expo = new Expo();
 
-    try {
-      // Preparar mensagens
-      const messages = validTokens.map(token => ({
-        to: token,
-        sound: rest.sound ? 'default' : undefined,
-        title,
-        body: message,
-        data: rest.data || {},
-        badge: rest.badge || undefined,
-      }));
+    const messages: ExpoPushMessage[] = validTokens.map(token => ({
+      to: token,
+      sound: rest.sound ? 'default' : undefined,
+      title,
+      body: message,
+      data: rest.data || {},
+      badge: rest.badge || undefined,
+    }));
 
-      // Enviar em chunks
-      const chunks = expo.chunkPushNotifications(messages);
-      const tickets = [];
+    const chunks = expo.chunkPushNotifications(messages);
+    const tickets = [];
 
-      for (const chunk of chunks) {
-        try {
-          const ticketChunk = await expo.sendPushNotificationsAsync(chunk);
-          tickets.push(...ticketChunk);
-        } catch (error) {
-          console.error('Error sending notification chunk:', error);
-        }
+    for (const chunk of chunks) {
+      try {
+        const ticketChunk = await expo.sendPushNotificationsAsync(chunk);
+        tickets.push(...ticketChunk);
+      } catch (error) {
+        console.error('[NotificationService] Error sending a notification chunk:', error);
       }
-
-      return tickets;
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      console.error('Error sending notifications:', errorMessage);
-
-      throw new Error(errorMessage);
     }
+
+    return tickets;
   },
 
   async getNotificationHistoryByUserId(userId: string): Promise<Notification[]> {
