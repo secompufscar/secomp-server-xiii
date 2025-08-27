@@ -1,8 +1,6 @@
-// validate.ts
 import { Request, Response, NextFunction } from "express";
 import { ZodSchema, ZodError } from "zod";
 
-// Função de middleware de validação
 const validate =
   (bodySchema?: ZodSchema<any>, pathSchema?: ZodSchema<any>) =>
   (req: Request, res: Response, next: NextFunction) => {
@@ -20,7 +18,6 @@ const validate =
       // Avança para o próximo middleware se a validação for bem-sucedida
       next();
     } catch (error) {
-      // Manipula o erro de validação
       if (error instanceof ZodError) {
         return res.status(400).json({
           message: "Erro de validação",

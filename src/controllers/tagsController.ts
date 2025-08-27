@@ -17,10 +17,9 @@ export default {
     return response.json(updatedTag);
   },
 
-  // NOVO MÉTODO
   async delete(request: Request, response: Response) {
     const { id } = request.params;
     await tagsService.delete(id);
-    return response.status(204).send(); // Resposta de sucesso sem conteúdo
+    return response.status(204).send(); 
   },
 };

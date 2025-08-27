@@ -1,4 +1,3 @@
-// src/controllers/notificationsController.ts
 import { Request, Response } from 'express';
 import notificationService from '../services/notificationService';
 import usersRepository from '../repositories/usersRepository';
@@ -10,20 +9,16 @@ export default {
       const createdBy = req.user?.id;
       const { recipientIds, title, message, data, sound, badge } = req.body;
       
-      // Validação
       if (!recipientIds || !Array.isArray(recipientIds) || recipientIds.length === 0) {
         return res.status(400).json({ error: 'recipientIds must be a non-empty array' });
       }
 
-      // Buscar usuários destinatários
       const users = await usersRepository.findManyByIds(recipientIds);
       
-      // Verificar se todos os usuários existem
       if (users.length !== recipientIds.length) {
         return res.status(404).json({ error: 'One or more users not found' });
       }
 
-      // Preparar DTO
       const notificationDto: CreateNotificationDTO = {
         title,
         message,
@@ -34,7 +29,6 @@ export default {
         createdBy
       };
 
-      // Enviar notificação
       await notificationService.sendPushNotification(notificationDto);
 
       res.status(200).json({ success: true });
@@ -51,10 +45,8 @@ export default {
       const createdBy = req.user?.id;
       const { title, message, data, sound, badge } = req.body;
 
-      // Buscar todos os usuários
       const users = await usersRepository.findAll();
 
-      // Preparar DTO
       const recipientIds = users.map(user => user.id);
       const notificationDto: CreateNotificationDTO = {
         title,
@@ -66,7 +58,6 @@ export default {
         createdBy
       };
 
-      // Enviar notificação
       await notificationService.sendPushNotification(notificationDto);
 
       res.status(200).json({ success: true });

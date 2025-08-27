@@ -1,4 +1,3 @@
-// src/controllers/userEventController.ts
 import { Request, Response } from "express";
 import userEventService from "../services/userEventService";
 import { CreateUserEventDTOS } from "../dtos/userEventDtos";
@@ -22,23 +21,21 @@ export default {
     response.status(200).json(data);
   },
 
-  // Em src/controllers/userEventController.ts
   async create(request: Request, response: Response) {
     const userIdFromToken = (request as any).user?.id;
     const { eventId } = request.body;
 
     if (!userIdFromToken) {
-      /* ... erro 401 ... */
+      return response.status(401).json({ message: "Não autorizado" });
     }
     if (!eventId) {
-      /* ... erro 400 ... */
+      return response.status(400).json({ message: "eventId é obrigatório" });
     }
 
-    // Controller monta o DTO para o serviço
     const createUserEventData: CreateUserEventDTOS = {
       userId: userIdFromToken,
       eventId: eventId,
-      status: 1, // Controller define o status inicial
+      status: 1,
     };
 
     const newUserEvent = await userEventService.create(createUserEventData);
@@ -54,11 +51,15 @@ export default {
   async delete(request: Request, response: Response) {
     const { id } = request.params;
     const userId = (request as any).user?.id;
+
+    if (!userId) {
+      return response.status(401).json({ message: "Não autorizado" });
+    }
+
     await userEventService.delete(id, userId);
     response.status(200).send();
   },
 
-  // Métodos adicionais específicos para UserEvent
   async findActiveParticipants(request: Request, response: Response) {
     const { eventId } = request.params;
     const data = await userEventService.findActiveByEvent(eventId);

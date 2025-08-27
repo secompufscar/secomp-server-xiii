@@ -44,8 +44,8 @@ export default {
 
   async updateForgottenPassword(request: Request, response: Response) {
     try {
-      const { token } = request.params; // Token vem da URL
-      const { senha } = request.body; // Nova senha vem do corpo
+      const { token } = request.params; 
+      const { senha } = request.body; 
 
       const data = await usersService.updatePassword(token, senha);
       return response.status(200).json(data);
@@ -75,12 +75,10 @@ export default {
   },
 
   async updateProfile(request: Request, response: Response) {
-    // CORREÇÃO AQUI: Extraímos a propriedade 'id' do request.user.
     const userId = request.user.id;
 
     const updateData: UpdateProfileDTO = request.body;
 
-    // Verificação para garantir que o userId não é undefined antes de prosseguir
     if (!userId) {
       return response.status(401).json({ message: "Usuário não autenticado corretamente." });
     }
@@ -96,15 +94,12 @@ export default {
     return response.status(200).json({ totalActivities: count });
   },
   async getUserDetails(request: Request, response: Response) {
-        // O controller apenas extrai o ID e chama o service.
-        // Qualquer erro lançado pelo service será capturado pelo middleware de erro global.
         const userId = request.params.id;
         const userDetails = await usersService.getUserDetails(userId);
         
         response.status(200).json(userDetails);
     },
 
-  // Método para registrar o token de push
   async registerPushToken(req: Request, res: Response) {
     try {
       const user = req.user as { id: string };

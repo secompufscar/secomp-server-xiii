@@ -1,23 +1,18 @@
-// src/middlewares/adminMiddleware.ts
 import { Request, Response, NextFunction } from "express";
 import {
   BadRequestsException,
   UnauthorizedUserError,
   UserNotFoundError,
 } from "../utils/exceptions";
-//Importa tipo 'User' da entidade, não do Prisma, para ter os tipos corretos.
-import { User } from "../entities/User";
-// import { PrismaClient } from "@prisma/client";
 import { auth } from "../config/auth";
 import * as jwt from "jsonwebtoken";
 import { ApiError } from "../utils/api-errors";
-import userRepository from "../repositories/usersRepository"; // Importamos o repositório.
+import userRepository from "../repositories/usersRepository"; 
 
 type jwtPayload = {
   userId: string;
 };
 
-// const prismaClient = new PrismaClient();
 const JWT_SECRET = auth.secret_token;
 
 export async function adminMiddleware(req: Request, res: Response, next: NextFunction) {
@@ -35,7 +30,6 @@ export async function adminMiddleware(req: Request, res: Response, next: NextFun
     }
 
     // Usamos o repositório para buscar o usuário.
-
     const user = await userRepository.findById(userId);
 
     // Adicionado um check para caso o usuário não tenha sido encontrado no banco

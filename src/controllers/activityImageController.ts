@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { randomUUID } from "crypto";
 import { v2 as cloudinary } from 'cloudinary';
 import activityImageService from "../services/activityImageService";
 import streamifier from "streamifier";
@@ -128,7 +127,7 @@ export default {
                     imageUrl: previousImage.imageUrl,
                 };
 
-                const serviceResponse = await activityImageService.updateById(newData, id);
+                const serviceResponse = await activityImageService.updateById(id, newData);
                 return response.status(200).json(serviceResponse);
             } else {
                 // Deleta imagem anterior
@@ -145,7 +144,7 @@ export default {
                     imageUrl: result.secure_url,
                 };
 
-                const serviceResponse = await activityImageService.updateById(newData, id);
+                const serviceResponse = await activityImageService.updateById(id, newData);
                 return response.status(200).json(serviceResponse);
             }
         } catch (error) {
