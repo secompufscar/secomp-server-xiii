@@ -21,7 +21,14 @@ app.use(express.static(path.join(__dirname, "public")));
 
 // Middleware
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: [
+    "http://localhost:8081",      
+    "https://secompufscar.com.br" 
+  ],
+  methods: ["GET","POST","PUT","DELETE","OPTIONS"],
+  credentials: true 
+}));
 
 // API Routes
 app.use("/api/v1", routes);
