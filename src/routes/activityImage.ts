@@ -18,5 +18,4 @@ routes.post('/',upload.single("image"),activityImageController.create);
 
 routes.delete('/:id',activityImageController.delete);
 
-
 export default routes;
