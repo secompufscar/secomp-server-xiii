@@ -3,7 +3,7 @@ import categoriesController from "../controllers/categoriesController";
 import {
   createCategorySchema,
   updateCategorySchema,
-  categoryIdSchema,
+  categoryParamsSchema,
 } from "../schemas/categorySchema";
 import { authMiddleware } from "../middlewares/authMiddleware";
 import validate from "../middlewares/validate";
@@ -134,7 +134,7 @@ routes.post("/", categoriesController.create);
 routes.put(
   "/:id",
   authMiddleware,
-  validate(updateCategorySchema, categoryIdSchema),
+  validate(updateCategorySchema, categoryParamsSchema),
   categoriesController.update,
 );
 
@@ -161,7 +161,7 @@ routes.put(
 routes.delete(
   "/:id",
   authMiddleware,
-  validate(undefined, categoryIdSchema),
+  validate(undefined, categoryParamsSchema),
   categoriesController.delete,
 );
 

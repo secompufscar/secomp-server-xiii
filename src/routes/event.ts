@@ -1,8 +1,8 @@
 import { Router } from "express";
-import eventController from "../controllers/eventController";
-import { createEventSchema, eventIdSchema, updateEventSchema } from "../schemas/eventSchema";
-import validate from "../middlewares/validate";
+import { createEventSchema, eventParamsSchema, updateEventSchema } from "../schemas/eventSchema";
 import { authMiddleware } from "../middlewares/authMiddleware";
+import eventController from "../controllers/eventController";
+import validate from "../middlewares/validate";
 
 const routes = Router();
 
@@ -71,7 +71,7 @@ routes.get("/current", eventController.findCurrent);
  *       404:
  *         description: Evento não encontrado
  */
-routes.get("/:id", validate(undefined, eventIdSchema), eventController.findById);
+routes.get("/:id", validate(undefined, eventParamsSchema), eventController.findById);
 
 /**
  * @swagger
@@ -121,7 +121,7 @@ routes.post("/", validate(createEventSchema), eventController.create);
  *       404:
  *         description: Evento não encontrado
  */
-routes.put("/:id", validate(updateEventSchema, eventIdSchema), eventController.update);
+routes.put("/:id", validate(updateEventSchema, eventParamsSchema), eventController.update);
 
 /**
  * @swagger
@@ -141,6 +141,6 @@ routes.put("/:id", validate(updateEventSchema, eventIdSchema), eventController.u
  *       404:
  *         description: Evento não encontrado
  */
-routes.delete("/:id", validate(undefined, eventIdSchema), eventController.delete);
+routes.delete("/:id", validate(undefined, eventParamsSchema), eventController.delete);
 
 export default routes;

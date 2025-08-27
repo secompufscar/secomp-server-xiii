@@ -1,8 +1,6 @@
 import { Router } from "express";
-
-import usersAtActivitiesController from "../controllers/usersAtActivitiesController";
-
 import { authMiddleware } from "../middlewares/authMiddleware";
+import usersAtActivitiesController from "../controllers/usersAtActivitiesController";
 
 const routes = Router();
 

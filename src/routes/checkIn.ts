@@ -1,6 +1,6 @@
 import { Router } from "express";
-import checkInController from "../controllers/checkInController";
 import { authMiddleware } from "../middlewares/authMiddleware";
+import checkInController from "../controllers/checkInController";
 
 const router = Router();
 

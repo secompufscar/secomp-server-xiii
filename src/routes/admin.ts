@@ -1,8 +1,6 @@
 import { Router } from "express";
-
-import adminController from "../controllers/adminController";
-
 import { adminMiddleware } from "../middlewares/adminMiddleware";
+import adminController from "../controllers/adminController";
 
 const routes = Router();
 

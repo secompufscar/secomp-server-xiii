@@ -1,6 +1,6 @@
 import { Router } from "express";
-import userEventController from "../controllers/userEventController";
 import { authMiddleware } from "../middlewares/authMiddleware";
+import userEventController from "../controllers/userEventController";
 
 const routes = Router();
 

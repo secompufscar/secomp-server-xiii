@@ -1,6 +1,6 @@
 import { Router } from "express";
-import usersController from "../controllers/usersController";
 import { authMiddleware, isAdmin } from "../middlewares/authMiddleware";
+import usersController from "../controllers/usersController";
 
 const routes = Router();
 
@@ -34,6 +34,7 @@ const routes = Router();
  *         description: Bad request
  */
 routes.post("/signup", usersController.signup);
+
 /**
  * @swagger
  * /login:
@@ -61,6 +62,7 @@ routes.post("/signup", usersController.signup);
  *         description: Unauthorized
  */
 routes.post("/login", usersController.login);
+
 /**
  * @swagger
  * /getProfile:
@@ -390,7 +392,6 @@ routes.get("/:id/activities/count", usersController.getUserActivitiesCount);
  *       '500':
  *         description: Erro interno do servidor
  */
-
 routes.get("/:id", authMiddleware, isAdmin, usersController.getUserDetails);
 
 /**
@@ -413,7 +414,6 @@ routes.get("/:id", authMiddleware, isAdmin, usersController.getUserDetails);
  *       400:
  *         description: Bad request
  */
-
 routes.post('/registerPushToken', authMiddleware,usersController.registerPushToken)
 
 export default routes;
