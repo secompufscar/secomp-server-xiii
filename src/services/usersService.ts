@@ -9,10 +9,7 @@ import { email } from "../config/sendEmail";
 import { User } from "../entities/User";
 import { ApiError, ErrorsCode } from "../utils/api-errors";
 import { generateQRCode } from "../utils/qrCode";
-import {
-  CreateUserDTOS,
-  UpdateProfileDTO,
-} from "../dtos/usersDtos";
+import { CreateUserDTOS, UpdateProfileDTO } from "../dtos/usersDtos";
 import { promises as fs } from "fs";
 import path from "path";
 
@@ -59,10 +56,7 @@ export default {
     }
 
     if (!user.confirmed) {
-      throw new ApiError(
-        "Por favor, verifique o seu email e tente novamente!",
-        ErrorsCode.BAD_REQUEST,
-      );
+      throw new ApiError("Por favor, verifique o seu email e tente novamente!", ErrorsCode.BAD_REQUEST);
     }
 
     const token = jwt.sign({ userId: user.id }, auth.secret_token, { expiresIn: "1h" });
@@ -96,28 +90,26 @@ export default {
     const token = jwt.sign({ userId: user.id }, auth.secret_token, { expiresIn: "1h" });
 
     const { senha: _, ...userLogin } = user;
+    try {
+      const emailEnviado = await this.sendConfirmationEmail(user);
 
-    const emailEnviado = await this.sendConfirmationEmail(user);
-
-    if (!emailEnviado) {
+      return {
+        message: "Usuário criado com sucesso. Email de confirmação enviado.",
+        emailEnviado,
+      };
+    } catch (err) {
       await usersRepository.delete(user.id);
+      console.error(err);
+
       throw new ApiError("Erro ao enviar email de confirmação!", ErrorsCode.INTERNAL_ERROR);
     }
-
-    return {
-      message: "Usuário criado com sucesso. Email de confirmação enviado.",
-      emailEnviado,
-    };
   },
 
   async sendConfirmationEmail(user: User): Promise<boolean> {
     try {
       const emailToken = jwt.sign({ userId: user.id }, email.email_secret, { expiresIn: "1d" });
 
-      const BASE_URL =
-        process.env.NODE_ENV === "production"
-          ? process.env.BASE_URL_PROD
-          : process.env.BASE_URL_DEV;
+      const BASE_URL = process.env.NODE_ENV === "production" ? process.env.BASE_URL_PROD : process.env.BASE_URL_DEV;
 
       const url = `${BASE_URL}/users/confirmation/${emailToken}`;
 
@@ -169,11 +161,7 @@ export default {
         throw new ApiError("Usuário não encontrado!", ErrorsCode.NOT_FOUND);
       }
 
-      const emailToken = jwt.sign(
-        { userId: user.id },
-        process.env.JWT_RESET_SECRET || "default_secret",
-        { expiresIn: "1h" },
-      );
+      const emailToken = jwt.sign({ userId: user.id }, process.env.JWT_RESET_SECRET || "default_secret", { expiresIn: "1h" });
 
       // Link com protocolo personalizado que é interpretado pelo app mobile
       const url = `https://secompapp.com/SetNewPassword?token=${emailToken}`;
@@ -188,10 +176,7 @@ export default {
       });
     } catch (err) {
       console.log("Erro no serviço de recuperação de senha", err);
-      throw new ApiError(
-        "Erro ao enviar email de recuperação de senha!",
-        ErrorsCode.INTERNAL_ERROR,
-      );
+      throw new ApiError("Erro ao enviar email de recuperação de senha!", ErrorsCode.INTERNAL_ERROR);
     }
   },
 
@@ -266,10 +251,7 @@ export default {
   async updateProfile(userId: string, data: UpdateProfileDTO) {
     const { nome, email } = data;
     if (!nome && !email) {
-      throw new ApiError(
-        "A requisição deve conter 'nome' ou 'email' para ser atualizado.",
-        ErrorsCode.BAD_REQUEST,
-      );
+      throw new ApiError("A requisição deve conter 'nome' ou 'email' para ser atualizado.", ErrorsCode.BAD_REQUEST);
     }
 
     if (email) {
@@ -312,16 +294,16 @@ export default {
     }
   },
 
-  async getUserDetails(id: string): Promise<Omit<User, 'senha' | 'qrCode'>> {
+  async getUserDetails(id: string): Promise<Omit<User, "senha" | "qrCode">> {
     try {
       if (!isValidUUID(id)) {
-          throw new ApiError("ID de usuário inválido.", ErrorsCode.BAD_REQUEST);
+        throw new ApiError("ID de usuário inválido.", ErrorsCode.BAD_REQUEST);
       }
 
       const user = await usersRepository.findById(id);
 
       if (!user) {
-          throw new ApiError("Usuário não encontrado.", ErrorsCode.NOT_FOUND);
+        throw new ApiError("Usuário não encontrado.", ErrorsCode.NOT_FOUND);
       }
 
       const { senha, qrCode, ...userDetails } = user;
@@ -329,7 +311,7 @@ export default {
       return userDetails;
     } catch (error) {
       if (error instanceof ApiError) {
-          throw error; 
+        throw error;
       }
       console.error("Erro usersService.ts - getUserDetails: " + error);
       throw new ApiError("Erro interno ao buscar detalhes do usuário.", ErrorsCode.INTERNAL_ERROR);
@@ -340,7 +322,7 @@ export default {
     const user = await usersRepository.findById(userId);
 
     if (!user) {
-      throw new ApiError('Usuário não encontrado', ErrorsCode.NOT_FOUND);
+      throw new ApiError("Usuário não encontrado", ErrorsCode.NOT_FOUND);
     }
 
     const updatedUser = await usersRepository.update(userId, {
@@ -348,8 +330,8 @@ export default {
     });
 
     return {
-      message: 'Token de push adicionado com sucesso',
-      user: _.omit(updatedUser, ['senha']),
+      message: "Token de push adicionado com sucesso",
+      user: _.omit(updatedUser, ["senha"]),
     };
-  }
+  },
 };
