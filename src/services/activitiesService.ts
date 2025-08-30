@@ -33,7 +33,7 @@ export default {
 
     const newAtividade = await activitiesRepository.create({
       nome,
-      data: newData, 
+      data: newData,
       palestranteNome,
       categoriaId,
       vagas,
@@ -47,7 +47,7 @@ export default {
 
   async update(
     id: string,
-    { nome, data, palestranteNome, categoriaId, detalhes, local, points }: UpdateActivityDTOS
+    { nome, data, palestranteNome, vagas, categoriaId, detalhes, local, points }: UpdateActivityDTOS,
   ): Promise<UpdateActivityDTOS> {
     const existingAtividade = await activitiesRepository.findById(id);
 
@@ -58,6 +58,7 @@ export default {
     const updatedAtividade = await activitiesRepository.update(id, {
       nome,
       data,
+      vagas,
       palestranteNome,
       categoriaId,
       detalhes,
@@ -69,15 +70,7 @@ export default {
   },
 
   async delete(id: string): Promise<void> {
-    const userAtActivities = await usersAtActivitiesRepository.findManyByActivityId(id);
-
-    if (userAtActivities.length > 0) {
-      throw new ApiError(
-        "Não é possível excluir esta atividade pois já possui associações de usuários.",
-        ErrorsCode.BAD_REQUEST
-      );
-    }
-    
+    await usersAtActivitiesRepository.deleteByActivityId(id);
     await activitiesRepository.delete(id);
   },
 };

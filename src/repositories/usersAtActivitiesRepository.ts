@@ -18,7 +18,7 @@ export default {
 
   async findManyByActivityId(activityId: string): Promise<UserAtActivity[]> {
     const response = await prisma.userAtActivity.findMany({
-      where: { activityId }, 
+      where: { activityId },
       include: { user: true },
     });
     return response;
@@ -35,10 +35,7 @@ export default {
     return response;
   },
 
-  async findByUserIdAndActivityId(
-    userId: string,
-    activityId: string
-  ): Promise<UserAtActivity | null> {
+  async findByUserIdAndActivityId(userId: string, activityId: string): Promise<UserAtActivity | null> {
     const response = await prisma.userAtActivity.findFirst({
       where: { userId, activityId },
     });
@@ -82,5 +79,10 @@ export default {
       where: { userId },
     });
     return count;
+  },
+  async deleteByActivityId(activityId: string): Promise<void> {
+    await prisma.userAtActivity.deleteMany({
+      where: { activityId: activityId },
+    });
   },
 };
