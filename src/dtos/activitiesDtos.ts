@@ -12,6 +12,7 @@ export interface CreateActivityDTOS {
 export interface UpdateActivityDTOS {
   nome: string;
   data: Date | null;
+  vagas: number;
   palestranteNome: string;
   categoriaId: string;
   detalhes: string | null;
