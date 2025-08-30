@@ -70,12 +70,7 @@ export default {
   },
 
   async delete(id: string): Promise<void> {
-    const userAtActivities = await usersAtActivitiesRepository.findManyByActivityId(id);
-
-    if (userAtActivities.length > 0) {
-      throw new ApiError("Não é possível excluir esta atividade pois já possui associações de usuários.", ErrorsCode.BAD_REQUEST);
-    }
-
+    await usersAtActivitiesRepository.deleteByActivityId(id);
     await activitiesRepository.delete(id);
   },
 };
