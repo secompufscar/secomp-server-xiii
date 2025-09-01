@@ -27,7 +27,7 @@ app.use(cors({
     "https://secompufscar.com.br", 
     "https://app.secompufscar.com.br" // Front End Expo Web App
   ],
-  methods: ["GET","POST","PUT","DELETE","OPTIONS"],
+  methods: ["GET","POST","PUT", "PATCH", "DELETE","OPTIONS"],
   credentials: true 
 }));
 
