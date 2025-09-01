@@ -24,7 +24,8 @@ app.use(express.json());
 app.use(cors({
   origin: [
     "http://localhost:8081",      
-    "https://secompufscar.com.br" 
+    "https://secompufscar.com.br", 
+    "https://app.secompufscar.com.br" // Front End Expo Web App
   ],
   methods: ["GET","POST","PUT","DELETE","OPTIONS"],
   credentials: true 
