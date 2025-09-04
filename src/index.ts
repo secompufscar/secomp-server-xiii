@@ -6,6 +6,7 @@ import routes from "./routes";
 import path from "path";
 import * as dotenv from "dotenv";
 import { setupSwagger } from "./swagger";
+import schedulerService from "./services/schedulerService";
 
 // Load environment variables early
 dotenv.config();
@@ -62,4 +63,5 @@ const PORT = process.env.PORT || 3000;
 const MODE = process.env.NODE_ENV;
 app.listen(PORT, () => {
   console.log(`> Servidor rodando na porta ${PORT}. Modo: ${MODE}`);
+  schedulerService.scheduleAllActivityNotifications();
 });
