@@ -38,7 +38,7 @@ export default {
     return countUsersAtActivity >= activity.vagas;
   },
 
-  async create(data: CreateActivityDTOS): Promise<CreateActivityDTOS> {
+  async create(data: CreateActivityDTOS): Promise<ActivityDTOS> { // <--- Altere o retorno aqui
     const response = await prisma.activity.create({ data });
     return response;
   },
