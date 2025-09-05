@@ -1,12 +1,12 @@
-import cron, { ScheduledTask } from 'node-cron';
-import { subHours } from 'date-fns';
+import * as cron from 'node-cron'; // Corrija esta linha
+import { subHours, addHours } from 'date-fns';
 import activitiesRepository from '../repositories/activitiesRepository';
 import usersAtActivitiesRepository from '../repositories/usersAtActivitiesRepository';
 import notificationService from './notificationService';
 import { ActivityDTOS, CreateActivityDTOS, UpdateActivityDTOS } from '../dtos/activitiesDtos';
 
-// Objeto para armazenar as tarefas agendadas e evitar duplicatas
-const scheduledJobs: { [activityId: string]: ScheduledTask[] } = {};
+// Objeto para armazenar as tarefas agendadas por ID da atividade
+const scheduledJobs: { [activityId: string]: cron.ScheduledTask[] } = {};
 
 const scheduleNotificationsForActivity = (activity: ActivityDTOS | CreateActivityDTOS | UpdateActivityDTOS) => {
   if (!('id' in activity) || !activity.id || !activity.data) {
@@ -26,15 +26,23 @@ const scheduleNotificationsForActivity = (activity: ActivityDTOS | CreateActivit
 
   // Função auxiliar para criar e armazenar uma tarefa
   const scheduleAndStoreJob = (notificationDate: Date, title: string, message: string) => {
-    if (notificationDate > now) {
-      const cronTime = `${notificationDate.getMinutes()} ${notificationDate.getHours()} ${notificationDate.getDate()} ${notificationDate.getMonth() + 1} *`;
+    // Adiciona 3 horas para compensar a conversão implícita para UTC
+    const adjustedDate = addHours(notificationDate, 3);
+
+    if (adjustedDate > now) {
+      const cronTime = `${adjustedDate.getMinutes()} ${adjustedDate.getHours()} ${adjustedDate.getDate()} ${adjustedDate.getMonth() + 1} *`;
       
       const job = cron.schedule(cronTime, async () => {
-        console.log(`[Scheduler] EXECUTANDO tarefa para atividade "${activity.nome}" (ID: ${activityId})`);
+        console.log(`[Scheduler] EXECUTANDO TAREFA para atividade "${activity.nome}" (ID: ${activityId})`);
+        
         const users = await usersAtActivitiesRepository.findManyByActivityId(activityId);
         const userIds = users.map(u => u.userId);
+
         if (userIds.length > 0) {
+          console.log(`[Scheduler] Encontrados ${userIds.length} usuários para notificar: ${userIds.join(', ')}`);
           notificationService.sendPushNotification({ title, message, recipientIds: userIds, data: { activityId } });
+        } else {
+          console.log(`[Scheduler] Nenhum usuário encontrado inscrito na atividade ${activityId}. Nenhuma notificação enviada.`);
         }
       });
 
@@ -49,14 +57,14 @@ const scheduleNotificationsForActivity = (activity: ActivityDTOS | CreateActivit
     }
   };
 
-  // Agenda a notificação para 24 horas antes 
+  // Agenda a notificação para 24 horas antes
   scheduleAndStoreJob(
     subHours(activityDate, 24),
     'Lembrete de Atividade',
     `A atividade "${activity.nome}" começará em 24 horas!`
   );
 
-  // Agenda a notificação para 2 horas antes 
+  // Agenda a notificação para 2 horas antes
   scheduleAndStoreJob(
     subHours(activityDate, 2),
     'Atividade Começando em Breve',
