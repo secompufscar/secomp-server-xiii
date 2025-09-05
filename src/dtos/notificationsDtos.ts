@@ -6,6 +6,7 @@ export interface CreateNotificationDTO {
   sound?: boolean;
   badge?: number;
   createdBy?: string;
+  status?: string;
 }
 
 export interface UpdateNotificationDTO {
@@ -15,7 +16,7 @@ export interface UpdateNotificationDTO {
   data?: Record<string, unknown>;
   sound?: boolean;
   badge?: number;
-  status?: 'PENDING' | 'SENT' | 'FAILED';
+  status?: string;
   error?: string;
   updatedBy?: string;
 }
