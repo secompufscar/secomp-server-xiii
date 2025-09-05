@@ -5,7 +5,7 @@ import usersAtActivitiesRepository from '../repositories/usersAtActivitiesReposi
 import notificationService from './notificationService';
 import { ActivityDTOS, CreateActivityDTOS, UpdateActivityDTOS } from '../dtos/activitiesDtos';
 
-// Objeto para armazenar as tarefas agendadas por ID da atividade
+// Objeto para armazenar as tarefas agendadas e evitar duplicatas
 const scheduledJobs: { [activityId: string]: ScheduledTask[] } = {};
 
 const scheduleNotificationsForActivity = (activity: ActivityDTOS | CreateActivityDTOS | UpdateActivityDTOS) => {
@@ -14,9 +14,9 @@ const scheduleNotificationsForActivity = (activity: ActivityDTOS | CreateActivit
   }
   const activityId = activity.id;
 
-  // 1. Cancela e remove qualquer agendamento antigo para esta atividade
+  // Cancela e remove qualquer agendamento antigo para esta atividade
   if (scheduledJobs[activityId]) {
-    console.log(`[Scheduler] Removendo ${scheduledJobs[activityId].length} agendamento(s) antigo(s) para a atividade ID: ${activityId}`);
+    console.log(`[Scheduler] Removendo agendamentos antigos para a atividade ID: ${activityId}`);
     scheduledJobs[activityId].forEach(job => job.stop());
     delete scheduledJobs[activityId];
   }
@@ -26,11 +26,8 @@ const scheduleNotificationsForActivity = (activity: ActivityDTOS | CreateActivit
 
   // Função auxiliar para criar e armazenar uma tarefa
   const scheduleAndStoreJob = (notificationDate: Date, title: string, message: string) => {
-    // Compensa o fuso horário do servidor
-    const adjustedDate = subHours(notificationDate, 3);
-
-    if (adjustedDate > now) {
-      const cronTime = `${adjustedDate.getMinutes()} ${adjustedDate.getHours()} ${adjustedDate.getDate()} ${adjustedDate.getMonth() + 1} *`;
+    if (notificationDate > now) {
+      const cronTime = `${notificationDate.getMinutes()} ${notificationDate.getHours()} ${notificationDate.getDate()} ${notificationDate.getMonth() + 1} *`;
       
       const job = cron.schedule(cronTime, async () => {
         console.log(`[Scheduler] EXECUTANDO tarefa para atividade "${activity.nome}" (ID: ${activityId})`);
@@ -41,7 +38,7 @@ const scheduleNotificationsForActivity = (activity: ActivityDTOS | CreateActivit
         }
       });
 
-      // 2. Armazena a nova tarefa
+      // Armazena a nova tarefa
       if (!scheduledJobs[activityId]) {
         scheduledJobs[activityId] = [];
       }
@@ -52,14 +49,14 @@ const scheduleNotificationsForActivity = (activity: ActivityDTOS | CreateActivit
     }
   };
 
-  // Agenda a notificação de 24 horas antes
+  // Agenda a notificação para 24 horas antes 
   scheduleAndStoreJob(
     subHours(activityDate, 24),
     'Lembrete de Atividade',
     `A atividade "${activity.nome}" começará em 24 horas!`
   );
 
-  // Agenda a notificação de 2 horas antes
+  // Agenda a notificação para 2 horas antes 
   scheduleAndStoreJob(
     subHours(activityDate, 2),
     'Atividade Começando em Breve',
@@ -68,8 +65,8 @@ const scheduleNotificationsForActivity = (activity: ActivityDTOS | CreateActivit
 };
 
 const scheduleAllActivityNotifications = async () => {
-  console.log('[Scheduler] Iniciando agendamento de todas as atividades futuras...');
-  const activities = await activitiesRepository.list(); // Você pode otimizar para pegar só as futuras
+  console.log('[Scheduler] Iniciando agendamento de todas as atividades...');
+  const activities = await activitiesRepository.list();
   activities.forEach(scheduleNotificationsForActivity);
   console.log('[Scheduler] Agendamento inicial concluído.');
 };
