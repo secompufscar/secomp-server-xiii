@@ -1,64 +1,77 @@
-import cron from 'node-cron';
+import cron, { ScheduledTask } from 'node-cron';
 import { subHours } from 'date-fns';
 import activitiesRepository from '../repositories/activitiesRepository';
 import usersAtActivitiesRepository from '../repositories/usersAtActivitiesRepository';
 import notificationService from './notificationService';
 import { ActivityDTOS, CreateActivityDTOS, UpdateActivityDTOS } from '../dtos/activitiesDtos';
 
+// Objeto para armazenar as tarefas agendadas por ID da atividade
+const scheduledJobs: { [activityId: string]: ScheduledTask[] } = {};
+
 const scheduleNotificationsForActivity = (activity: ActivityDTOS | CreateActivityDTOS | UpdateActivityDTOS) => {
-  if (!activity.data) return;
+  if (!('id' in activity) || !activity.id || !activity.data) {
+    return;
+  }
+  const activityId = activity.id;
+
+  // 1. Cancela e remove qualquer agendamento antigo para esta atividade
+  if (scheduledJobs[activityId]) {
+    console.log(`[Scheduler] Removendo ${scheduledJobs[activityId].length} agendamento(s) antigo(s) para a atividade ID: ${activityId}`);
+    scheduledJobs[activityId].forEach(job => job.stop());
+    delete scheduledJobs[activityId];
+  }
 
   const activityDate = new Date(activity.data);
   const now = new Date();
 
-  // Garante que temos um ID para consultar os usuários
-  if (!('id' in activity) || !activity.id) return;
-  const activityId = activity.id;
+  // Função auxiliar para criar e armazenar uma tarefa
+  const scheduleAndStoreJob = (notificationDate: Date, title: string, message: string) => {
+    // Compensa o fuso horário do servidor
+    const adjustedDate = subHours(notificationDate, 3);
 
-  // Agenda a notificação para 24 horas antes
-  const notificationTime24hBase = subHours(activityDate, 24);
-  const notificationTime24h = subHours(notificationTime24hBase, 3); // Ajuste de -3 horas para o fuso
+    if (adjustedDate > now) {
+      const cronTime = `${adjustedDate.getMinutes()} ${adjustedDate.getHours()} ${adjustedDate.getDate()} ${adjustedDate.getMonth() + 1} *`;
+      
+      const job = cron.schedule(cronTime, async () => {
+        console.log(`[Scheduler] EXECUTANDO tarefa para atividade "${activity.nome}" (ID: ${activityId})`);
+        const users = await usersAtActivitiesRepository.findManyByActivityId(activityId);
+        const userIds = users.map(u => u.userId);
+        if (userIds.length > 0) {
+          notificationService.sendPushNotification({ title, message, recipientIds: userIds, data: { activityId } });
+        }
+      });
 
-  if (notificationTime24h > now) {
-    const cronTime = `${notificationTime24h.getMinutes()} ${notificationTime24h.getHours()} ${notificationTime24h.getDate()} ${notificationTime24h.getMonth() + 1} *`;
-    cron.schedule(cronTime, async () => {
-      const users = await usersAtActivitiesRepository.findManyByActivityId(activityId);
-      const userIds = users.map(u => u.userId);
-      if (userIds.length > 0) {
-        notificationService.sendPushNotification({
-          title: 'Lembrete de Atividade',
-          message: `A atividade "${activity.nome}" começará em 24 horas!`,
-          recipientIds: userIds,
-          data: { activityId: activityId } 
-        });
+      // 2. Armazena a nova tarefa
+      if (!scheduledJobs[activityId]) {
+        scheduledJobs[activityId] = [];
       }
-    });
-  }
+      scheduledJobs[activityId].push(job);
+      console.log(`[Scheduler] Tarefa agendada para atividade "${activity.nome}" (ID: ${activityId}) para ser executada em: ${cronTime}`);
+    } else {
+      console.log(`[Scheduler] O horário da notificação para a atividade "${activity.nome}" (ID: ${activityId}) já passou. Não foi agendada.`);
+    }
+  };
 
-  // Agenda a notificação para 2 horas antes
-  const notificationTime2hBase = subHours(activityDate, 2);
-  const notificationTime2h = subHours(notificationTime2hBase, 3); // Ajuste de -3 horas para o fuso
+  // Agenda a notificação de 24 horas antes
+  scheduleAndStoreJob(
+    subHours(activityDate, 24),
+    'Lembrete de Atividade',
+    `A atividade "${activity.nome}" começará em 24 horas!`
+  );
 
-  if (notificationTime2h > now) {
-    const cronTime = `${notificationTime2h.getMinutes()} ${notificationTime2h.getHours()} ${notificationTime2h.getDate()} ${notificationTime2h.getMonth() + 1} *`;
-    cron.schedule(cronTime, async () => {
-      const users = await usersAtActivitiesRepository.findManyByActivityId(activityId);
-      const userIds = users.map(u => u.userId);
-      if (userIds.length > 0) {
-        notificationService.sendPushNotification({
-          title: 'Atividade Começando em Breve',
-          message: `A atividade "${activity.nome}" começará em 2 horas!`,
-          recipientIds: userIds,
-          data: { activityId: activityId } 
-        });
-      }
-    });
-  }
+  // Agenda a notificação de 2 horas antes
+  scheduleAndStoreJob(
+    subHours(activityDate, 2),
+    'Atividade Começando em Breve',
+    `A atividade "${activity.nome}" começará em 2 horas!`
+  );
 };
 
 const scheduleAllActivityNotifications = async () => {
-  const activities = await activitiesRepository.list();
+  console.log('[Scheduler] Iniciando agendamento de todas as atividades futuras...');
+  const activities = await activitiesRepository.list(); // Você pode otimizar para pegar só as futuras
   activities.forEach(scheduleNotificationsForActivity);
+  console.log('[Scheduler] Agendamento inicial concluído.');
 };
 
 export default {
