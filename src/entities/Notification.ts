@@ -6,7 +6,7 @@ export interface Notification {
   title: string;
   message: string;
   data?: Prisma.InputJsonValue; 
-  status: 'PENDING' | 'SENT' | 'FAILED';
+  status?: string;
   error?: string;
   sentAt: Date;
   createdBy?: string;

@@ -10,7 +10,8 @@ export default {
         title: data.title,
         message: data.message,
         data: data.data as Prisma.InputJsonValue, 
-        status: 'PENDING',
+        status: data.status || "PENDING",
+        error: null, 
         createdBy: data.createdBy || null, 
         recipients: {
           connect: data.recipientIds.map(id => ({ id }))
@@ -21,6 +22,16 @@ export default {
         recipients: true
       }
     }) as unknown as Notification; 
+  },
+
+  async updateStatus(id: string, status: 'SENT' | 'FAILED', error?: string): Promise<Notification> {
+    return prisma.notificationHistory.update({
+      where: { id },
+      data: {
+        status,
+        error: error || null,
+      },
+    }) as unknown as Notification;
   },
 
   async findById(id: string): Promise<Notification | null> {

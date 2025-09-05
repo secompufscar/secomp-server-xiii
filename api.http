@@ -56,7 +56,7 @@ Content-Type: application/json
 
 ### Enviar notificação push para um usuário
 POST http://localhost:3333/api/v1/notifications/send
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhN2ZhMTIwOS1lYjUzLTQwNTMtODc5Ni0zZTdiZjQ2ODkzZmUiLCJpYXQiOjE3NTM5MDg4MDcsImV4cCI6MTc1MzkxMjQwN30.cNLogeg6zuffZksSczMinSx_CP2zE0c-TmCPkr-shbU
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhN2ZhMTIwOS1lYjUzLTQwNTMtODc5Ni0zZTdiZjQ2ODkzZmUiLCJpYXQiOjE3NTcwMzEwMTUsImV4cCI6MTc1NzAzNDYxNX0.nbt_Xh_PPogTS0pZUDVrcxl2ZI2Pr3k3LCmok-VkUKU
 Content-Type: application/json
 
 {
