@@ -6,12 +6,10 @@ export default {
   async checkIn(request: Request, response: Response) {
     const { userId, activityId } = request.params;
 
-    console.log("checkin controller: ", userId, activityId);
-
     const data = await checkInService.checkIn(userId, activityId);
-
     response.status(200).json(data);
   },
+  
   async listParticipants(request: Request, response: Response) {
     const { activityId } = request.params;
 

@@ -19,6 +19,29 @@ export default {
     });
     return response;
   },
+
+  async markAsPresentWithoutSubscription(userId: string, activityId: string): Promise<UserAtActivity> {
+    const existing = await prisma.userAtActivity.findFirst({
+      where: { userId, activityId },
+    });
+
+    if (existing) {
+      return prisma.userAtActivity.update({
+        where: { id: existing.id },
+        data: { presente: true },
+      });
+    }
+
+    return prisma.userAtActivity.create({
+      data: {
+        userId,
+        activityId,
+        inscricaoPrevia: false,
+        listaEspera: false,
+        presente: true,
+      },
+    });
+  },
   
   async createWaitlistEntry(userId: string, activityId: string): Promise<UserAtActivity> {
     const response = await prisma.userAtActivity.create({
