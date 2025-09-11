@@ -1,7 +1,8 @@
 import sponsorsRepository from "../repositories/sponsorRepository";
 import sponsorsOnTagsRepository from "../repositories/sponsorOnTagsRepository";
 import { SponsorDTO, CreateSponsorDTO, UpdateSponsorDTO } from "../dtos/sponsorDtos";
-import { Sponsor } from "@prisma/client"; 
+import { Sponsor } from "@prisma/client";
+import { ApiError, ErrorsCode } from "../utils/api-errors";
 
 function toSponsorDTO(sponsor: any, tagProperty: "id" | "name"): SponsorDTO {
   return {
@@ -19,27 +20,25 @@ export default {
   async listAll(): Promise<SponsorDTO[]> {
     const sponsorsFromDb = await sponsorsRepository.listAll();
 
-    return sponsorsFromDb.map(sponsor => toSponsorDTO(sponsor, "name"));
+    return sponsorsFromDb.map((sponsor) => toSponsorDTO(sponsor, "name"));
   },
 
   async getOne(id: string): Promise<SponsorDTO> {
     const sponsor = await sponsorsRepository.findById(id);
     if (!sponsor) {
-      throw new Error("Patrocinador não encontrado");
+      throw new ApiError("sponsor not found by this id", ErrorsCode.NOT_FOUND);
     }
-    
+
     return toSponsorDTO(sponsor, "id");
   },
-  
+
   async create(data: CreateSponsorDTO): Promise<Sponsor> {
     const { tagIds, ...sponsorData } = data;
 
     const newSponsor = await sponsorsRepository.create(sponsorData);
 
     if (tagIds && tagIds.length > 0) {
-      const linkPromises = tagIds.map(tagId =>
-        sponsorsOnTagsRepository.link(newSponsor.id, tagId)
-      );
+      const linkPromises = tagIds.map((tagId) => sponsorsOnTagsRepository.link(newSponsor.id, tagId));
       await Promise.all(linkPromises);
     }
 
@@ -49,15 +48,15 @@ export default {
   async update(id: string, data: UpdateSponsorDTO): Promise<Sponsor> {
     const sponsorExists = await sponsorsRepository.findById(id);
     if (!sponsorExists) {
-      throw new Error("Patrocinador não encontrado.");
+      throw new ApiError("sponsor was not found by this id", ErrorsCode.NOT_FOUND);
     }
     return sponsorsRepository.update(id, data);
   },
 
-  async delete(id: string): Promise<Sponsor> { 
+  async delete(id: string): Promise<Sponsor> {
     const sponsorExists = await sponsorsRepository.findById(id);
     if (!sponsorExists) {
-      throw new Error("Patrocinador não encontrado.");
+      throw new ApiError("sponsor was not found by this id", ErrorsCode.NOT_FOUND);
     }
     return sponsorsRepository.delete(id);
   },

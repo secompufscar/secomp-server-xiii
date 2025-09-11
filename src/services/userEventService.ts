@@ -2,6 +2,7 @@ import userEventRepository from "../repositories/userEventRepository";
 import eventRepository from "../repositories/eventRepository";
 import userRepository from "../repositories/usersRepository";
 import { CreateUserEventDTOS, UpdateUserEventDTOS, UserEventDTOS } from "../dtos/userEventDtos";
+import { ApiError, ErrorsCode } from "../utils/api-errors";
 
 export default {
   async findByEvent(eventId: string): Promise<UserEventDTOS[]> {
@@ -29,17 +30,17 @@ export default {
 
     const user = await userRepository.findById(userId);
     if (!user) {
-      throw new Error("Usuário não encontrado");
+      throw new ApiError("user was not found by this id", ErrorsCode.NOT_FOUND);
     }
 
     const event = await eventRepository.findById(eventId);
     if (!event) {
-      throw new Error("Evento não encontrado, não é possível realizar a inscrição");
+      throw new ApiError("event was not found by this id", ErrorsCode.NOT_FOUND);
     }
 
     const existingRegistration = await userEventRepository.findByUserAndEvent(userId, eventId);
     if (existingRegistration) {
-      throw new Error("Usuário já está inscrito neste evento");
+      throw new ApiError("user is already in this activity", ErrorsCode.BAD_REQUEST);
     }
 
     const newUserEventEntry = await userEventRepository.create({
@@ -51,21 +52,21 @@ export default {
     try {
       await userRepository.updateUserEventStatus(userId, 1, event.year);
     } catch (error) {
-      throw new Error("Falha ao atualizar status do usuário");
+      throw new ApiError("falha ao atualizar o status do usuário", ErrorsCode.INTERNAL_ERROR);
     }
 
     return newUserEventEntry;
   },
 
-  async update(id: string, { status }: UpdateUserEventDTOS): Promise<UserEventDTOS> { 
+  async update(id: string, { status }: UpdateUserEventDTOS): Promise<UserEventDTOS> {
     const existing = await userEventRepository.findById(id);
     if (!existing) {
-      throw new Error("Inscrição não encontrada");
+      throw new ApiError("inscricao nao encontrada", ErrorsCode.NOT_FOUND);
     }
 
     if (status !== undefined) {
       if (existing.status === 2 && status !== 2) {
-        throw new Error("Inscrições encerradas não podem ser reativadas");
+        throw new ApiError("inscricoes encerradas nao podem ser reativadas", ErrorsCode.CONFLICT);
       }
     }
 
@@ -77,11 +78,11 @@ export default {
   async delete(id: string, userId: string): Promise<void> {
     const registration = await userEventRepository.findByIdAndUser(id, userId);
     if (!registration) {
-      throw new Error("Inscrição não encontrada ou não autorizada");
+      throw new ApiError("inscricao nao encontrada com este id e userId", ErrorsCode.NOT_FOUND);
     }
-    
+
     await userEventRepository.delete(id);
-    
+
     const nextInLine = await userEventRepository.findFirstWaitlist(registration.eventId);
     if (nextInLine) {
       await userEventRepository.update(nextInLine.id, { status: 1 });
@@ -91,7 +92,7 @@ export default {
   async registerAllUsers(eventId: string): Promise<void> {
     const event = await eventRepository.findById(eventId);
     if (!event) {
-      throw new Error("Evento não encontrado");
+      throw new ApiError("event not found by this id", ErrorsCode.NOT_FOUND);
     }
     await userEventRepository.createForAllUsers(eventId);
   },
@@ -99,7 +100,7 @@ export default {
   async closeRegistrations(eventId: string): Promise<void> {
     const event = await eventRepository.findById(eventId);
     if (!event) {
-      throw new Error("Evento não encontrado");
+      throw new ApiError("event was not found by this id", ErrorsCode.NOT_FOUND);
     }
     await userEventRepository.closeAllForEvent(eventId);
   },

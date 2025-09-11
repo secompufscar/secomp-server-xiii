@@ -6,9 +6,15 @@ import userRepository from "../repositories/usersRepository";
 import eventRepository from "../repositories/eventRepository";
 
 import { UpdateUserAtActivityDTOS, CreateUserAtActivityDTOS } from "../dtos/userAtActivitiesDtos";
+import { ApiError, ErrorsCode } from "../utils/api-errors";
 
 export default {
   async findManyByActivityId(activityId: string) {
+    const activity = await activitiesRepository.findById(activityId);
+
+    if (!activity) {
+      throw new ApiError("activity was not found by this id", ErrorsCode.NOT_FOUND);
+    }
     const usersAtActivities = await usersAtActivitiesRepository.findManyByActivityId(activityId);
 
     return usersAtActivities;
@@ -29,15 +35,15 @@ export default {
   async create({ userId, activityId }: CreateUserAtActivityDTOS) {
     const currentEvent = await eventRepository.findCurrent();
     if (!currentEvent) {
-      throw new Error("Nenhum evento ativo no momento, nao é possivel fazer inscricao.");
+      throw new ApiError("nenhum evento ativo no momento, nao é possivel fazer inscricao", ErrorsCode.CONFLICT);
     }
     const user = await userRepository.findById(userId);
     if (!user) {
-      throw new Error("Usuário não encontrado.");
+      throw new ApiError("user was not found by this id", ErrorsCode.NOT_FOUND);
     }
     const registration = await userEventRepository.getUserRegistration(userId, currentEvent.id);
     if (!registration || registration.status !== 1) {
-      throw new Error("Você precisa estar inscrito no evento anual para participar de atividades");
+      throw new ApiError("voce precisa estar inscrito no evento anual para participar das atividades", ErrorsCode.CONFLICT);
     }
 
     const isFull = await activitiesRepository.isActivityFull(activityId);
@@ -57,7 +63,7 @@ export default {
     const existingUserAtActivity = await usersAtActivitiesRepository.findById(id);
 
     if (!existingUserAtActivity) {
-      throw new Error("Registro não encontrado.");
+      throw new ApiError("registro nao encontrado", ErrorsCode.NOT_FOUND);
     }
     if (presente === true && existingUserAtActivity.presente === false) {
       const activity = await activitiesRepository.findById(existingUserAtActivity.activityId);
@@ -79,14 +85,12 @@ export default {
     const userAtActivity = await checkInRepository.findUserAtActivity(userId, activityId);
 
     if (!userAtActivity) {
-      throw new Error("Registro não encontrado.");
+      throw new ApiError("registro nao encontrado", ErrorsCode.NOT_FOUND);
     }
 
     await usersAtActivitiesRepository.delete(userAtActivity.id);
 
-    const nextInLine = await usersAtActivitiesRepository.findFirstInWaitlist(
-      userAtActivity.activityId,
-    );
+    const nextInLine = await usersAtActivitiesRepository.findFirstInWaitlist(userAtActivity.activityId);
 
     if (nextInLine) {
       await usersAtActivitiesRepository.update(nextInLine.id, {
