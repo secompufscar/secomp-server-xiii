@@ -4,11 +4,7 @@ import usersAtActivitiesController from "../controllers/usersAtActivitiesControl
 
 const routes = Router();
 
-
-routes.get(
-  "/user-activity/:userId/:activityId",
-  usersAtActivitiesController.findByUserIdActivityId,
-);
+routes.get("/user-activity/:userId/:activityId", usersAtActivitiesController.findByUserIdActivityId);
 
 /**
  * @swagger
@@ -157,6 +153,6 @@ routes.put("/:id", authMiddleware, usersAtActivitiesController.update);
  *       404:
  *         description: Registro não encontrado.
  */
-routes.delete("/:userId/:activityId", usersAtActivitiesController.delete);
+routes.delete("/:userId/:activityId", authMiddleware, usersAtActivitiesController.delete);
 
 export default routes;

@@ -1,12 +1,9 @@
 import { Router } from "express";
 import categoriesController from "../controllers/categoriesController";
-import {
-  createCategorySchema,
-  updateCategorySchema,
-  categoryParamsSchema,
-} from "../schemas/categorySchema";
+import { createCategorySchema, updateCategorySchema, categoryParamsSchema } from "../schemas/categorySchema";
 import { authMiddleware } from "../middlewares/authMiddleware";
 import validate from "../middlewares/validate";
+import { adminMiddleware } from "../middlewares/adminMiddleware";
 
 const routes = Router();
 
@@ -100,7 +97,7 @@ routes.get("/:id", categoriesController.findById);
  *         description: Categoria criada com sucesso.
  */
 //routes.post('/', authMiddleware, validate(createCategorySchema), categoriesController.create);
-routes.post("/", categoriesController.create);
+routes.post("/", authMiddleware, adminMiddleware, categoriesController.create);
 
 /**
  * @swagger
@@ -131,12 +128,7 @@ routes.post("/", categoriesController.create);
  *       404:
  *         description: Categoria não encontrada.
  */
-routes.put(
-  "/:id",
-  authMiddleware,
-  validate(updateCategorySchema, categoryParamsSchema),
-  categoriesController.update,
-);
+routes.put("/:id", authMiddleware, adminMiddleware, validate(updateCategorySchema, categoryParamsSchema), categoriesController.update);
 
 /**
  * @swagger
@@ -158,11 +150,6 @@ routes.put(
  *       404:
  *         description: Categoria não encontrada.
  */
-routes.delete(
-  "/:id",
-  authMiddleware,
-  validate(undefined, categoryParamsSchema),
-  categoriesController.delete,
-);
+routes.delete("/:id", authMiddleware, adminMiddleware, validate(undefined, categoryParamsSchema), categoriesController.delete);
 
 export default routes;

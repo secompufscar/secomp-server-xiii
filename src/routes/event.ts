@@ -3,6 +3,7 @@ import { createEventSchema, eventParamsSchema, updateEventSchema } from "../sche
 import { authMiddleware } from "../middlewares/authMiddleware";
 import eventController from "../controllers/eventController";
 import validate from "../middlewares/validate";
+import { adminMiddleware } from "../middlewares/adminMiddleware";
 
 const routes = Router();
 
@@ -95,7 +96,7 @@ routes.get("/:id", validate(undefined, eventParamsSchema), eventController.findB
  *       400:
  *         description: Dados inválidos
  */
-routes.post("/", validate(createEventSchema), eventController.create);
+routes.post("/", authMiddleware, adminMiddleware, validate(createEventSchema), eventController.create);
 
 /**
  * @swagger
@@ -121,7 +122,7 @@ routes.post("/", validate(createEventSchema), eventController.create);
  *       404:
  *         description: Evento não encontrado
  */
-routes.put("/:id", validate(updateEventSchema, eventParamsSchema), eventController.update);
+routes.put("/:id", authMiddleware, adminMiddleware, validate(updateEventSchema, eventParamsSchema), eventController.update);
 
 /**
  * @swagger
@@ -141,6 +142,6 @@ routes.put("/:id", validate(updateEventSchema, eventParamsSchema), eventControll
  *       404:
  *         description: Evento não encontrado
  */
-routes.delete("/:id", validate(undefined, eventParamsSchema), eventController.delete);
+routes.delete("/:id", adminMiddleware, authMiddleware, validate(undefined, eventParamsSchema), eventController.delete);
 
 export default routes;
