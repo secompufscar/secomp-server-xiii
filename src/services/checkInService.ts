@@ -18,9 +18,13 @@ export default {
       throw new ApiError("Usuário não esta inscrito neste evento!", ErrorsCode.BAD_REQUEST);
     }
 
-    if (activity.categoriaId === "1") {
-      const userAtActivity = await checkInRepository.findUserAtActivity(userId, activityId);
+    const userAtActivity = await checkInRepository.findUserAtActivity(userId, activityId);
 
+    if (userAtActivity?.presente === true){
+      throw new ApiError("Este usuário já realizou o check-in nesta atividade", ErrorsCode.CONFLICT);
+    }
+
+    if (activity.categoriaId === "1") {
       if (!userAtActivity) {
         throw new ApiError("Usuário não está cadastrado na atividade", ErrorsCode.BAD_REQUEST);
       }
