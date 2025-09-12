@@ -26,7 +26,7 @@ export default {
   async getOne(id: string): Promise<SponsorDTO> {
     const sponsor = await sponsorsRepository.findById(id);
     if (!sponsor) {
-      throw new ApiError("sponsor not found by this id", ErrorsCode.NOT_FOUND);
+      throw new ApiError("Patrocinador não encontrado", ErrorsCode.NOT_FOUND);
     }
 
     return toSponsorDTO(sponsor, "id");
@@ -48,7 +48,7 @@ export default {
   async update(id: string, data: UpdateSponsorDTO): Promise<Sponsor> {
     const sponsorExists = await sponsorsRepository.findById(id);
     if (!sponsorExists) {
-      throw new ApiError("sponsor was not found by this id", ErrorsCode.NOT_FOUND);
+      throw new ApiError("Patrocinador não encontrado", ErrorsCode.NOT_FOUND);
     }
     return sponsorsRepository.update(id, data);
   },
@@ -56,7 +56,7 @@ export default {
   async delete(id: string): Promise<Sponsor> {
     const sponsorExists = await sponsorsRepository.findById(id);
     if (!sponsorExists) {
-      throw new ApiError("sponsor was not found by this id", ErrorsCode.NOT_FOUND);
+      throw new ApiError("Patrocinador não encontrado", ErrorsCode.NOT_FOUND);
     }
     return sponsorsRepository.delete(id);
   },

@@ -9,7 +9,7 @@ export default {
     const event = await eventRepository.findById(id);
 
     if (!event) {
-      throw new ApiError("event was not found by this id", ErrorsCode.NOT_FOUND);
+      throw new ApiError("Event was not found by this id", ErrorsCode.NOT_FOUND);
     }
     return event;
   },
@@ -22,12 +22,12 @@ export default {
   async getUserRegistration(userId: string) {
     const currentEvent = await this.findCurrent();
     if (!currentEvent) {
-      throw new ApiError("event was not found by this id", ErrorsCode.NOT_FOUND);
+      throw new ApiError("Event was not found by this id", ErrorsCode.NOT_FOUND);
     }
 
     const registration = await userEventRepository.findByUserAndEvent(userId, currentEvent.id);
     if (!registration) {
-      throw new ApiError("event was not found by this userId and eventID", ErrorsCode.NOT_FOUND);
+      throw new ApiError("Event was not found by this userId and eventID", ErrorsCode.NOT_FOUND);
     }
     return registration;
   },
@@ -43,7 +43,7 @@ export default {
     try {
       await userRepository.setRegistrationStatusForAllEligibleUsers(0);
     } catch (error) {
-      throw new ApiError("set registration status for all eligible users to 0 was not possible", ErrorsCode.INTERNAL_ERROR);
+      throw new ApiError("Set registration status for all eligible users to 0 was not possible", ErrorsCode.INTERNAL_ERROR);
     }
 
     return newEvent;

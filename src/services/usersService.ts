@@ -1,8 +1,6 @@
 import * as jwt from "jsonwebtoken";
 import * as nodemailer from "nodemailer";
 import _ from "lodash";
-import usersRepository from "../repositories/usersRepository";
-import usersAtActivitiesRepository from "../repositories/usersAtActivitiesRepository";
 import { compare, hash } from "bcrypt";
 import { auth } from "../config/auth";
 import { email } from "../config/sendEmail";
@@ -12,6 +10,8 @@ import { generateQRCode } from "../utils/qrCode";
 import { CreateUserDTOS, UpdateProfileDTO } from "../dtos/usersDtos";
 import { promises as fs } from "fs";
 import path from "path";
+import usersRepository from "../repositories/usersRepository";
+import usersAtActivitiesRepository from "../repositories/usersAtActivitiesRepository";
 
 const port = Number(process.env.SMTP_PORT) || 587;
 const secure = port === 465;
@@ -235,31 +235,31 @@ export default {
     try {
       const user = await usersRepository.findById(id);
       if (!user) {
-        throw new ApiError("user was not found by this id", ErrorsCode.NOT_FOUND);
+        throw new ApiError("Usuário não encontrado", ErrorsCode.NOT_FOUND);
       }
       const userRank = await usersRepository.getUserRanking(id);
       return userRank;
     } catch (error) {
       console.error("Erro usersService.ts: " + error);
-      throw new ApiError("erro ao encontrar ranking do usuário", ErrorsCode.NOT_FOUND);
+      throw new ApiError("Erro ao encontrar ranking do usuário", ErrorsCode.NOT_FOUND);
     }
   },
 
   async getUserById(id: string) {
     try {
       if (!isValidUUID(id)) {
-        throw new ApiError("erro com o id enviado", ErrorsCode.BAD_REQUEST);
+        throw new ApiError("Erro com o id enviado", ErrorsCode.BAD_REQUEST);
       }
 
       const user = await usersRepository.findById(id);
       if (!user) {
-        throw new ApiError("erro ao encontrar usuário: ", ErrorsCode.NOT_FOUND);
+        throw new ApiError("Erro ao encontrar usuário: ", ErrorsCode.NOT_FOUND);
       }
 
       return user;
     } catch (error) {
       console.error("usersService.ts: " + error);
-      throw new ApiError("erro ao consultar o ranking do usuario", ErrorsCode.INTERNAL_ERROR);
+      throw new ApiError("Erro ao consultar o ranking do usuario", ErrorsCode.INTERNAL_ERROR);
     }
   },
 
@@ -299,13 +299,13 @@ export default {
     try {
       const user = await usersRepository.findById(userId);
       if (!user) {
-        throw new ApiError("usuario nao encontrado", ErrorsCode.NOT_FOUND);
+        throw new ApiError("Usuario não encontrado", ErrorsCode.NOT_FOUND);
       }
 
       const totalActivities = await usersAtActivitiesRepository.countByUserId(userId);
       return totalActivities;
     } catch (error) {
-      throw new ApiError("erro ao contar as atividades do usuario", ErrorsCode.INTERNAL_ERROR);
+      throw new ApiError("Erro ao contar as atividades do usuário", ErrorsCode.INTERNAL_ERROR);
     }
   },
 

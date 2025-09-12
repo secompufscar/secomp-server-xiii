@@ -61,12 +61,12 @@ export default {
   async update(id: string, { status }: UpdateUserEventDTOS): Promise<UserEventDTOS> {
     const existing = await userEventRepository.findById(id);
     if (!existing) {
-      throw new ApiError("inscricao nao encontrada", ErrorsCode.NOT_FOUND);
+      throw new ApiError("Inscricao não encontrada", ErrorsCode.NOT_FOUND);
     }
 
     if (status !== undefined) {
       if (existing.status === 2 && status !== 2) {
-        throw new ApiError("inscricoes encerradas nao podem ser reativadas", ErrorsCode.CONFLICT);
+        throw new ApiError("Inscricoes encerradas não podem ser reativadas", ErrorsCode.CONFLICT);
       }
     }
 
@@ -78,7 +78,7 @@ export default {
   async delete(id: string, userId: string): Promise<void> {
     const registration = await userEventRepository.findByIdAndUser(id, userId);
     if (!registration) {
-      throw new ApiError("inscricao nao encontrada com este id e userId", ErrorsCode.NOT_FOUND);
+      throw new ApiError("Inscricao não encontrada com este id e userId", ErrorsCode.NOT_FOUND);
     }
 
     await userEventRepository.delete(id);
@@ -92,7 +92,7 @@ export default {
   async registerAllUsers(eventId: string): Promise<void> {
     const event = await eventRepository.findById(eventId);
     if (!event) {
-      throw new ApiError("event not found by this id", ErrorsCode.NOT_FOUND);
+      throw new ApiError("Evento não encontrado", ErrorsCode.NOT_FOUND);
     }
     await userEventRepository.createForAllUsers(eventId);
   },
@@ -100,7 +100,7 @@ export default {
   async closeRegistrations(eventId: string): Promise<void> {
     const event = await eventRepository.findById(eventId);
     if (!event) {
-      throw new ApiError("event was not found by this id", ErrorsCode.NOT_FOUND);
+      throw new ApiError("Evento não encontrado", ErrorsCode.NOT_FOUND);
     }
     await userEventRepository.closeAllForEvent(eventId);
   },

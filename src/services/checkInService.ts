@@ -10,19 +10,19 @@ export default {
     const activity = await activitiesRepository.findById(activityId);
 
     if (!activity) {
-      throw new ApiError("atividade nao encontrada", ErrorsCode.NOT_FOUND);
+      throw new ApiError("Atividade não encontrada", ErrorsCode.NOT_FOUND);
     }
 
     const registration = await eventService.getUserRegistration(userId);
     if (!registration || registration.status !== 1) {
-      throw new ApiError("usuario nao esta inscrito neste evento", ErrorsCode.BAD_REQUEST);
+      throw new ApiError("Usuário não esta inscrito neste evento!", ErrorsCode.BAD_REQUEST);
     }
 
     if (activity.categoriaId === "1") {
       const userAtActivity = await checkInRepository.findUserAtActivity(userId, activityId);
 
       if (!userAtActivity) {
-        throw new ApiError("usuário não está cadastrado na atividade", ErrorsCode.BAD_REQUEST);
+        throw new ApiError("Usuário não está cadastrado na atividade", ErrorsCode.BAD_REQUEST);
       }
 
       const pointsToAdd = activity.points;

@@ -30,7 +30,7 @@ export default {
     const previousCategory = await categoriesRepository.findById(id);
 
     if (!previousCategory) {
-      throw new ApiError("category was not found by this id", ErrorsCode.NOT_FOUND);
+      throw new ApiError("Category was not found by this id", ErrorsCode.NOT_FOUND);
     }
     const updatedCategory = await categoriesRepository.update(id, { nome });
     return updatedCategory;
@@ -40,7 +40,7 @@ export default {
     const existingActivities = await activitiesRepository.findManyByCategoryId(id);
 
     if (!existingActivities) {
-      throw new ApiError("esta categoria nao pode ser excluida porque ainda há atividades nela", ErrorsCode.CONFLICT);
+      throw new ApiError("Esta categoria não pode ser excluida porque ainda há atividades nela", ErrorsCode.CONFLICT);
     }
 
     const deletedCategory = await categoriesRepository.delete(id);

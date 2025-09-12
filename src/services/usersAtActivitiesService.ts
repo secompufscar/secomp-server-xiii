@@ -13,7 +13,7 @@ export default {
     const activity = await activitiesRepository.findById(activityId);
 
     if (!activity) {
-      throw new ApiError("activity was not found by this id", ErrorsCode.NOT_FOUND);
+      throw new ApiError("Atividade não encontrada", ErrorsCode.NOT_FOUND);
     }
     const usersAtActivities = await usersAtActivitiesRepository.findManyByActivityId(activityId);
 
@@ -35,15 +35,15 @@ export default {
   async create({ userId, activityId }: CreateUserAtActivityDTOS) {
     const currentEvent = await eventRepository.findCurrent();
     if (!currentEvent) {
-      throw new ApiError("nenhum evento ativo no momento, nao é possivel fazer inscricao", ErrorsCode.CONFLICT);
+      throw new ApiError("Nenhum evento ativo no momento, não é possivel fazer inscrição", ErrorsCode.CONFLICT);
     }
     const user = await userRepository.findById(userId);
     if (!user) {
-      throw new ApiError("user was not found by this id", ErrorsCode.NOT_FOUND);
+      throw new ApiError("Usuário não encontrado", ErrorsCode.NOT_FOUND);
     }
     const registration = await userEventRepository.getUserRegistration(userId, currentEvent.id);
     if (!registration || registration.status !== 1) {
-      throw new ApiError("voce precisa estar inscrito no evento anual para participar das atividades", ErrorsCode.CONFLICT);
+      throw new ApiError("Você precisa estar inscrito no evento anual para participar das atividades", ErrorsCode.CONFLICT);
     }
 
     const isFull = await activitiesRepository.isActivityFull(activityId);
@@ -63,7 +63,7 @@ export default {
     const existingUserAtActivity = await usersAtActivitiesRepository.findById(id);
 
     if (!existingUserAtActivity) {
-      throw new ApiError("registro nao encontrado", ErrorsCode.NOT_FOUND);
+      throw new ApiError("Registro não encontrado", ErrorsCode.NOT_FOUND);
     }
     if (presente === true && existingUserAtActivity.presente === false) {
       const activity = await activitiesRepository.findById(existingUserAtActivity.activityId);
@@ -85,7 +85,7 @@ export default {
     const userAtActivity = await checkInRepository.findUserAtActivity(userId, activityId);
 
     if (!userAtActivity) {
-      throw new ApiError("registro nao encontrado", ErrorsCode.NOT_FOUND);
+      throw new ApiError("Registro não encontrado", ErrorsCode.NOT_FOUND);
     }
 
     await usersAtActivitiesRepository.delete(userAtActivity.id);
