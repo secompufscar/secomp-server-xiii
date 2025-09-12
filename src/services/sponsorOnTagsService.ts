@@ -6,10 +6,7 @@ import { SponsorsOnTags } from "@prisma/client"; // Importando o tipo para clare
 
 export default {
   async linkTagToSponsor(sponsorId: string, tagId: string): Promise<SponsorsOnTags> {
-    const [sponsorExists, tagExists] = await Promise.all([
-      sponsorsRepository.findById(sponsorId),
-      tagsRepository.findById(tagId),
-    ]);
+    const [sponsorExists, tagExists] = await Promise.all([sponsorsRepository.findById(sponsorId), tagsRepository.findById(tagId)]);
 
     if (!sponsorExists) {
       throw new ApiError("Patrocinador não encontrado.", ErrorsCode.NOT_FOUND);
@@ -23,6 +20,16 @@ export default {
   },
 
   async unlinkTagFromSponsor(sponsorId: string, tagId: string): Promise<SponsorsOnTags> {
+    const [sponsorExists, tagExists] = await Promise.all([sponsorsRepository.findById(sponsorId), tagsRepository.findById(tagId)]);
+
+    if (!sponsorExists) {
+      throw new ApiError("Patrocinador não encontrado.", ErrorsCode.NOT_FOUND);
+    }
+
+    if (!tagExists) {
+      throw new ApiError("Tag não encontrada.", ErrorsCode.NOT_FOUND);
+    }
+
     return sponsorsOnTagsRepository.unlink(sponsorId, tagId);
   },
 };

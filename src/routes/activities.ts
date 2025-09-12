@@ -1,12 +1,9 @@
 import { Router } from "express";
 import activitiesController from "../controllers/activitiesController";
-import {
-  createActivitySchema,
-  activityIdSchema,
-  updateActivitySchema,
-} from "../schemas/activitySchema";
+import { createActivitySchema, activityIdSchema, updateActivitySchema } from "../schemas/activitySchema";
 import { authMiddleware } from "../middlewares/authMiddleware";
 import validate from "../middlewares/validate";
+import { adminMiddleware } from "../middlewares/adminMiddleware";
 
 const routes = Router();
 
@@ -132,7 +129,7 @@ routes.get("/:id", activitiesController.findById);
  *         description: Atividade criada com sucesso.
  */
 //routes.post('/', authMiddleware, validate(createActivitySchema), activitiesController.create);
-routes.post("/", activitiesController.create);
+routes.post("/", authMiddleware, adminMiddleware, activitiesController.create);
 
 /**
  * @swagger
@@ -174,7 +171,7 @@ routes.post("/", activitiesController.create);
  *       404:
  *         description: Atividade não encontrada.
  */
-routes.put("/:id", validate(updateActivitySchema, activityIdSchema), activitiesController.update);
+routes.put("/:id", validate(updateActivitySchema, activityIdSchema), authMiddleware, adminMiddleware, activitiesController.update);
 
 /**
  * @swagger
@@ -196,6 +193,6 @@ routes.put("/:id", validate(updateActivitySchema, activityIdSchema), activitiesC
  *       404:
  *         description: Atividade não encontrada.
  */
-routes.delete("/:id", validate(undefined, activityIdSchema), activitiesController.delete);
+routes.delete("/:id", authMiddleware, validate(undefined, activityIdSchema), adminMiddleware, activitiesController.delete);
 
 export default routes;

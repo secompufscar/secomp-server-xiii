@@ -3,7 +3,7 @@ import usersAtActivitiesRepository from "../repositories/usersAtActivitiesReposi
 import { ApiError, ErrorsCode } from "../utils/api-errors";
 import { UpdateActivityDTOS, CreateActivityDTOS, ActivityDTOS } from "../dtos/activitiesDtos";
 import schedulerService from "./schedulerService";
-import { Activity } from '@prisma/client';
+import { Activity } from "@prisma/client";
 
 export default {
   async findById(id: string): Promise<ActivityDTOS> {
@@ -21,16 +21,7 @@ export default {
     return activities;
   },
 
-  async create({
-    nome,
-    data,
-    palestranteNome,
-    categoriaId,
-    vagas,
-    detalhes,
-    local,
-    points,
-  }: CreateActivityDTOS): Promise<ActivityDTOS> {
+  async create({ nome, data, palestranteNome, categoriaId, vagas, detalhes, local, points }: CreateActivityDTOS): Promise<ActivityDTOS> {
     const newData = data ? new Date(data) : null;
 
     const newAtividade = await activitiesRepository.create({

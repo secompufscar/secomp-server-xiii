@@ -3,25 +3,26 @@ import activitiesRepository from "../repositories/activitiesRepository";
 import usersRepository from "../repositories/usersRepository";
 import eventService from "./eventService";
 import { UserAtActivity } from "../entities/UserAtActivity";
+import { ApiError, ErrorsCode } from "../utils/api-errors";
 
 export default {
   async checkIn(userId: string, activityId: string): Promise<UserAtActivity> {
     const activity = await activitiesRepository.findById(activityId);
 
     if (!activity) {
-      throw new Error("Atividade não encontrada.");
+      throw new ApiError("atividade nao encontrada", ErrorsCode.NOT_FOUND);
     }
 
     const registration = await eventService.getUserRegistration(userId);
     if (!registration || registration.status !== 1) {
-      throw new Error("Usuário não está inscrito neste evento");
+      throw new ApiError("usuario nao esta inscrito neste evento", ErrorsCode.BAD_REQUEST);
     }
 
     if (activity.categoriaId === "1") {
       const userAtActivity = await checkInRepository.findUserAtActivity(userId, activityId);
 
       if (!userAtActivity) {
-        throw new Error("Usuário não está cadastrado na atividade.");
+        throw new ApiError("usuário não está cadastrado na atividade", ErrorsCode.BAD_REQUEST);
       }
 
       const pointsToAdd = activity.points;
@@ -35,10 +36,7 @@ export default {
     const pointsToAdd = activity.points;
     await usersRepository.addPoints(userId, pointsToAdd);
 
-    const updatedUserAtActivity = await checkInRepository.markAsPresentWithoutSubscription(
-      userId,
-      activityId
-    );
+    const updatedUserAtActivity = await checkInRepository.markAsPresentWithoutSubscription(userId, activityId);
 
     return updatedUserAtActivity;
   },

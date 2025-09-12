@@ -148,7 +148,7 @@ export default {
         };
       }
 
-      throw new Error("Token de confirmação inválido!");
+      throw new ApiError("token de validacao invalido", ErrorsCode.INTERNAL_ERROR);
     } catch (err) {
       if (err instanceof jwt.TokenExpiredError) {
         throw new ApiError("Token expirado. Solicite um novo.", ErrorsCode.UNAUTHORIZED);
@@ -225,6 +225,10 @@ export default {
 
   async getUserRanking(id: string) {
     try {
+      const user = await usersRepository.findById(id);
+      if (!user) {
+        throw new ApiError("user was not found by this id", ErrorsCode.NOT_FOUND);
+      }
       const userRank = await usersRepository.getUserRanking(id);
       return userRank;
     } catch (error) {
@@ -247,7 +251,7 @@ export default {
       return user;
     } catch (error) {
       console.error("usersService.ts: " + error);
-      throw new Error("erro ao consultar ranking do usuário");
+      throw new ApiError("erro ao consultar o ranking do usuario", ErrorsCode.INTERNAL_ERROR);
     }
   },
 
@@ -287,13 +291,13 @@ export default {
     try {
       const user = await usersRepository.findById(userId);
       if (!user) {
-        throw new Error("Usuário não encontrado.");
+        throw new ApiError("usuario nao encontrado", ErrorsCode.NOT_FOUND);
       }
 
       const totalActivities = await usersAtActivitiesRepository.countByUserId(userId);
       return totalActivities;
     } catch (error) {
-      throw new Error("Erro ao contar as atividades do usuário");
+      throw new ApiError("erro ao contar as atividades do usuario", ErrorsCode.INTERNAL_ERROR);
     }
   },
 

@@ -208,7 +208,7 @@ routes.patch("/updatePassword/:token", usersController.updateForgottenPassword);
  *       500:
  *         description: Internal server error
  */
-routes.post('/sendForgotPasswordEmail', usersController.sendForgotPasswordEmail)
+routes.post("/sendForgotPasswordEmail", usersController.sendForgotPasswordEmail);
 
 /**
  * @swagger
@@ -239,7 +239,7 @@ routes.post('/sendForgotPasswordEmail', usersController.sendForgotPasswordEmail)
  *       500:
  *         description: Erro interno do servidor
  */
-routes.get("/getUserPoints/:id", usersController.getUserPoints);
+routes.get("/getUserPoints/:id", authMiddleware, usersController.getUserPoints);
 
 /**
  * @swagger
@@ -273,7 +273,7 @@ routes.get("/getUserPoints/:id", usersController.getUserPoints);
  *       500:
  *         description: Erro interno do servidor
  */
-routes.get("/getUserRanking/:id", usersController.getUserRanking);
+routes.get("/getUserRanking/:id", authMiddleware, usersController.getUserRanking);
 
 /**
  * @swagger
@@ -339,7 +339,7 @@ routes.patch("/updateProfile", authMiddleware, usersController.updateProfile);
  *       '500':
  *         description: Erro interno do servidor
  */
-routes.get("/:id/activities/count", usersController.getUserActivitiesCount);
+routes.get("/:id/activities/count", authMiddleware, usersController.getUserActivitiesCount);
 
 /**
  * @swagger
@@ -414,6 +414,6 @@ routes.get("/:id", authMiddleware, isAdmin, usersController.getUserDetails);
  *       400:
  *         description: Bad request
  */
-routes.post('/registerPushToken', authMiddleware,usersController.registerPushToken)
+routes.post("/registerPushToken", authMiddleware, usersController.registerPushToken);
 
 export default routes;
