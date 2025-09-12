@@ -3,7 +3,7 @@ import * as nodemailer from "nodemailer";
 import _ from "lodash";
 import usersRepository from "../repositories/usersRepository";
 import usersAtActivitiesRepository from "../repositories/usersAtActivitiesRepository";
-import { compareSync, hashSync, hash } from "bcrypt";
+import { compare, hash } from "bcrypt";
 import { auth } from "../config/auth";
 import { email } from "../config/sendEmail";
 import { User } from "../entities/User";
@@ -52,8 +52,7 @@ export default {
       throw new ApiError("Email ou senha incorreto!", ErrorsCode.NOT_FOUND);
     }
 
-    const verifyPsw = compareSync(senha, user.senha);
-
+    const verifyPsw = await compare(senha, user.senha);
     if (!verifyPsw) {
       throw new ApiError("Email ou senha incorreto!", ErrorsCode.NOT_FOUND);
     }
@@ -62,7 +61,7 @@ export default {
       throw new ApiError("Por favor, verifique o seu email e tente novamente!", ErrorsCode.BAD_REQUEST);
     }
 
-    const token = jwt.sign({ userId: user.id }, auth.secret_token, { expiresIn: "1h" });
+    const token = jwt.sign({ userId: user.id }, auth.secret_token, { expiresIn: "24h" });
 
     const { senha: _, ...userLogin } = user;
 
@@ -79,18 +78,19 @@ export default {
       throw new ApiError("Este email já existe na base de dados!", ErrorsCode.BAD_REQUEST);
     }
 
+    const hashedPassword = await hash(senha, 10);
     const user = await usersRepository.create({
       nome,
       email,
-      senha: hashSync(senha, 10),
+      senha: hashedPassword,
       tipo,
     });
 
     const qrCode = await generateQRCode(user.id);
-    const updatedUser = await usersRepository.updateQRCode(user.id, { qrCode });
+    await usersRepository.updateQRCode(user.id, { qrCode });
     user.qrCode = qrCode;
 
-    const token = jwt.sign({ userId: user.id }, auth.secret_token, { expiresIn: "1h" });
+    const token = jwt.sign({ userId: user.id }, auth.secret_token, { expiresIn: "24h" });
 
     const { senha: _, ...userLogin } = user;
     try {
@@ -164,7 +164,11 @@ export default {
         throw new ApiError("Usuário não encontrado!", ErrorsCode.NOT_FOUND);
       }
 
-      const emailToken = jwt.sign({ userId: user.id }, process.env.JWT_RESET_SECRET || "default_secret", { expiresIn: "1h" });
+      if (!process.env.JWT_RESET_SECRET) {
+        throw new Error("JWT_RESET_SECRET não está definido");
+      }
+
+      const emailToken = jwt.sign({ userId: user.id }, process.env.JWT_RESET_SECRET, { expiresIn: "1h" });
 
       // Link com protocolo personalizado que é interpretado pelo app mobile
       const url = `https://app.secompufscar.com.br/SetNewPassword?token=${emailToken}`;
@@ -185,7 +189,11 @@ export default {
 
   async updatePassword(token: string, newPassword: string) {
     try {
-      const decoded = jwt.verify(token, process.env.JWT_RESET_SECRET || "default_secret") as {
+      if (!process.env.JWT_RESET_SECRET) {
+        throw new Error("JWT_RESET_SECRET não está definido");
+      }
+
+      const decoded = jwt.verify(token, process.env.JWT_RESET_SECRET) as {
         userId: string;
       };
 
