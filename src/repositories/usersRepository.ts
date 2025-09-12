@@ -90,6 +90,31 @@ export default {
     }
   },
 
+  async removePoints(userId: string, points: number): Promise<User> {
+    try {
+      const user = await prisma.user.findUnique({ where: { id: userId } });
+
+      if (!user) {
+        throw new Error(`Usuário ${userId} não encontrado`);
+      }
+
+      if (user.points < points) {
+        throw new Error(`Usuário ${userId} não possui pontos suficientes`);
+      }
+
+      const updatedUser = await prisma.user.update({
+        where: { id: userId },
+        data: { points: { decrement: points } },
+      });
+
+      return toUserEntity(updatedUser);
+    } catch (error) {
+      throw new Error(
+        `Falha ao remover pontos do usuário ${userId}: ${(error as Error).message}`,
+      );
+    }
+  },
+
   async getUserPoints(id: string): Promise<{ points: number } | null> {
     return prisma.user.findUnique({
       where: { id },

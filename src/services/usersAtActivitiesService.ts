@@ -4,9 +4,10 @@ import checkInRepository from "../repositories/checkInRepository";
 import userEventRepository from "../repositories/userEventRepository";
 import userRepository from "../repositories/usersRepository";
 import eventRepository from "../repositories/eventRepository";
-
+import usersRepository from "../repositories/usersRepository";
 import { UpdateUserAtActivityDTOS, CreateUserAtActivityDTOS } from "../dtos/userAtActivitiesDtos";
 import { ApiError, ErrorsCode } from "../utils/api-errors";
+
 
 export default {
   async findManyByActivityId(activityId: string) {
@@ -86,6 +87,16 @@ export default {
 
     if (!userAtActivity) {
       throw new ApiError("Registro não encontrado", ErrorsCode.NOT_FOUND);
+    }
+
+    if (userAtActivity.presente === true){
+      const activity = await activitiesRepository.findById(activityId);
+      if (!activity) {
+        throw new ApiError("Atividade não encontrada", ErrorsCode.NOT_FOUND);
+      }
+
+      const points = activity.points;
+      await usersRepository.removePoints(userId, points);
     }
 
     await usersAtActivitiesRepository.delete(userAtActivity.id);
