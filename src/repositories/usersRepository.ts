@@ -174,7 +174,7 @@ export default {
         sub.*,
         ROW_NUMBER() OVER (
           ORDER BY sub.points DESC, sub.presences DESC, sub.createdAt ASC
-        ) AS rank
+        ) AS ranking
       FROM (
         SELECT 
           u.*,
@@ -183,13 +183,13 @@ export default {
         LEFT JOIN userAtActivity ua ON ua.userId = u.id
         GROUP BY u.id
       ) AS sub
-      ORDER BY rank
+      ORDER BY ranking
       LIMIT 50;
     `);
 
     return result.map(user => ({
       ...toUserEntity(user), 
-      rank: (user as any).rank, 
+      rank: (user as any).ranking, 
     }));
   },
 
