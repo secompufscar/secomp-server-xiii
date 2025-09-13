@@ -13,6 +13,6 @@ export interface User {
   currentEdition: string | null; // Edição atual (ex: "2025")
   points: number;
   pushToken?: string | null;
-   rank?: number;
+  rank?: number;
 }
 

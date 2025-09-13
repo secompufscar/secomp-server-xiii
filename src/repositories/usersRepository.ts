@@ -199,9 +199,9 @@ export default {
       confirmed: user.confirmed,
       registrationStatus: user.registrationStatus,
       currentEdition: user.currentEdition,
-      points: user.points,
+      points: Number(user.points),
       pushToken: user.pushToken,
-      rank: (user as any).ranking,
+      rank: Number((user as any).ranking),
     }));
   },
 
