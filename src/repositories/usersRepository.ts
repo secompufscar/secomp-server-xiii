@@ -168,8 +168,8 @@ export default {
     return Number(result[0].rank);
   },
 
-  async getTop50RankingUsers(): Promise<(User & { rank: number })[]> {
-    const result = await prisma.$queryRaw<(User & { rank: number })[]>(Prisma.sql`
+  async getTop50RankingUsers(): Promise<User[]> {
+    const result = await prisma.$queryRaw<User[]>(Prisma.sql`
       SELECT
         sub.*,
         ROW_NUMBER() OVER (
@@ -188,8 +188,20 @@ export default {
     `);
 
     return result.map(user => ({
-      ...toUserEntity(user), 
-      rank: (user as any).ranking, 
+      id: user.id,
+      nome: user.nome,
+      email: user.email,
+      senha: user.senha,
+      tipo: user.tipo,
+      qrCode: user.qrCode,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+      confirmed: user.confirmed,
+      registrationStatus: user.registrationStatus,
+      currentEdition: user.currentEdition,
+      points: user.points,
+      pushToken: user.pushToken,
+      rank: (user as any).ranking,
     }));
   },
 
