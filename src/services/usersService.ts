@@ -245,6 +245,20 @@ export default {
     }
   },
 
+  async getTop50Ranking(): Promise<User[]> {
+    try {
+      const topUsers = await usersRepository.getTop50RankingUsers();
+      if (!topUsers || topUsers.length === 0) {
+        throw new ApiError("Não foi possível obter o ranking", ErrorsCode.NOT_FOUND);
+      }
+
+      return topUsers;
+    } catch (error) {
+      console.error("Erro usersRankingService - getTop50Ranking: ", error);
+      throw new ApiError("Erro ao buscar ranking dos usuários", ErrorsCode.INTERNAL_ERROR);
+    }
+  },
+
   async getUserById(id: string) {
     try {
       if (!isValidUUID(id)) {

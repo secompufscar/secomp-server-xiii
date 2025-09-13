@@ -168,6 +168,32 @@ export default {
     return Number(result[0].rank);
   },
 
+  async getTop50RankingUsers(): Promise<User[]> {
+    const result = await prisma.$queryRaw<User[]>(Prisma.sql`
+      SELECT
+        sub.*,
+        ROW_NUMBER() OVER (
+          ORDER BY sub.points DESC, sub.presences DESC, sub.createdAt ASC
+        ) AS rank
+      FROM (
+        SELECT 
+          u.*,
+          COUNT(CASE WHEN ua.presente = 1 THEN 1 END) AS presences
+        FROM \`users\` u
+        LEFT JOIN \`userAtActivity\` ua ON ua.userId = u.id
+        GROUP BY u.id
+      ) AS sub
+      ORDER BY rank
+      LIMIT 50;
+    `);
+
+    // Adiciona o rank manualmente aos objetos User
+    return result.map(user => ({
+      ...toUserEntity(user),
+      rank: (user as any).rank, // ROW_NUMBER retorna como campo adicional
+    }));
+  },
+
   async findAll(): Promise<User[]> {
     const response = await prisma.user.findMany();
     return response.map(toUserEntity);

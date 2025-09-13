@@ -60,7 +60,24 @@ export default {
       response.status(200).json({ rank: ranking });
     } catch (error) {
       console.error("Erro usersController.ts: " + error);
-      response.status(500).json({ msg: "Erro ao consultar ranking do usuario" });
+      response.status(500).json({ message: "Erro ao consultar ranking do usuario" });
+    }
+  },
+
+  async getTop50Ranking(request: Request, response: Response) {
+    try {
+      const topUsers = await usersService.getTop50Ranking();
+
+      return response.status(200).json({
+        success: true,
+        data: topUsers,
+      });
+    } catch (error) {
+      console.error("Erro usersRankingController.ts - getTop50Ranking:", error);
+      return response.status(500).json({
+        success: false,
+        message: "Erro ao obter o ranking dos usuários",
+      });
     }
   },
 
@@ -70,7 +87,7 @@ export default {
       response.status(200).json(data);
     } catch (error) {
       console.error("Erro usersController.ts - getUserPoints: " + error);
-      response.status(500).json({ msg: "Erro ao obter pontuação do usuário" });
+      response.status(500).json({ message: "Erro ao obter pontuação do usuário" });
     }
   },
 

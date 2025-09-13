@@ -277,6 +277,61 @@ routes.get("/getUserRanking/:id", authMiddleware, usersController.getUserRanking
 
 /**
  * @swagger
+ * /ranking/top50:
+ *   get:
+ *     summary: Retorna o Top 50 do ranking
+ *     description: Retorna os 50 melhores usuários do ranking da SECOMP, incluindo a posição de cada usuário (rank), pontuação e demais informações.
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Top 50 usuários recuperados com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                         example: "uuid-do-usuario-123"
+ *                       nome:
+ *                         type: string
+ *                         example: "Fulano de Tal"
+ *                       email:
+ *                         type: string
+ *                         example: "fulano@example.com"
+ *                       tipo:
+ *                         type: string
+ *                         example: "USER"
+ *                       confirmed:
+ *                         type: boolean
+ *                         example: true
+ *                       points:
+ *                         type: number
+ *                         example: 150
+ *                       currentEdition:
+ *                         type: string
+ *                         example: "2025"
+ *                       rank:
+ *                         type: integer
+ *                         example: 1
+ *       401:
+ *         description: Usuário não autenticado
+ *       500:
+ *         description: Erro interno do servidor
+ */
+routes.get("/top50", authMiddleware, usersController.getTop50Ranking);
+
+/**
+ * @swagger
  * /updateProfile:
  *   patch:
  *     summary: Update user profile
