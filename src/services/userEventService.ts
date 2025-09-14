@@ -1,7 +1,7 @@
 import userEventRepository from "../repositories/userEventRepository";
 import eventRepository from "../repositories/eventRepository";
 import userRepository from "../repositories/usersRepository";
-import usersAtActivitiesRepository from "@repositories/usersAtActivitiesRepository";
+import usersAtActivitiesRepository from "../repositories/usersAtActivitiesRepository";
 import { CreateUserEventDTOS, UpdateUserEventDTOS, UserEventDTOS } from "../dtos/userEventDtos";
 import { ApiError, ErrorsCode } from "../utils/api-errors";
 
