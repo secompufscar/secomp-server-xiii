@@ -74,12 +74,19 @@ export default {
     });
   },
 
+  async deleteByUserId(userId: string): Promise<void> {
+    await prisma.userAtActivity.deleteMany({
+      where: { userId },
+    });
+  },
+
   async countByUserId(userId: string): Promise<number> {
     const count = await prisma.userAtActivity.count({
       where: { userId },
     });
     return count;
   },
+  
   async deleteByActivityId(activityId: string): Promise<void> {
     await prisma.userAtActivity.deleteMany({
       where: { activityId: activityId },
