@@ -114,9 +114,24 @@ export default {
             const { id } = request.params;
             const previousImage = await activityImageService.findById(id);
             const file = request.file;
+            const { activityId, typeOfImage } = request.body;
 
             if (!previousImage) {
-                return response.status(404).json({ msg: "activityImage not found" });
+                if (!file) {
+                    return response.status(400).json({ msg: "image required for new record" });
+                }
+
+                // Faz upload da nova imagem
+                const result = await uploadToCloudinary(file.buffer, "uploads");
+
+                const newCreateActivityImage = {
+                    activityId,
+                    typeOfImage,
+                    imageUrl: result.secure_url,
+                };
+
+                const serviceResponse = await activityImageService.create(newCreateActivityImage);
+                return response.status(201).json(serviceResponse);
             }
 
             if (!file) {
