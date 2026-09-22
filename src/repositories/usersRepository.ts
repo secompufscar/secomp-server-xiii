@@ -1,3 +1,4 @@
+import { RankingUserResponse } from "../dtos/userResponses";
 import { prisma } from "../lib/prisma";
 import { User as PrismaUser, Prisma } from "@prisma/client";
 import { User, RegistrationStatus } from "../entities/User";
@@ -168,20 +169,20 @@ export default {
     return Number(result[0].rank);
   },
 
-  async getTop50RankingUsers(): Promise<User[]> {
-    const result = await prisma.$queryRaw<User[]>(Prisma.sql`
+  async getTop50RankingUsers(): Promise<RankingUserResponse[]> {
+    const result = await prisma.$queryRaw<{ id: string; nome: string; points: number; ranking: bigint }[]>(Prisma.sql`
       SELECT
-        sub.*,
+        sub.id, sub.nome, sub.points,
         ROW_NUMBER() OVER (
           ORDER BY sub.points DESC, sub.presences DESC, sub.createdAt ASC
         ) AS ranking
       FROM (
         SELECT 
-          u.*,
+          u.id, u.nome, u.points, u.createdAt,
           COUNT(CASE WHEN ua.presente = 1 THEN 1 END) AS presences
         FROM users u
         LEFT JOIN userAtActivity ua ON ua.userId = u.id
-        GROUP BY u.id
+        GROUP BY u.id, u.nome, u.points, u.createdAt
       ) AS sub
       ORDER BY ranking
       LIMIT 50;
@@ -190,18 +191,8 @@ export default {
     return result.map(user => ({
       id: user.id,
       nome: user.nome,
-      email: user.email,
-      senha: user.senha,
-      tipo: user.tipo,
-      qrCode: user.qrCode,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-      confirmed: user.confirmed,
-      registrationStatus: user.registrationStatus,
-      currentEdition: user.currentEdition,
       points: Number(user.points),
-      pushToken: user.pushToken,
-      rank: Number((user as any).ranking),
+      rank: Number(user.ranking),
     }));
   },
 

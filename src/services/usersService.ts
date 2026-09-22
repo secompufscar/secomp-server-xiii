@@ -1,6 +1,6 @@
 import * as jwt from "jsonwebtoken";
 import * as nodemailer from "nodemailer";
-import _ from "lodash";
+import { adminUserResponse, profileResponse, RankingUserResponse } from "../dtos/userResponses";
 import { compare, hash } from "bcrypt";
 import { auth } from "../config/auth";
 import { email } from "../config/sendEmail";
@@ -63,7 +63,7 @@ export default {
 
     const token = jwt.sign({ userId: user.id }, auth.secret_token, { expiresIn: "24h" });
 
-    const { senha: _, ...userLogin } = user;
+    const userLogin = profileResponse(user);
 
     return {
       user: userLogin,
@@ -92,7 +92,7 @@ export default {
 
     const token = jwt.sign({ userId: user.id }, auth.secret_token, { expiresIn: "24h" });
 
-    const { senha: _, ...userLogin } = user;
+    const userLogin = profileResponse(user);
     try {
       const emailEnviado = await this.sendConfirmationEmail(user);
 
@@ -141,7 +141,7 @@ export default {
         const id = decoded.userId;
 
         const user = await usersRepository.update(id, { confirmed: true });
-        const { senha: _, ...confirmedUser } = user;
+        const confirmedUser = profileResponse(user);
 
         return {
           user: confirmedUser,
@@ -245,7 +245,7 @@ export default {
     }
   },
 
-  async getTop50Ranking(): Promise<User[]> {
+  async getTop50Ranking(): Promise<RankingUserResponse[]> {
     try {
       const topUsers = await usersRepository.getTop50RankingUsers();
       if (!topUsers || topUsers.length === 0) {
@@ -270,7 +270,7 @@ export default {
         throw new ApiError("Erro ao encontrar usuário: ", ErrorsCode.NOT_FOUND);
       }
 
-      return user;
+      return profileResponse(user);
     } catch (error) {
       console.error("usersService.ts: " + error);
       throw new ApiError("Erro ao consultar o ranking do usuario", ErrorsCode.INTERNAL_ERROR);
@@ -304,7 +304,7 @@ export default {
 
     const updatedUser = await usersRepository.update(userId, { nome, email });
 
-    const { senha: _, ...userResult } = updatedUser;
+    const userResult = profileResponse(updatedUser);
 
     return userResult;
   },
@@ -323,7 +323,7 @@ export default {
     }
   },
 
-  async getUserDetails(id: string): Promise<Omit<User, "senha" | "qrCode">> {
+  async getUserDetails(id: string) {
     try {
       if (!isValidUUID(id)) {
         throw new ApiError("ID de usuário inválido.", ErrorsCode.BAD_REQUEST);
@@ -335,7 +335,7 @@ export default {
         throw new ApiError("Usuário não encontrado.", ErrorsCode.NOT_FOUND);
       }
 
-      const { senha, qrCode, ...userDetails } = user;
+      const userDetails = adminUserResponse(user);
 
       return userDetails;
     } catch (error) {
@@ -360,7 +360,7 @@ export default {
 
     return {
       message: "Token de push adicionado com sucesso",
-      user: _.omit(updatedUser, ["senha"]),
+      user: profileResponse(updatedUser),
     };
   },
 };
