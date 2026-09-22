@@ -9,7 +9,7 @@ A análise completa original está disponível localmente em `output/pdf/analise
 | 3 | Acesso indevido a inscrições e check-in | Em revisão | [Documento](enrollment-authorization.md) · [PR 47](https://github.com/secompufscar/secomp-server-xiii/pull/47) |
 | 4 | Senha em texto puro na edição administrativa | Em revisão | [Documento](admin-password-update.md) · [PR 48](https://github.com/secompufscar/secomp-server-xiii/pull/48) |
 | 5 | Duplicidade e corrida na capacidade das atividades | Em revisão | [Documento](activity-capacity.md) · [PR 49](https://github.com/secompufscar/secomp-server-xiii/pull/49) |
-| 6 | ID fixo de categoria no check-in | Em implementação | [Documento](checkin-category-rule.md) |
+| 6 | ID fixo de categoria no check-in | Em revisão | [Documento](checkin-category-rule.md) · [PR 50](https://github.com/secompufscar/secomp-server-xiii/pull/50) |
 | 7 | Ausência de vínculo entre atividade e edição do evento | Pendente | — |
 | 8 | Múltiplos eventos atuais e estado duplicado de inscrição | Pendente | — |
 | 9 | Agendador: fuso, recorrência, persistência e cancelamento | Pendente | — |
