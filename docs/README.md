@@ -10,7 +10,7 @@ A análise completa original está disponível localmente em `output/pdf/analise
 | 4 | Senha em texto puro na edição administrativa | Em revisão | [Documento](admin-password-update.md) · [PR 48](https://github.com/secompufscar/secomp-server-xiii/pull/48) |
 | 5 | Duplicidade e corrida na capacidade das atividades | Em revisão | [Documento](activity-capacity.md) · [PR 49](https://github.com/secompufscar/secomp-server-xiii/pull/49) |
 | 6 | ID fixo de categoria no check-in | Em revisão | [Documento](checkin-category-rule.md) · [PR 50](https://github.com/secompufscar/secomp-server-xiii/pull/50) |
-| 7 | Ausência de vínculo entre atividade e edição do evento | Em implementação | [Documento](activity-event-link.md) |
+| 7 | Ausência de vínculo entre atividade e edição do evento | Em revisão | [Documento](activity-event-link.md) · [PR 51](https://github.com/secompufscar/secomp-server-xiii/pull/51) |
 | 8 | Múltiplos eventos atuais e estado duplicado de inscrição | Pendente | — |
 | 9 | Agendador: fuso, recorrência, persistência e cancelamento | Pendente | — |
 | 10 | Escritas parciais por ausência de transações | Pendente | — |
