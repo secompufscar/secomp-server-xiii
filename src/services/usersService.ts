@@ -2,7 +2,6 @@ import * as jwt from "jsonwebtoken";
 import * as nodemailer from "nodemailer";
 import { adminUserResponse, profileResponse, RankingUserResponse } from "../dtos/userResponses";
 import { compare, hash } from "bcrypt";
-import { auth } from "../config/auth";
 import { email } from "../config/sendEmail";
 import { User } from "../entities/User";
 import { ApiError, ErrorsCode } from "../utils/api-errors";
@@ -12,6 +11,7 @@ import { promises as fs } from "fs";
 import path from "path";
 import usersRepository from "../repositories/usersRepository";
 import usersAtActivitiesRepository from "../repositories/usersAtActivitiesRepository";
+import { createAccessToken, createSession, revokeSession, rotateSession } from "./authSessionsService";
 
 const port = Number(process.env.SMTP_PORT) || 587;
 const secure = port === 465;
@@ -45,7 +45,7 @@ function isValidUUID(uuid: string) {
 }
 
 export default {
-  async login({ email, senha }: User) {
+  async login({ email, senha }: User, supportsRefresh = false) {
     const user = await usersRepository.findByEmail(email);
 
     if (!user) {
@@ -61,14 +61,26 @@ export default {
       throw new ApiError("Por favor, verifique o seu email e tente novamente!", ErrorsCode.BAD_REQUEST);
     }
 
-    const token = jwt.sign({ userId: user.id }, auth.secret_token, { expiresIn: "24h" });
-
     const userLogin = profileResponse(user);
+
+    if (!supportsRefresh) {
+      return { user: userLogin, token: createAccessToken(user.id, "24h") };
+    }
+
+    const session = await createSession(user.id);
 
     return {
       user: userLogin,
-      token: token,
+      ...session,
     };
+  },
+
+  async refreshSession(refreshToken: string) {
+    return rotateSession(refreshToken);
+  },
+
+  async logout(refreshToken: string) {
+    await revokeSession(refreshToken);
   },
 
   async signup({ nome, email, senha }: SignupUserDTO) {
@@ -89,8 +101,6 @@ export default {
     const qrCode = await generateQRCode(user.id);
     await usersRepository.updateQRCode(user.id, { qrCode });
     user.qrCode = qrCode;
-
-    const token = jwt.sign({ userId: user.id }, auth.secret_token, { expiresIn: "24h" });
 
     const userLogin = profileResponse(user);
     try {
